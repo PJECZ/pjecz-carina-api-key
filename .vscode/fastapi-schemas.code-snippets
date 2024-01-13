@@ -1,0 +1,36 @@
+{
+  "FastAPI schemas": {
+    "scope": "python",
+    "prefix": "fschemas",
+    "body": [
+      "\"\"\"",
+      "${1:Modulos} v4, esquemas de pydantic",
+      "\"\"\"",
+      "from datetime import date",
+      "",
+      "from pydantic import BaseModel, ConfigDict",
+      "",
+      "from lib.schemas_base import OneBaseOut",
+      "",
+      "",
+      "class ${2:EsquemaOut}(BaseModel):",
+      "\t\"\"\" Esquema para entregar ${3:plural} \"\"\"",
+      "",
+      "\tid: int | None = None",
+      "\trelacion_id: int | None = None",
+      "\trelacion_nombre: str | None = None",
+      "\tfecha: date | None = None",
+      "\tnombre: str | None = None",
+      "\tdescripcion: str | None = None",
+      "\tarchivo: str | None = None",
+      "\turl: str | None = None",
+      "\tmodel_config = ConfigDict(from_attributes=True)",
+      "",
+      "",
+      "class One${2:EsquemaOut}(${2:EsquemaOut}, OneBaseOut):",
+      "\t\"\"\" Esquema para entregar un ${4:singular} \"\"\"",
+      ""
+    ],
+    "description": "Contenido para schemas.py"
+  }
+}

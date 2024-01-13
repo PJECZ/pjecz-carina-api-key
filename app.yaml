@@ -1,0 +1,9 @@
+runtime: python311
+instance_class: F1
+service: carina-api-key
+entrypoint: gunicorn -w 2 -k uvicorn.workers.UvicornWorker carina.app:create_app
+env_variables:
+  PROJECT_ID: justicia-digital-gob-mx
+  SERVICE_PREFIX: pjecz_carina_api_key
+vpc_access_connector:
+  name: projects/justicia-digital-gob-mx/locations/us-west2/connectors/cupido
