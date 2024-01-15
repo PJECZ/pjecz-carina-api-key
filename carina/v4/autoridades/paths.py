@@ -19,30 +19,7 @@ from .schemas import AutoridadListOut, AutoridadOut, OneAutoridadOut
 autoridades = APIRouter(prefix="/v4/autoridades", tags=["autoridades"])
 
 
-@autoridades.get("", response_model=CustomPage[AutoridadOut])
-async def paginado_autoridades(
-    current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
-    database: Annotated[Session, Depends(get_db)],
-    distrito_id: int = None,
-    distrito_clave: str = None,
-    es_extinto: bool = None,
-):
-    """Paginado de autoridades"""
-    if current_user.permissions.get("AUTORIDADES", 0) < Permiso.VER:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
-    try:
-        resultados = get_autoridades(
-            database=database,
-            distrito_id=distrito_id,
-            distrito_clave=distrito_clave,
-            es_extinto=es_extinto,
-        )
-    except MyAnyError as error:
-        return CustomPage(success=False, message=str(error))
-    return paginate(resultados)
-
-
-@autoridades.get("/listado", response_model=CustomList[AutoridadListOut])
+@autoridades.get("/", response_model=CustomList[AutoridadListOut])
 async def listado_autoridades(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
@@ -62,6 +39,29 @@ async def listado_autoridades(
         )
     except MyAnyError as error:
         return CustomList(success=False, message=str(error))
+    return paginate(resultados)
+
+
+@autoridades.get("/paginado", response_model=CustomPage[AutoridadOut])
+async def paginado_autoridades(
+    current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
+    database: Annotated[Session, Depends(get_db)],
+    distrito_id: int = None,
+    distrito_clave: str = None,
+    es_extinto: bool = None,
+):
+    """Paginado de autoridades"""
+    if current_user.permissions.get("AUTORIDADES", 0) < Permiso.VER:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        resultados = get_autoridades(
+            database=database,
+            distrito_id=distrito_id,
+            distrito_clave=distrito_clave,
+            es_extinto=es_extinto,
+        )
+    except MyAnyError as error:
+        return CustomPage(success=False, message=str(error))
     return paginate(resultados)
 
 

@@ -11,6 +11,7 @@ from .v4.autoridades.paths import autoridades
 from .v4.bitacoras.paths import bitacoras
 from .v4.distritos.paths import distritos
 from .v4.entradas_salidas.paths import entradas_salidas
+from .v4.materias.paths import materias
 from .v4.modulos.paths import modulos
 from .v4.permisos.paths import permisos
 from .v4.roles.paths import roles
@@ -45,6 +46,7 @@ def create_app() -> FastAPI:
     app.include_router(bitacoras)
     app.include_router(distritos)
     app.include_router(entradas_salidas)
+    app.include_router(materias)
     app.include_router(modulos)
     app.include_router(permisos)
     app.include_router(roles)

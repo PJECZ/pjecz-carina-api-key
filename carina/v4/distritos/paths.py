@@ -19,28 +19,7 @@ from .schemas import DistritoListOut, DistritoOut, OneDistritoOut
 distritos = APIRouter(prefix="/v4/distritos", tags=["distritos"])
 
 
-@distritos.get("", response_model=CustomPage[DistritoOut])
-async def paginado_distritos(
-    current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
-    database: Annotated[Session, Depends(get_db)],
-    es_distrito: bool = None,
-    es_jurisdiccional: bool = None,
-):
-    """Paginado de distritos"""
-    if current_user.permissions.get("DISTRITOS", 0) < Permiso.VER:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
-    try:
-        resultados = get_distritos(
-            database=database,
-            es_distrito=es_distrito,
-            es_jurisdiccional=es_jurisdiccional,
-        )
-    except MyAnyError as error:
-        return CustomPage(success=False, message=str(error))
-    return paginate(resultados)
-
-
-@distritos.get("/listado", response_model=CustomList[DistritoListOut])
+@distritos.get("/", response_model=CustomList[DistritoListOut])
 async def listado_distritos(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
@@ -58,6 +37,27 @@ async def listado_distritos(
         )
     except MyAnyError as error:
         return CustomList(success=False, message=str(error))
+    return paginate(resultados)
+
+
+@distritos.get("/paginado", response_model=CustomPage[DistritoOut])
+async def paginado_distritos(
+    current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
+    database: Annotated[Session, Depends(get_db)],
+    es_distrito: bool = None,
+    es_jurisdiccional: bool = None,
+):
+    """Paginado de distritos"""
+    if current_user.permissions.get("DISTRITOS", 0) < Permiso.VER:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        resultados = get_distritos(
+            database=database,
+            es_distrito=es_distrito,
+            es_jurisdiccional=es_jurisdiccional,
+        )
+    except MyAnyError as error:
+        return CustomPage(success=False, message=str(error))
     return paginate(resultados)
 
 
