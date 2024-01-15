@@ -1,0 +1,73 @@
+{
+  "FastAPI models": {
+    "scope": "python",
+    "prefix": "fmodels",
+    "body": [
+      "\"\"\"",
+      "${1:Modulos}, modelos",
+      "\"\"\"",
+      "from collections import OrderedDict",
+      "",
+      "from sqlalchemy import Boolean, Column, Date, Enum, ForeignKey, Integer, String",
+      "from sqlalchemy.orm import relationship",
+      "",
+      "from lib.database import Base",
+      "from lib.universal_mixin import UniversalMixin",
+      "",
+      "",
+      "class ${2:Clase}(Base, UniversalMixin):",
+      "\t\"\"\" ${2:Clase} \"\"\"",
+      "",
+      "\t# Nombre de la tabla",
+      "\t__tablename__ = '${4:tables}'",
+      "",
+      "\t# Clave primaria",
+      "\tid = Column(Integer, primary_key=True)",
+      "",
+      "\t# Columnas",
+      "\tfecha = Column(Date, index=True, nullable=False)",
+      "\tdescripcion = Column(String(256), nullable=False)",
+      "\tarchivo = Column(String(256), default=\"\")",
+      "\turl = Column(String(512), default=\"\")",
+      "",
+      "\tdef __repr__(self):",
+      "\t\t\"\"\" Representación \"\"\"",
+      "\t\treturn f\"<${2:Clase} {self.id}>\"",
+      ""
+    ],
+    "description": "Contenido para models.py"
+  },
+  "Flask models foreign key": {
+    "scope": "python",
+    "prefix": "fmodels_clave_foranea",
+    "body": [
+      "# Clave foránea",
+      "${1:clave_foranea}_id = Column(Integer, ForeignKey('${2:tabla_clave_foranea}.id'), index=True, nullable=False)",
+      "${1:clave_foranea} = relationship('${3:Clase_clave_foranea}', back_populates='${4:plural_esta_clase}')",
+      ""
+    ],
+    "description": "Clave foránea"
+  },
+  "Flask models child": {
+    "scope": "python",
+    "prefix": "fmodels_hijo",
+    "body": [
+      "# Hijos",
+      "${1:plural_hijos} = relationship('${2:Clase_hijo}', back_populates='${3:singular_esta_clase}')",
+      ""
+    ],
+    "description": "Hijo"
+  },
+  "Flask models property": {
+    "scope": "python",
+    "prefix": "fmodels_property",
+    "body": [
+      "@property",
+      "def ${1:relacion}_${2:nombre}(self):",
+      "\t\"\"\"${3:Nombre} del ${1:relacion}\"\"\"",
+      "\treturn self.${1:relacion}.${2:nombre}",
+      ""
+    ],
+    "description": "Propiedad de una relación"
+  }
+}
