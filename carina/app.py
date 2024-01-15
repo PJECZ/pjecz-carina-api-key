@@ -43,16 +43,16 @@ def create_app() -> FastAPI:
 
     # Rutas
     app.include_router(autoridades)
-    app.include_router(bitacoras)
+    app.include_router(bitacoras, include_in_schema=False)
     app.include_router(distritos)
-    app.include_router(entradas_salidas)
+    app.include_router(entradas_salidas, include_in_schema=False)
     app.include_router(materias)
-    app.include_router(modulos)
-    app.include_router(permisos)
-    app.include_router(roles)
-    app.include_router(tareas)
-    app.include_router(usuarios)
-    app.include_router(usuarios_roles)
+    app.include_router(modulos, include_in_schema=False)
+    app.include_router(permisos, include_in_schema=False)
+    app.include_router(roles, include_in_schema=False)
+    app.include_router(tareas, include_in_schema=False)
+    app.include_router(usuarios, include_in_schema=False)
+    app.include_router(usuarios_roles, include_in_schema=False)
 
     # Paginación
     add_pagination(app)
