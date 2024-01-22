@@ -16,8 +16,9 @@ La respuesta que entrega un _paginado_ de items tiene el total, el limit y el of
 {
     "success": true,
     "message": "Success",
+    "errors": "Success",
     "total": 2812,
-    "items": [
+    "data": [
         {
             "id": 123,
             ...
@@ -35,6 +36,7 @@ En cambio, la respuesta que entrega un registro es:
 {
     "success": true,
     "message": "Success",
+    "errors": "Success",
     "id": 123,
     ...
 }

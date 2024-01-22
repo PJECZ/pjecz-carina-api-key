@@ -8,8 +8,9 @@ Example of the output JSON:
     {
       "success": true,
       "message": "Success",
+      "errors": "",
       "total": 116135,
-      "items": [
+      "data": [
         { ... },
       ],
       "page": 1,
@@ -40,7 +41,7 @@ Usage:
         try:
             query = get_examples(database=database)
         except MyAnyError as error:
-            return CustomList(success=False, message=str(error))
+            return CustomList(success=False, errors=str(error))
         return paginate(query)
 
 """
@@ -50,8 +51,9 @@ from typing import Any, Generic, Optional, Sequence, TypeVar
 from fastapi import Query
 from fastapi_pagination.bases import AbstractPage, AbstractParams
 from fastapi_pagination.default import Params
-from fastapi_pagination.types import GreaterEqualOne, GreaterEqualZero
 from typing_extensions import Self
+
+# from fastapi_pagination.types import GreaterEqualOne, GreaterEqualZero
 
 
 class CustomListParams(Params):
@@ -73,12 +75,13 @@ class CustomList(AbstractPage[T], Generic[T]):
 
     success: bool
     message: str
+    errors: str
+    data: Sequence[T] = []
 
-    total: Optional[GreaterEqualZero] = None
-    items: Sequence[T] = []
-    page: Optional[GreaterEqualOne] = None
-    size: Optional[GreaterEqualOne] = None
-    pages: Optional[GreaterEqualZero] = None
+    # total: Optional[GreaterEqualZero] = None
+    # page: Optional[GreaterEqualOne] = None
+    # size: Optional[GreaterEqualOne] = None
+    # pages: Optional[GreaterEqualZero] = None
 
     __params_type__ = CustomListParams
 
@@ -102,17 +105,26 @@ class CustomList(AbstractPage[T], Generic[T]):
                 message="No se encontraron registros",
             )
 
-        size = params.size if params.size is not None else total
-        page = params.page if params.page is not None else 1
-        pages = ceil(total / size) if total is not None else None
+        # size = params.size if params.size is not None else total
+        # page = params.page if params.page is not None else 1
+        # pages = ceil(total / size) if total is not None else None
 
         return cls(
             success=True,
             message="Success",
-            total=total,
-            items=items,
-            page=page,
-            size=size,
-            pages=pages,
+            errors="",
+            data=items,
             **kwargs,
         )
+
+        # return cls(
+        #     success=True,
+        #     message="Success",
+        #     errors="",
+        #     data=items,
+        #     total=total,
+        #     page=page,
+        #     size=size,
+        #     pages=pages,
+        #     **kwargs,
+        # )

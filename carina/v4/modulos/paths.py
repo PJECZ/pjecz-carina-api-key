@@ -29,7 +29,7 @@ async def paginado_modulos(
     try:
         resultados = get_modulos(database)
     except MyAnyError as error:
-        return CustomPage(success=False, message=str(error))
+        return CustomPage(success=False, errors=str(error))
     return paginate(resultados)
 
 
@@ -45,5 +45,5 @@ async def detalle_modulo(
     try:
         modulo = get_modulo(database, modulo_id)
     except MyAnyError as error:
-        return OneModuloOut(success=False, message=str(error))
+        return OneModuloOut(success=False, errors=str(error))
     return OneModuloOut.model_validate(modulo)

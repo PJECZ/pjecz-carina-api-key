@@ -35,7 +35,7 @@ async def paginado_tareas(
             usuario_email=usuario_email,
         )
     except MyAnyError as error:
-        return CustomPage(success=False, message=str(error))
+        return CustomPage(success=False, errors=str(error))
     return paginate(resultados)
 
 
@@ -51,5 +51,5 @@ async def detalle_tarea(
     try:
         tarea = get_tarea(database, tarea_id)
     except MyAnyError as error:
-        return OneTareaOut(success=False, message=str(error))
+        return OneTareaOut(success=False, errors=str(error))
     return OneTareaOut.model_validate(tarea)

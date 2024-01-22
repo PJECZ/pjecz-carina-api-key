@@ -43,7 +43,7 @@ async def paginado_usuarios(
             nombres=nombres,
         )
     except MyAnyError as error:
-        return CustomPage(success=False, message=str(error))
+        return CustomPage(success=False, errors=str(error))
     return paginate(resultados)
 
 
@@ -59,5 +59,5 @@ async def detalle_usuario(
     try:
         usuario = get_usuario_with_email(database, usuario_email)
     except MyAnyError as error:
-        return OneUsuarioOut(success=False, message=str(error))
+        return OneUsuarioOut(success=False, errors=str(error))
     return OneUsuarioOut.model_validate(usuario)

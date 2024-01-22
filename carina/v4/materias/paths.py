@@ -8,17 +8,17 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 
 from lib.database import Session, get_db
 from lib.exceptions import MyAnyError
+from lib.fastapi_pagination_custom_list import CustomList
 
 from ...core.permisos.models import Permiso
 from ..usuarios.authentications import UsuarioInDB, get_current_active_user
 from .crud import get_materias, get_materia_with_clave
-from .custom_pages import MateriasCustomPage
 from .schemas import MateriaOut, OneMateriaOut
 
 materias = APIRouter(prefix="/v4/materias", tags=["materias"])
 
 
-@materias.get("/", response_model=MateriasCustomPage[MateriaOut])
+@materias.get("/", response_model=CustomList[MateriaOut])
 async def paginado_materias(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
@@ -29,7 +29,7 @@ async def paginado_materias(
     try:
         resultados = get_materias(database)
     except MyAnyError as error:
-        return MateriasCustomPage(success=False, message=str(error))
+        return CustomList(success=False, errors=str(error))
     return paginate(resultados)
 
 
@@ -45,5 +45,5 @@ async def detalle_materia(
     try:
         materia = get_materia_with_clave(database, materia_clave)
     except MyAnyError as error:
-        return OneMateriaOut(success=False, message=str(error))
+        return OneMateriaOut(success=False, errors=str(error))
     return OneMateriaOut.model_validate(materia)

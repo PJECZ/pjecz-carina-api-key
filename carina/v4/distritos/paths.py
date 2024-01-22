@@ -8,7 +8,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 
 from lib.database import Session, get_db
 from lib.exceptions import MyAnyError
-from lib.fastapi_pagination_custom_page import CustomPage
+from lib.fastapi_pagination_custom_list import CustomList
 
 from ...core.permisos.models import Permiso
 from ..usuarios.authentications import UsuarioInDB, get_current_active_user
@@ -18,7 +18,7 @@ from .schemas import DistritoOut, OneDistritoOut
 distritos = APIRouter(prefix="/v4/distritos", tags=["distritos"])
 
 
-@distritos.get("/", response_model=CustomPage[DistritoOut])
+@distritos.get("/", response_model=CustomList[DistritoOut])
 async def paginado_distritos(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
@@ -35,7 +35,7 @@ async def paginado_distritos(
             es_jurisdiccional=es_jurisdiccional,
         )
     except MyAnyError as error:
-        return CustomPage(success=False, message=str(error))
+        return CustomList(success=False, errors=str(error))
     return paginate(resultados)
 
 
@@ -51,5 +51,5 @@ async def detalle_distrito(
     try:
         distrito = get_distrito_with_clave(database, distrito_clave)
     except MyAnyError as error:
-        return OneDistritoOut(success=False, message=str(error))
+        return OneDistritoOut(success=False, errors=str(error))
     return OneDistritoOut.model_validate(distrito)
