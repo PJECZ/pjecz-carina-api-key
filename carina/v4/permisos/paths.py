@@ -39,7 +39,7 @@ async def paginado_permisos(
             rol_nombre=rol_nombre,
         )
     except MyAnyError as error:
-        return CustomPage(success=False, message=str(error))
+        return CustomPage(success=False, errors=str(error))
     return paginate(resultados)
 
 
@@ -55,5 +55,5 @@ async def detalle_permiso(
     try:
         permiso = get_permiso(database, permiso_id)
     except MyAnyError as error:
-        return OnePermisoOut(success=False, message=str(error))
+        return OnePermisoOut(success=False, errors=str(error))
     return OnePermisoOut.model_validate(permiso)

@@ -39,7 +39,7 @@ async def paginado_usuarios_roles(
             usuario_email=usuario_email,
         )
     except MyAnyError as error:
-        return CustomPage(success=False, message=str(error))
+        return CustomPage(success=False, errors=str(error))
     return paginate(resultados)
 
 
@@ -55,5 +55,5 @@ async def detalle_usuario_rol(
     try:
         usuario_rol = get_usuario_rol(database, usuario_rol_id)
     except MyAnyError as error:
-        return OneUsuarioRolOut(success=False, message=str(error))
+        return OneUsuarioRolOut(success=False, errors=str(error))
     return OneUsuarioRolOut.model_validate(usuario_rol)

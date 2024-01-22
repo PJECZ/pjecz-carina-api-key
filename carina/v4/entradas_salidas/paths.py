@@ -35,7 +35,7 @@ async def paginado_entradas_salidas(
             usuario_email=usuario_email,
         )
     except MyAnyError as error:
-        return CustomPage(success=False, message=str(error))
+        return CustomPage(success=False, errors=str(error))
     return paginate(resultados)
 
 
@@ -51,5 +51,5 @@ async def detalle_entrada_salida(
     try:
         entrada_salida = get_entrada_salida(database, entrada_salida_id)
     except MyAnyError as error:
-        return OneEntradaSalidaOut(success=False, message=str(error))
+        return OneEntradaSalidaOut(success=False, errors=str(error))
     return OneEntradaSalidaOut.model_validate(entrada_salida)
