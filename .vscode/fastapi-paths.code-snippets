@@ -34,7 +34,7 @@
       "\ttry:",
       "\t\tresultados = get_${2:plural}(database)",
       "\texcept MyAnyError as error:",
-      "\t\treturn CustomPage(success=False, errors=str(error))",
+      "\t\treturn CustomPage(success=False, errors=[str(error)])",
       "\treturn paginate(resultados)",
       "",
       "",
@@ -50,7 +50,7 @@
       "\ttry:",
       "\t\t${3:singular} = get_${3:singular}_with_clave(database, ${8:singular_clave})",
       "\texcept MyAnyError as error:",
-      "\t\treturn One${4:EsquemaOut}(success=False, errors=str(error))",
+      "\t\treturn One${4:EsquemaOut}(success=False, errors=[str(error)])",
       "\treturn One${4:EsquemaOut}.model_validate(${3:singular})",
       ""
     ],
@@ -91,7 +91,7 @@
       "\ttry:",
       "\t\tresultados = get_${2:plural}(database)",
       "\texcept MyAnyError as error:",
-      "\t\treturn CustomPage(success=False, errors=str(error))",
+      "\t\treturn CustomPage(success=False, errors=[str(error)])",
       "\treturn paginate(resultados)",
       "",
       "",
@@ -107,7 +107,7 @@
       "\ttry:",
       "\t\t${3:singular} = get_${3:singular}(database, ${3:singular}_id)",
       "\texcept MyAnyError as error:",
-      "\t\treturn One${4:EsquemaOut}(success=False, errors=str(error))",
+      "\t\treturn One${4:EsquemaOut}(success=False, errors=[str(error)])",
       "\treturn One${4:EsquemaOut}.model_validate(${3:singular})",
       ""
     ],
@@ -129,7 +129,7 @@
       "\ttry:",
       "\t\t${3:singular} = create_${3:singular}(database, ${7:Modelo}(**${3:singular}_in.dict()))",
       "\texcept MyAnyError as error:",
-      "\t\treturn ${2:OneEsquemaOut}(success=False, errors=str(error))",
+      "\t\treturn ${2:OneEsquemaOut}(success=False, errors=[str(error)])",
       "\trespuesta = ${2:OneEsquemaOut}.model_validate(${3:singular})",
       "\trespuesta.message = \"${8:descripcion} creada correctamente\"",
       "\treturn respuesta"
@@ -153,7 +153,7 @@
       "\ttry:",
       "\t\t${4:singular} = update_${4:singular}(database, ${2:singular}_id, ${9:Modelo}(**${5:singular}_in.dict()))",
       "\texcept MyAnyError as error:",
-      "\t\treturn ${3:OneEsquemaOut}(success=False, errors=str(error))",
+      "\t\treturn ${3:OneEsquemaOut}(success=False, errors=[str(error)])",
       "\trespuesta = ${3:OneEsquemaOut}.model_validate(${4:singular})",
       "\trespuesta.message = \"${10:descripcion} modificada correctamente\"",
       "\treturn respuesta"
@@ -176,7 +176,7 @@
       "\ttry:",
       "\t\t${4:singular} = delete_${4:singular}(database, ${2:singular}_id)",
       "\texcept MyAnyError as error:",
-      "\t\treturn ${3:OneEsquemaOut}(success=False, errors=str(error))",
+      "\t\treturn ${3:OneEsquemaOut}(success=False, errors=[str(error)])",
       "\trespuesta = ${3:OneEsquemaOut}.model_validate(${4:singular})",
       "\trespuesta.message = \"${7:descripcion} borrada correctamente\"",
       "\treturn respuesta"

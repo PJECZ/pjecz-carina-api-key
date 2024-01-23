@@ -29,7 +29,7 @@ async def paginado_materias(
     try:
         resultados = get_materias(database)
     except MyAnyError as error:
-        return CustomList(success=False, errors=str(error))
+        return CustomList(success=False, errors=[str(error)])
     return paginate(resultados)
 
 
@@ -45,5 +45,5 @@ async def detalle_materia(
     try:
         materia = get_materia_with_clave(database, materia_clave)
     except MyAnyError as error:
-        return OneMateriaOut(success=False, errors=str(error))
+        return OneMateriaOut(success=False, errors=[str(error)])
     return OneMateriaOut.model_validate(materia)

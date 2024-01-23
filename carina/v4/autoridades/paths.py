@@ -37,7 +37,7 @@ async def paginado_autoridades(
             es_extinto=es_extinto,
         )
     except MyAnyError as error:
-        return CustomList(success=False, errors=str(error))
+        return CustomList(success=False, errors=[str(error)])
     return paginate(resultados)
 
 
@@ -53,5 +53,5 @@ async def detalle_autoridad(
     try:
         autoridad = get_autoridad_with_clave(database, autoridad_clave)
     except MyAnyError as error:
-        return OneAutoridadOut(success=False, errors=str(error))
+        return OneAutoridadOut(success=False, errors=[str(error)])
     return OneAutoridadOut.model_validate(autoridad)

@@ -39,7 +39,7 @@ async def paginado_bitacoras(
             usuario_email=usuario_email,
         )
     except MyAnyError as error:
-        return CustomPage(success=False, errors=str(error))
+        return CustomPage(success=False, errors=[str(error)])
     return paginate(resultados)
 
 
@@ -55,5 +55,5 @@ async def detalle_bitacora(
     try:
         bitacora = get_bitacora(database, bitacora_id)
     except MyAnyError as error:
-        return OneBitacoraOut(success=False, errors=str(error))
+        return OneBitacoraOut(success=False, errors=[str(error)])
     return OneBitacoraOut.model_validate(bitacora)
