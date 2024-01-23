@@ -8,7 +8,7 @@ Example of the output JSON:
     {
       "success": true,
       "message": "Success",
-      "errors": "",
+      "errors": [],
       "total": 116135,
       "data": [
         { ... },
@@ -40,7 +40,7 @@ Usage:
         try:
             query = get_examples(database=database)
         except MyAnyError as error:
-            return CustomList(success=False, errors=str(error))
+            return CustomList(success=False, errors=[str(error)])
         return paginate(query)
 
 """
@@ -73,7 +73,7 @@ class CustomPage(AbstractPage[T], Generic[T], ABC):
 
     success: bool
     message: str
-    errors: str
+    errors: list[str] = []
     data: Sequence[T] = []
 
     total: Optional[GreaterEqualZero] = None
@@ -104,7 +104,7 @@ class CustomPage(AbstractPage[T], Generic[T], ABC):
         return cls(
             success=True,
             message="Success",
-            errors="",
+            errors=[],
             data=items,
             total=total,
             limit=raw_params.limit,

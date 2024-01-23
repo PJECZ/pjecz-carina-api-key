@@ -8,14 +8,10 @@ Example of the output JSON:
     {
       "success": true,
       "message": "Success",
-      "errors": "",
-      "total": 116135,
+      "errors": [],
       "data": [
         { ... },
       ],
-      "page": 1,
-      "size": 20,
-      "pages": 18
     }
 
 Usage:
@@ -41,11 +37,10 @@ Usage:
         try:
             query = get_examples(database=database)
         except MyAnyError as error:
-            return CustomList(success=False, errors=str(error))
+            return CustomList(success=False, errors=[str(error)])
         return paginate(query)
 
 """
-from math import ceil
 from typing import Any, Generic, Optional, Sequence, TypeVar
 
 from fastapi import Query
@@ -75,13 +70,8 @@ class CustomList(AbstractPage[T], Generic[T]):
 
     success: bool
     message: str
-    errors: str
+    errors: list[str] = []
     data: Sequence[T] = []
-
-    # total: Optional[GreaterEqualZero] = None
-    # page: Optional[GreaterEqualOne] = None
-    # size: Optional[GreaterEqualOne] = None
-    # pages: Optional[GreaterEqualZero] = None
 
     __params_type__ = CustomListParams
 
@@ -105,26 +95,10 @@ class CustomList(AbstractPage[T], Generic[T]):
                 message="No se encontraron registros",
             )
 
-        # size = params.size if params.size is not None else total
-        # page = params.page if params.page is not None else 1
-        # pages = ceil(total / size) if total is not None else None
-
         return cls(
             success=True,
             message="Success",
-            errors="",
+            errors=[],
             data=items,
             **kwargs,
         )
-
-        # return cls(
-        #     success=True,
-        #     message="Success",
-        #     errors="",
-        #     data=items,
-        #     total=total,
-        #     page=page,
-        #     size=size,
-        #     pages=pages,
-        #     **kwargs,
-        # )

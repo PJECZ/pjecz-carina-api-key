@@ -16,8 +16,7 @@ La respuesta que entrega un _paginado_ de items tiene el total, el limit y el of
 {
     "success": true,
     "message": "Success",
-    "errors": "Success",
-    "total": 2812,
+    "errors": [],
     "data": [
         {
             "id": 123,
@@ -25,8 +24,6 @@ La respuesta que entrega un _paginado_ de items tiene el total, el limit y el of
         },
         ...
     ],
-    "limit": 100,
-    "offset": 0
 }
 ```
 
@@ -36,7 +33,7 @@ En cambio, la respuesta que entrega un registro es:
 {
     "success": true,
     "message": "Success",
-    "errors": "Success",
+    "errors": [],
     "id": 123,
     ...
 }
@@ -49,7 +46,8 @@ Cuando NO se encuentra un registro el **status code** es **200** pero el **succe
 ```json
 {
   "success": false,
-  "message": "No existe el registro"
+  "message": "",
+  "errors": ["No existe el registro"]
 }
 ```
 

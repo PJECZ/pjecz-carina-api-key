@@ -35,7 +35,7 @@ async def paginado_distritos(
             es_jurisdiccional=es_jurisdiccional,
         )
     except MyAnyError as error:
-        return CustomList(success=False, errors=str(error))
+        return CustomList(success=False, errors=[str(error)])
     return paginate(resultados)
 
 
@@ -51,5 +51,5 @@ async def detalle_distrito(
     try:
         distrito = get_distrito_with_clave(database, distrito_clave)
     except MyAnyError as error:
-        return OneDistritoOut(success=False, errors=str(error))
+        return OneDistritoOut(success=False, errors=[str(error)])
     return OneDistritoOut.model_validate(distrito)

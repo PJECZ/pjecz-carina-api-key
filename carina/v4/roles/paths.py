@@ -29,7 +29,7 @@ async def paginado_roles(
     try:
         resultados = get_roles(database)
     except MyAnyError as error:
-        return CustomPage(success=False, errors=str(error))
+        return CustomPage(success=False, errors=[str(error)])
     return paginate(resultados)
 
 
@@ -45,5 +45,5 @@ async def detalle_rol(
     try:
         rol = get_rol(database, rol_id)
     except MyAnyError as error:
-        return OneRolOut(success=False, errors=str(error))
+        return OneRolOut(success=False, errors=[str(error)])
     return OneRolOut.model_validate(rol)
