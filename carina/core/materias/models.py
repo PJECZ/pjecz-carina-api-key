@@ -1,6 +1,7 @@
 """
 Materias, modelos
 """
+
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
@@ -20,11 +21,7 @@ class Materia(Base, UniversalMixin):
     # Columnas
     clave = Column(String(16), nullable=False, unique=True)
     nombre = Column(String(64), unique=True, nullable=False)
-
-    @property
-    def descripcion(self):
-        """Descripción"""
-        return f"{self.clave} - {self.nombre}"
+    descripcion = Column(String(1024), nullable=False)
 
     def __repr__(self):
         """Representación"""
