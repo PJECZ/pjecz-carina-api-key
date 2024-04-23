@@ -54,3 +54,102 @@ Cuando NO se encuentra un registro el **status code** es **200** pero el **succe
 ### Respuesta fallida por ruta incorrecta
 
 Cuando la ruta NO existe, simplemente ocurre un **status code** con error **404**.
+
+## Configure Poetry
+
+Por defecto, con **poetry** el entorno se guarda en un directorio en `~/.cache/pypoetry/virtualenvs`
+
+Modifique para que el entorno se guarde en el mismo directorio que el proyecto
+
+```bash
+poetry config --list
+poetry config virtualenvs.in-project true
+```
+
+Verifique que este en True
+
+```bash
+poetry config virtualenvs.in-project
+```
+
+## Instalacion
+
+Instale el entorno virtual con **Python 3.11** y los paquetes necesarios
+
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install wheel
+poetry install
+```
+
+## Configuracion
+
+Crear un archivo `.env` con las variables de entorno
+
+```ini
+# Base de datos
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_NAME=pjecz_plataforma_web
+DB_USER=adminpjeczplataformaweb
+DB_PASS=XXXXXXXXXXXXXXXX
+
+# Origins
+ORIGINS=http://localhost:3000
+
+# Salt sirve para cifrar el ID con HashID, debe ser igual en la API
+SALT=XXXXXXXXXXXXXXXX
+```
+
+Crear un archivo `.bashrc`
+
+```bash
+if [ -f ~/.bashrc ]
+then
+    . ~/.bashrc
+fi
+
+if command -v figlet &> /dev/null
+then
+    figlet Carina API key
+else
+    echo "== Carina API key"
+fi
+echo
+
+if [ -f .env ]
+then
+    echo "-- Variables de entorno"
+    export $(grep -v '^#' .env | xargs)
+    # source .env && export $(sed '/^#/d' .env | cut -d= -f1)
+    echo "   DB_HOST: ${DB_HOST}"
+    echo "   DB_PORT: ${DB_PORT}"
+    echo "   DB_NAME: ${DB_NAME}"
+    echo "   DB_USER: ${DB_USER}"
+    echo "   DB_PASS: ${DB_PASS}"
+    echo "   ORIGINS: ${ORIGINS}"
+    echo "   SALT: ${SALT}"
+    echo
+    export PGHOST=$DB_HOST
+    export PGPORT=$DB_PORT
+    export PGDATABASE=$DB_NAME
+    export PGUSER=$DB_USER
+    export PGPASSWORD=$DB_PASS
+fi
+```
+
+## Arrancar
+
+Ejecute el `.bashrc` para entrar al entorno virtual y cargar las variables de entorno
+
+```bash
+. .bashrc
+```
+
+Para arrancar el servidor ejecute
+
+```bash
+arrancar
+```
