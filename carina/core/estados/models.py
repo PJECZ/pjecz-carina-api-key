@@ -19,7 +19,7 @@ class Estado(Base, UniversalMixin):
     id = Column(Integer, primary_key=True)
 
     # Columnas
-    clave = Column(String(3), nullable=False)
+    clave = Column(String(2), nullable=False, unique=True)
     nombre = Column(String(256), nullable=False)
 
     # Hijos
