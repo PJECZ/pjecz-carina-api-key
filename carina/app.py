@@ -17,6 +17,7 @@ from .v4.exh_exhortos_archivos.paths import exh_exhortos_archivos
 from .v4.exh_exhortos_partes.paths import exh_exhortos_partes
 from .v4.materias.paths import materias
 from .v4.modulos.paths import modulos
+from .v4.municipios.paths import municipios
 from .v4.permisos.paths import permisos
 from .v4.roles.paths import roles
 from .v4.tareas.paths import tareas
@@ -55,6 +56,7 @@ def create_app() -> FastAPI:
     app.include_router(exh_exhortos_partes)
     app.include_router(materias)
     app.include_router(modulos, include_in_schema=False)
+    app.include_router(municipios)
     app.include_router(permisos, include_in_schema=False)
     app.include_router(roles, include_in_schema=False)
     app.include_router(tareas, include_in_schema=False)

@@ -24,7 +24,7 @@ class Materia(Base, UniversalMixin):
     descripcion = Column(String(1024), nullable=False)
 
     # Hijos
-    exhortos = relationship("Exhorto", back_populates="materia")
+    exh_exhortos = relationship("ExhExhorto", back_populates="materia")
 
     def __repr__(self):
         """Representación"""

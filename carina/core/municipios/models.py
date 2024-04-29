@@ -19,16 +19,15 @@ class Municipio(Base, UniversalMixin):
     id = Column(Integer, primary_key=True)
 
     # Clave foránea
-    estado_id = Column(Integer, ForeignKey("estados.id"), index=True, nullable=False)
-    estado = relationship("Estado", back_populates="municipios")
+    # estado_id = Column(Integer, ForeignKey("estados.id"), index=True, nullable=False)
+    # estado = relationship("Estado", back_populates="municipios")
 
     # Columnas
     clave = Column(String(3), nullable=False)
     nombre = Column(String(256), nullable=False)
 
     # Hijos
-    exhortos_destinos = relationship("Exhorto", back_populates="municipio_destino")
-    exhortos_origenes = relationship("Exhorto", back_populates="municipio_origen")
+    exh_exhortos_origenes = relationship("ExhExhorto", back_populates="municipio_origen")
 
     def __repr__(self):
         """Representación"""
