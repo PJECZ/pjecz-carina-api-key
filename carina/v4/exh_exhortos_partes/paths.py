@@ -47,4 +47,4 @@ async def detalle_exh_exhorto_parte(
         exh_exhorto_parte = get_exh_exhorto_parte(database, exh_exhorto_parte_id)
     except MyAnyError as error:
         return OneExhExhortoParteOut(success=False, errors=[str(error)])
-    return OneExhExhortoParteOut.model_validate(exh_exhorto_parte)
+    return OneExhExhortoParteOut(success=True, data=exh_exhorto_parte)

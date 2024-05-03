@@ -71,14 +71,23 @@ class ExhExhorto(Base, UniversalMixin):
 
     # Hijos
     # PersonaParte[] NO Contiene la definición de las partes del Expediente
-    exh_exhortos_partes = relationship("ExhExhortoParte", back_populates="exh_exhorto", lazy="noload")
+    exh_exhortos_partes = relationship("ExhExhortoParte", back_populates="exh_exhorto")
     # ArchivoARecibir[] SI Colección de los datos referentes a los archivos que se van a recibir el Poder Judicial exhortado en el envío del Exhorto.
-    exh_exhortos_archivos = relationship("ExhExhortoArchivo", back_populates="exh_exhorto", lazy="noload")
+    exh_exhortos_archivos = relationship("ExhExhortoArchivo", back_populates="exh_exhorto")
+
+    # Propiedades que se van a cargar despues
+    partes = []
+    archivos = []
 
     @property
-    def estadoOrigenId(self):
-        """ID del estado de origen"""
-        return self.municipio_origen.estado_id
+    def exhortoOrigenId(self):
+        """ID del exhorto de origen"""
+        return self.exhorto_origen_id
+
+    @property
+    def municipioDestinoId(self):
+        """Clave INEGI del municipio de destino"""
+        return self.municipio_destino_id
 
     @property
     def materiaClave(self):
@@ -86,9 +95,59 @@ class ExhExhorto(Base, UniversalMixin):
         return self.materia.clave
 
     @property
+    def estadoOrigenId(self):
+        """Clave INEGI del estado de origen"""
+        return self.municipio_origen.estado.clave
+
+    @property
     def municipioOrigenId(self):
-        """ID del municipio de origen"""
-        return self.municipio_origen_id
+        """Clave INEGI del municipio de origen"""
+        return self.municipio_origen.clave
+
+    @property
+    def juzgadoOrigenId(self):
+        """ID del juzgado de origen"""
+        return self.juzgado_origen_id
+
+    @property
+    def juzgadoOrigenNombre(self):
+        """Nombre del juzgado de origen"""
+        return self.juzgado_origen_nombre
+
+    @property
+    def numeroExpedienteOrigen(self):
+        """Número de expediente de origen"""
+        return self.numero_expediente_origen
+
+    @property
+    def numeroOficioOrigen(self):
+        """Número de oficio de origen"""
+        return self.numero_oficio_origen
+
+    @property
+    def tipoJuicioAsuntoDelitos(self):
+        """Tipo de juicio"""
+        return self.tipo_juicio_asunto_delitos
+
+    @property
+    def juezExhortante(self):
+        """Juez exhortante"""
+        return self.juez_exhortante
+
+    @property
+    def diasResponder(self):
+        """Días para responder"""
+        return self.dias_responder
+
+    @property
+    def tipoDiligenciacionNombre(self):
+        """Tipo de diligenciación"""
+        return self.tipo_diligenciacion_nombre
+
+    @property
+    def fechaOrigen(self):
+        """Fecha de origen"""
+        return self.fecha_origen
 
     def __repr__(self):
         """Representación"""

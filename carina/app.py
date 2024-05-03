@@ -12,6 +12,7 @@ from .v4.autoridades.paths import autoridades
 from .v4.bitacoras.paths import bitacoras
 from .v4.distritos.paths import distritos
 from .v4.entradas_salidas.paths import entradas_salidas
+from .v4.estados.paths import estados
 from .v4.exh_exhortos.paths import exh_exhortos
 from .v4.exh_exhortos_archivos.paths import exh_exhortos_archivos
 from .v4.exh_exhortos_partes.paths import exh_exhortos_partes
@@ -47,10 +48,11 @@ def create_app() -> FastAPI:
     )
 
     # Rutas
-    app.include_router(autoridades)
+    app.include_router(autoridades, include_in_schema=False)
     app.include_router(bitacoras, include_in_schema=False)
     app.include_router(distritos)
     app.include_router(entradas_salidas, include_in_schema=False)
+    app.include_router(estados)
     app.include_router(exh_exhortos)
     app.include_router(exh_exhortos_archivos)
     app.include_router(exh_exhortos_partes)

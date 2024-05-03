@@ -1,5 +1,5 @@
 """
-Municipios v4, rutas (paths)
+Estados v4, rutas (paths)
 """
 
 from typing import Annotated
@@ -13,38 +13,38 @@ from lib.fastapi_pagination_custom_page import CustomPage
 
 from ...core.permisos.models import Permiso
 from ..usuarios.authentications import UsuarioInDB, get_current_active_user
-from .crud import get_municipios, get_municipio
-from .schemas import MunicipioOut, OneMunicipioOut
+from .crud import get_estados, get_estado
+from .schemas import EstadoOut, OneEstadoOut
 
-municipios = APIRouter(prefix="/v4/municipios", tags=["municipios"])
+estados = APIRouter(prefix="/v4/estados", tags=["estados"])
 
 
-@municipios.get("", response_model=CustomPage[MunicipioOut])
-async def paginado_municipios(
+@estados.get("", response_model=CustomPage[EstadoOut])
+async def paginado_estados(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
 ):
-    """Paginado de municipios"""
-    if current_user.permissions.get("MUNICIPIOS", 0) < Permiso.VER:
+    """Paginado de estados"""
+    if current_user.permissions.get("ESTADOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        resultados = get_municipios(database)
+        resultados = get_estados(database)
     except MyAnyError as error:
         return CustomPage(success=False, errors=[str(error)])
     return paginate(resultados)
 
 
-@municipios.get("/{municipio_id}", response_model=OneMunicipioOut)
-async def detalle_municipio(
+@estados.get("/{estado_id}", response_model=OneEstadoOut)
+async def detalle_estado(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
-    municipio_id: int,
+    estado_id: int,
 ):
-    """Detalle de una municipio a partir de su id"""
-    if current_user.permissions.get("MUNICIPIOS", 0) < Permiso.VER:
+    """Detalle de un estado a partir de su id"""
+    if current_user.permissions.get("ESTADOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        municipio = get_municipio(database, municipio_id)
+        estado = get_estado(database, estado_id)
     except MyAnyError as error:
-        return OneMunicipioOut(success=False, errors=[str(error)])
-    return OneMunicipioOut(success=True, data=municipio)
+        return OneEstadoOut(success=False, errors=[str(error)])
+    return OneEstadoOut(success=True, data=estado)

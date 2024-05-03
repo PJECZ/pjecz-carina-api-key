@@ -47,4 +47,4 @@ async def detalle_exh_exhorto_archivo(
         exh_exhorto_archivo = get_exh_exhorto_archivo(database, exh_exhorto_archivo_id)
     except MyAnyError as error:
         return OneExhExhortoArchivoOut(success=False, errors=[str(error)])
-    return OneExhExhortoArchivoOut.model_validate(exh_exhorto_archivo)
+    return OneExhExhortoArchivoOut(success=True, data=exh_exhorto_archivo)

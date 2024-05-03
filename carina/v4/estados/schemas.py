@@ -1,5 +1,5 @@
 """
-Municipios v4, esquemas de pydantic
+Estados v4, esquemas de pydantic
 """
 
 from pydantic import BaseModel, ConfigDict
@@ -7,8 +7,8 @@ from pydantic import BaseModel, ConfigDict
 from lib.schemas_base import OneBaseOut
 
 
-class MunicipioOut(BaseModel):
-    """Esquema para entregar municipios"""
+class EstadoOut(BaseModel):
+    """Esquema para entregar estados"""
 
     id: int | None = None
     clave: str | None = None
@@ -16,7 +16,7 @@ class MunicipioOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class OneMunicipioOut(OneBaseOut):
-    """Esquema para entregar un municipio"""
+class OneEstadoOut(OneBaseOut):
+    """Esquema para entregar un estado"""
 
-    data: MunicipioOut | None = None
+    data: EstadoOut | None = None

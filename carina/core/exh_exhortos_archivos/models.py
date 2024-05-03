@@ -40,6 +40,26 @@ class ExhExhortoArchivo(Base, UniversalMixin):
     # URL del archivo en Google Storage
     url = Column(String(512), nullable=False, default="", server_default="")
 
+    @property
+    def nombreArchivo(self):
+        """Nombre del archivo"""
+        return self.nombre_archivo
+
+    @property
+    def hashSha1(self):
+        """Hash SHA1"""
+        return self.hash_sha1
+
+    @property
+    def hashSha256(self):
+        """Hash SHA256"""
+        return self.hash_sha256
+
+    @property
+    def tipoDocumento(self):
+        """Tipo de documento"""
+        return self.tipo_documento
+
     def __repr__(self):
         """Representación"""
         return f"<ExhExhortoArchivo {self.id}>"

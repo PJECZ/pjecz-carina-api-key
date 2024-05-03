@@ -7,21 +7,26 @@ from pydantic import BaseModel, ConfigDict
 from lib.schemas_base import OneBaseOut
 
 
-class ExhExhortoParteOut(BaseModel):
+class ExhExhortoParteIn(BaseModel):
+    """Esquema para recibir partes"""
+
+    nombre: str | None = None
+    apellidoPaterno: str | None = None
+    apellidoMaterno: str | None = None
+    genero: str | None = None
+    esPersonaMoral: bool | None = None
+    tipoParte: int | None = None
+    tipoParteNombre: str | None = None
+
+
+class ExhExhortoParteOut(ExhExhortoParteIn):
     """Esquema para entregar partes"""
 
     id: int | None = None
-    exh_exhorto_id: int | None = None
-    exh_exhorto_exhorto_origen_id: str | None = None
-    nombre: str | None = None
-    apellido_paterno: str | None = None
-    apellido_materno: str | None = None
-    genero: str | None = None
-    es_persona_moral: bool | None = None
-    tipo_parte: int | None = None
-    tipo_parte_nombre: str | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
-class OneExhExhortoParteOut(ExhExhortoParteOut, OneBaseOut):
+class OneExhExhortoParteOut(OneBaseOut):
     """Esquema para entregar un parte"""
+
+    data: ExhExhortoParteOut | None = None

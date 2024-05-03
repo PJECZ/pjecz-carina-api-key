@@ -19,8 +19,8 @@ class Municipio(Base, UniversalMixin):
     id = Column(Integer, primary_key=True)
 
     # Clave foránea
-    # estado_id = Column(Integer, ForeignKey("estados.id"), index=True, nullable=False)
-    # estado = relationship("Estado", back_populates="municipios")
+    estado_id = Column(Integer, ForeignKey("estados.id"), index=True, nullable=False)
+    estado = relationship("Estado", back_populates="municipios")
 
     # Columnas
     clave = Column(String(3), nullable=False)

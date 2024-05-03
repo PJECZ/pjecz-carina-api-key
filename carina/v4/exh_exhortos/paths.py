@@ -15,6 +15,8 @@ from ...core.permisos.models import Permiso
 from ..usuarios.authentications import UsuarioInDB, get_current_active_user
 from .crud import get_exh_exhortos, get_exh_exhorto
 from .schemas import ExhExhortoOut, OneExhExhortoOut
+from ..exh_exhortos_archivos.schemas import ExhExhortoArchivoOut
+from ..exh_exhortos_partes.schemas import ExhExhortoParteIn, ExhExhortoParteOut
 
 exh_exhortos = APIRouter(prefix="/v4/exh_exhortos", tags=["exhortos"])
 
@@ -47,4 +49,35 @@ async def detalle_exh_exhorto(
         exh_exhorto = get_exh_exhorto(database, exh_exhorto_id)
     except MyAnyError as error:
         return OneExhExhortoOut(success=False, errors=[str(error)])
-    return OneExhExhortoOut.model_validate(exh_exhorto)
+
+    # Copiar las partes del exhorto a instancias de ExhExhortoParteIn
+    partes = []
+    for exh_exhorto_parte in exh_exhorto.exh_exhortos_partes:
+        partes.append(
+            ExhExhortoParteIn(
+                nombre=exh_exhorto_parte.nombre,
+                apellidoPaterno=exh_exhorto_parte.apellido_paterno,
+                apellidoMaterno=exh_exhorto_parte.apellido_materno,
+                genero=exh_exhorto_parte.genero,
+                esPersonaMoral=exh_exhorto_parte.es_persona_moral,
+                tipoParte=exh_exhorto_parte.tipo_parte,
+                tipoParteNombre=exh_exhorto_parte.tipo_parte_nombre,
+            )
+        )
+    exh_exhorto.partes = partes
+
+    # Copiar los archivos del exhorto a instancias de ExhExhortoArchivoOut
+    archivos = []
+    for exh_exhorto_archivo in exh_exhorto.exh_exhortos_archivos:
+        archivos.append(
+            ExhExhortoArchivoOut(
+                nombreArchivo=exh_exhorto_archivo.nombre_archivo,
+                hashSha1=exh_exhorto_archivo.hash_sha1,
+                hashSha256=exh_exhorto_archivo.hash_sha256,
+                tipoDocumento=exh_exhorto_archivo.tipo_documento,
+            )
+        )
+    exh_exhorto.archivos = archivos
+
+    # Entregar un exhorto
+    return OneExhExhortoOut(success=True, data=exh_exhorto)

@@ -1,6 +1,7 @@
 """
 Distritos v4, rutas (paths)
 """
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -52,4 +53,4 @@ async def detalle_distrito(
         distrito = get_distrito_with_clave(database, distrito_clave)
     except MyAnyError as error:
         return OneDistritoOut(success=False, errors=[str(error)])
-    return OneDistritoOut.model_validate(distrito)
+    return OneDistritoOut(success=True, data=distrito)
