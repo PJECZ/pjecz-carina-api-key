@@ -26,4 +26,4 @@ class ExhExhortoArchivoOut(ExhExhortoArchivoIn):
 class OneExhExhortoArchivoOut(OneBaseOut):
     """Esquema para entregar un archivo"""
 
-    data: list[ExhExhortoArchivoOut] | None = None
+    data: ExhExhortoArchivoOut | None = None

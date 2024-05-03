@@ -44,7 +44,7 @@ class ExhExhortoOut(ExhExhortoIn):
 class OneExhExhortoOut(OneBaseOut):
     """Esquema para entregar un exhorto"""
 
-    data: list[ExhExhortoOut] | None = None
+    data: ExhExhortoOut | None = None
 
 
 class ExhExhortoConfirmacionDatosExhortoRecibidoOut(BaseModel):

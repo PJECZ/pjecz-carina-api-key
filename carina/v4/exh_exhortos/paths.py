@@ -15,6 +15,8 @@ from ...core.permisos.models import Permiso
 from ..usuarios.authentications import UsuarioInDB, get_current_active_user
 from .crud import get_exh_exhortos, get_exh_exhorto
 from .schemas import ExhExhortoOut, OneExhExhortoOut
+from ..exh_exhortos_archivos.schemas import ExhExhortoArchivoOut
+from ..exh_exhortos_partes.schemas import ExhExhortoParteOut
 
 exh_exhortos = APIRouter(prefix="/v4/exh_exhortos", tags=["exhortos"])
 
@@ -47,4 +49,4 @@ async def detalle_exh_exhorto(
         exh_exhorto = get_exh_exhorto(database, exh_exhorto_id)
     except MyAnyError as error:
         return OneExhExhortoOut(success=False, errors=[str(error)])
-    return OneExhExhortoOut.model_validate(exh_exhorto)
+    return OneExhExhortoOut(success=True, data=exh_exhorto)

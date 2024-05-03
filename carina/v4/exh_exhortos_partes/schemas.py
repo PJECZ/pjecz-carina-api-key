@@ -29,4 +29,4 @@ class ExhExhortoParteOut(ExhExhortoParteIn):
 class OneExhExhortoParteOut(OneBaseOut):
     """Esquema para entregar un parte"""
 
-    data: list[ExhExhortoParteOut] | None = None
+    data: ExhExhortoParteOut | None = None

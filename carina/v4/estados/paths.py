@@ -47,7 +47,4 @@ async def detalle_estado(
         estado = get_estado(database, estado_id)
     except MyAnyError as error:
         return OneEstadoOut(success=False, errors=[str(error)])
-    return OneEstadoOut(
-        success=True,
-        data=estado
-    )
+    return OneEstadoOut(success=True, data=estado)
