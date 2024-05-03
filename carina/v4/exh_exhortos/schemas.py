@@ -50,7 +50,6 @@ class OneExhExhortoOut(OneBaseOut):
 class ExhExhortoConfirmacionDatosExhortoRecibidoOut(BaseModel):
     """Esquema para confirmar la recepción de un exhorto"""
 
-    id: int | None = None
     exhortoOrigenId: str | None = None
     fechaHora: datetime | None = None
 
@@ -58,4 +57,4 @@ class ExhExhortoConfirmacionDatosExhortoRecibidoOut(BaseModel):
 class OneExhExhortoConfirmacionDatosExhortoRecibidoOut(OneBaseOut):
     """Esquema para entregar una confirmación de la recepción de un exhorto"""
 
-    data: list[ExhExhortoConfirmacionDatosExhortoRecibidoOut] | None = None
+    data: ExhExhortoConfirmacionDatosExhortoRecibidoOut | None = None
