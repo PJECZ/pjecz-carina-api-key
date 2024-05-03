@@ -16,5 +16,7 @@ class MunicipioOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class OneMunicipioOut(MunicipioOut, OneBaseOut):
+class OneMunicipioOut(OneBaseOut):
     """Esquema para entregar un municipio"""
+
+    data: list[MunicipioOut] = []

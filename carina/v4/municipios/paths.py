@@ -34,17 +34,17 @@ async def paginado_municipios(
     return paginate(resultados)
 
 
-@municipios.get("/{munget_municipio_id}", response_model=OneMunicipioOut)
-async def detalle_munget_municipio(
+@municipios.get("/{municipio_id}", response_model=OneMunicipioOut)
+async def detalle_municipio(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
-    munget_municipio_id: int,
+    municipio_id: int,
 ):
     """Detalle de una municipio a partir de su id"""
     if current_user.permissions.get("MUNICIPIOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        munget_municipio = get_municipio(database, munget_municipio_id)
+        municipio = get_municipio(database, municipio_id)
     except MyAnyError as error:
         return OneMunicipioOut(success=False, errors=[str(error)])
-    return OneMunicipioOut.model_validate(munget_municipio)
+    return OneMunicipioOut.model_validate(municipio)

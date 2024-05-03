@@ -7,19 +7,23 @@ from pydantic import BaseModel, ConfigDict
 from lib.schemas_base import OneBaseOut
 
 
-class ExhExhortoArchivoOut(BaseModel):
+class ExhExhortoArchivoIn(BaseModel):
+    """Esquema para recibir archivos"""
+
+    nombreArchivo: str | None = None
+    hashSha1: str | None = None
+    hashSha256: str | None = None
+    tipoDocumento: int | None = None
+
+
+class ExhExhortoArchivoOut(ExhExhortoArchivoIn):
     """Esquema para entregar archivos"""
 
     id: int | None = None
-    exh_exhorto_id: int | None = None
-    exh_exhorto_exhorto_origen_id: str | None = None
-    nombre_archivo: str | None = None
-    hash_sha1: str | None = None
-    hash_sha256: str | None = None
-    tipo_documento: int | None = None
-    url: str | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
-class OneExhExhortoArchivoOut(ExhExhortoArchivoOut, OneBaseOut):
+class OneExhExhortoArchivoOut(OneBaseOut):
     """Esquema para entregar un archivo"""
+
+    data: list[ExhExhortoArchivoOut] | None = None
