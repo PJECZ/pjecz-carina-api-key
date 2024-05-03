@@ -2,6 +2,7 @@
 Exh Exhortos v4, rutas (paths)
 """
 
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -13,10 +14,16 @@ from lib.fastapi_pagination_custom_page import CustomPage
 
 from ...core.permisos.models import Permiso
 from ..usuarios.authentications import UsuarioInDB, get_current_active_user
-from .crud import get_exh_exhortos, get_exh_exhorto
-from .schemas import ExhExhortoOut, OneExhExhortoOut
+from .crud import create_exh_exhorto, get_exh_exhortos, get_exh_exhorto
+from .schemas import (
+    ExhExhortoConfirmacionDatosExhortoRecibidoOut,
+    ExhExhortoIn,
+    ExhExhortoOut,
+    OneExhExhortoConfirmacionDatosExhortoRecibidoOut,
+    OneExhExhortoOut,
+)
 from ..exh_exhortos_archivos.schemas import ExhExhortoArchivoOut
-from ..exh_exhortos_partes.schemas import ExhExhortoParteIn, ExhExhortoParteOut
+from ..exh_exhortos_partes.schemas import ExhExhortoParteIn
 
 exh_exhortos = APIRouter(prefix="/v4/exh_exhortos", tags=["exhortos"])
 
@@ -81,3 +88,23 @@ async def detalle_exh_exhorto(
 
     # Entregar un exhorto
     return OneExhExhortoOut(success=True, data=exh_exhorto)
+
+
+@exh_exhortos.post("", response_model=OneExhExhortoConfirmacionDatosExhortoRecibidoOut)
+async def confirmacion_datos_exhorto_recibido(
+    current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
+    database: Annotated[Session, Depends(get_db)],
+    exh_exhorto: ExhExhortoIn,
+):
+    """Crear un Exhorto"""
+    if current_user.permissions.get("EXH EXHORTOS", 0) < Permiso.CREAR:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        create_exh_exhorto(database, exh_exhorto)
+    except MyAnyError as error:
+        return OneExhExhortoConfirmacionDatosExhortoRecibidoOut(success=False, message=str(error))
+    data = ExhExhortoConfirmacionDatosExhortoRecibidoOut(
+        exhortoOrigenId="XXX",
+        fechaHora=datetime.now(),
+    )
+    return OneExhExhortoConfirmacionDatosExhortoRecibidoOut(success=True, data=data)

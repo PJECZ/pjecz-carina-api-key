@@ -1,38 +1,35 @@
 """
-Unit tests for autoridades category
+Unit test for estados category
 """
+
 import unittest
-
 import requests
-
 from tests.load_env import config
 
 
-class TestAutoridades(unittest.TestCase):
-    """Tests for autoridades category"""
+class TestEstados(unittest.TestCase):
+    """Tests for estados category"""
 
-    def test_get_autoridades(self):
-        """Test GET method for autoridades"""
+    def test_get_estados(self):
+        """Test GET method for estados"""
         response = requests.get(
-            f"{config['api_base_url']}/autoridades",
+            f"{config['api_base_url']}/estados",
             headers={"X-Api-Key": config["api_key"]},
             timeout=config["timeout"],
         )
         self.assertEqual(response.status_code, 200)
 
-    def test_get_autoridades_by_es_extinto(self):
-        """Test GET method for autoridades by es_extinto"""
+    def test_get_estado_by_clave_inegi(self):
+        """Test GET method for estado by clave INEGI"""
         response = requests.get(
-            f"{config['api_base_url']}/autoridades",
+            f"{config['api_base_url']}/estados/05",
             headers={"X-Api-Key": config["api_key"]},
-            params={"es_extinto": 1},
             timeout=config["timeout"],
         )
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data["success"], True)
-        for item in data["items"]:
-            self.assertEqual(item["es_extinto"], 1)
+        self.assertEqual(data["data"]["nombre"], "COAHUILA DE ZARAGOZA")
 
 
 if __name__ == "__main__":
