@@ -46,4 +46,7 @@ async def detalle_materia(
         materia = get_materia_with_clave(database, materia_clave)
     except MyAnyError as error:
         return OneMateriaOut(success=False, errors=[str(error)])
-    return OneMateriaOut.model_validate(materia)
+    return OneMateriaOut(
+        success=True,
+        data=materia
+    )

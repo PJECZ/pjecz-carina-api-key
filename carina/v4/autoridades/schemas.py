@@ -23,4 +23,4 @@ class AutoridadOut(BaseModel):
 class OneAutoridadOut(OneBaseOut):
     """Esquema para entregar un autoridad"""
 
-    data: list[AutoridadOut] | None = None
+    data: AutoridadOut | None = None

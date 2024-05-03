@@ -13,8 +13,7 @@ from ...core.municipios.models import Municipio
 
 def get_municipios(database: Session) -> Any:
     """Consultar los municipios activos"""
-    consulta = database.query(Municipio)
-    return consulta.filter_by(estatus="A").order_by(Municipio.id)
+    return database.query(Municipio).filter_by(estatus="A").order_by(Municipio.clave)
 
 
 def get_municipio(database: Session, municipio_id: int) -> Municipio:

@@ -20,4 +20,4 @@ class MateriaOut(BaseModel):
 class OneMateriaOut(OneBaseOut):
     """Esquema para entregar un materia"""
 
-    data: list[MateriaOut] | None = None
+    data: MateriaOut | None = None

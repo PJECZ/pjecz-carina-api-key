@@ -22,4 +22,4 @@ class DistritoOut(BaseModel):
 class OneDistritoOut(OneBaseOut):
     """Esquema para entregar un distrito"""
 
-    data: list[DistritoOut] | None = None
+    data: DistritoOut | None = None
