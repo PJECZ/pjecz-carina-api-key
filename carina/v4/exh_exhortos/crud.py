@@ -15,7 +15,7 @@ from lib.exceptions import MyIsDeletedError, MyNotExistsError
 
 from ...core.exh_exhortos.models import ExhExhorto
 
-DESTINO_ESTADO_ID = 5
+ESTADO_DESTINO_ID = 5
 
 
 def get_exh_exhortos(database: Session) -> Any:
@@ -44,24 +44,28 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhorto) -> ExhExho
     exh_exhorto.exhorto_origen_id = exh_exhorto_in.exhortoOrigenId
 
     # Consultar y validar el municipio destino, que es Identificador INEGI
-    municipio = (
-        Municipio.query.filter_by(estado_id=DESTINO_ESTADO_ID).filter_by(clave=exh_exhorto_in.municipioDestinoId).first()
+    municipio_destino_clave = str(exh_exhorto_in.municipioDestinoId).zfill(3)
+    municipio_destino = (
+        database.query(Municipio).filter_by(estado_id=ESTADO_DESTINO_ID).filter_by(clave=municipio_destino_clave).first()
     )
-    if municipio is None:
+
+    if municipio_destino is None:
         raise MyNotExistsError("No existe ese municipio de destino")
-    exh_exhorto.municipio_destino_id = municipio.id
+    exh_exhorto.municipio_destino_id = municipio_destino.id
 
     # Consultar y validar la materia
-    materia = Materia.query.filter_by(clave=exh_exhorto_in.materiaClave).first()
+    materia = database.query(Materia).filter_by(clave=exh_exhorto_in.materiaClave).first()
     if materia is None:
         raise MyNotExistsError("No existe esa materia")
     exh_exhorto.materia = materia
 
     # Consultar y validar el estado y municipio de origen, que son Identificadores INEGI
-    estado = Estado.query.filter_by(clave=exh_exhorto_in.estadoOrigenId).first()
+    estado_clave = str(exh_exhorto_in.estadoOrigenId).zfill(2)
+    estado = database.query(Estado).filter_by(clave=estado_clave).first()
     if estado is None:
         raise MyNotExistsError("No existe ese estado de origen")
-    municipio = Municipio.query.filter_by(estado_id=estado.id).filter_by(clave=exh_exhorto_in.municipioOrigenId).first()
+    municipio_clave = str(exh_exhorto_in.municipioOrigenId).zfill(3)
+    municipio = database.query(Municipio).filter_by(estado_id=estado.id).filter_by(clave=municipio_clave).first()
     if municipio is None:
         raise MyNotExistsError("No existe ese municipio de origen")
     exh_exhorto.municipio_origen_id = municipio.id
@@ -101,41 +105,42 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhorto) -> ExhExho
 
     # Cargar el exhorto
     database.add(exh_exhorto)
+    database.commit()
+    database.refresh(exh_exhorto)
 
     # Procesar las partes
-    partes = []
-    for parte in exh_exhorto_in.partes:
-        partes.append(
-            ExhExhortoParte(
-                exh_exhorto=exh_exhorto,
-                nombre=parte.nombre,
-                apellido_paterno=parte.apellidoPaterno,
-                apellido_materno=parte.apellidoMaterno,
-                genero=parte.genero,
-                es_persona_moral=parte.esPersonaMoral,
-                tipo_parte=parte.tipoParte,
-                tipo_parte_nombre=parte.tipoParteNombre,
-            )
-        )
-        database.add(parte)
+    # partes = []
+    # for parte in exh_exhorto_in.partes:
+    #     partes.append(
+    #         ExhExhortoParte(
+    #             exh_exhorto=exh_exhorto,
+    #             nombre=parte.nombre,
+    #             apellido_paterno=parte.apellidoPaterno,
+    #             apellido_materno=parte.apellidoMaterno,
+    #             genero=parte.genero,
+    #             es_persona_moral=parte.esPersonaMoral,
+    #             tipo_parte=parte.tipoParte,
+    #             tipo_parte_nombre=parte.tipoParteNombre,
+    #         )
+    #     )
+    #     database.add(parte)
 
     # Procesar los archivos
-    archivos = []
-    for archivo in exh_exhorto_in.archivos:
-        archivos.append(
-            ExhExhortoArchivo(
-                exh_exhorto=exh_exhorto,
-                nombre_archivo=archivo.nombreArchivo,
-                hash_sha1=archivo.hashSha1,
-                hash_sha256=archivo.hashSha256,
-                tipo_documento=archivo.tipoDocumento,
-            )
-        )
-        database.add(archivo)
+    # archivos = []
+    # for archivo in exh_exhorto_in.archivos:
+    #     archivos.append(
+    #         ExhExhortoArchivo(
+    #             exh_exhorto=exh_exhorto,
+    #             nombre_archivo=archivo.nombreArchivo,
+    #             hash_sha1=archivo.hashSha1,
+    #             hash_sha256=archivo.hashSha256,
+    #             tipo_documento=archivo.tipoDocumento,
+    #         )
+    #     )
+    #     database.add(archivo)
 
     # Terminar la transacción
     database.commit()
-    database.refresh(exh_exhorto)
 
     # Entregar
     return exh_exhorto
