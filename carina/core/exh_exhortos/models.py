@@ -71,9 +71,13 @@ class ExhExhorto(Base, UniversalMixin):
 
     # Hijos
     # PersonaParte[] NO Contiene la definición de las partes del Expediente
-    exh_exhortos_partes = relationship("ExhExhortoParte", back_populates="exh_exhorto", lazy="noload")
+    exh_exhortos_partes = relationship("ExhExhortoParte", back_populates="exh_exhorto")
     # ArchivoARecibir[] SI Colección de los datos referentes a los archivos que se van a recibir el Poder Judicial exhortado en el envío del Exhorto.
-    exh_exhortos_archivos = relationship("ExhExhortoArchivo", back_populates="exh_exhorto", lazy="noload")
+    exh_exhortos_archivos = relationship("ExhExhortoArchivo", back_populates="exh_exhorto")
+
+    # Propiedades que se van a cargar despues
+    partes = []
+    archivos = []
 
     @property
     def exhortoOrigenId(self):
