@@ -91,20 +91,20 @@ async def detalle_exh_exhorto(
 
 
 @exh_exhortos.post("", response_model=OneExhExhortoConfirmacionDatosExhortoRecibidoOut)
-async def confirmacion_datos_exhorto_recibido(
+async def recepcion_exh_exhorto(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
     exh_exhorto: ExhExhortoIn,
 ):
-    """Crear un Exhorto"""
+    """Recepción de datos de un exhorto"""
     if current_user.permissions.get("EXH EXHORTOS", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        create_exh_exhorto(database, exh_exhorto)
+        exh_exhorto = create_exh_exhorto(database, exh_exhorto)
     except MyAnyError as error:
         return OneExhExhortoConfirmacionDatosExhortoRecibidoOut(success=False, message=str(error))
     data = ExhExhortoConfirmacionDatosExhortoRecibidoOut(
-        exhortoOrigenId="XXX",
-        fechaHora=datetime.now(),
+        exhortoOrigenId=exh_exhorto.exhorto_origen_id,
+        fechaHora=exh_exhorto.creado,
     )
     return OneExhExhortoConfirmacionDatosExhortoRecibidoOut(success=True, data=data)

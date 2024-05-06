@@ -6,14 +6,14 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
-from carina.core.estados.models import Estado
-from carina.core.exh_exhortos_archivos.models import ExhExhortoArchivo
-from carina.core.exh_exhortos_partes.models import ExhExhortoParte
-from carina.core.materias.models import Materia
-from carina.core.municipios.models import Municipio
 from lib.exceptions import MyIsDeletedError, MyNotExistsError
-
+from ...core.estados.models import Estado
 from ...core.exh_exhortos.models import ExhExhorto
+from ...core.exh_exhortos_archivos.models import ExhExhortoArchivo
+from ...core.exh_exhortos_partes.models import ExhExhortoParte
+from ...core.materias.models import Materia
+from ...core.municipios.models import Municipio
+from ..exh_exhortos.schemas import ExhExhortoIn
 
 ESTADO_DESTINO_ID = 5
 
@@ -34,7 +34,7 @@ def get_exh_exhorto(database: Session, exh_exhorto_id: int) -> ExhExhorto:
     return exh_exhorto
 
 
-def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhorto) -> ExhExhorto:
+def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhExhorto:
     """Crear un exhorto"""
 
     # Inicializar la instancia ExhExhorto
@@ -103,44 +103,39 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhorto) -> ExhExho
     # Texto simple que contenga información extra o relevante sobre el exhorto.
     exh_exhorto.observaciones = exh_exhorto_in.observaciones
 
-    # Cargar el exhorto
+    # Iniciar la transaccion, agregar el exhorto
     database.add(exh_exhorto)
-    database.commit()
-    database.refresh(exh_exhorto)
 
-    # Procesar las partes
-    # partes = []
-    # for parte in exh_exhorto_in.partes:
-    #     partes.append(
-    #         ExhExhortoParte(
-    #             exh_exhorto=exh_exhorto,
-    #             nombre=parte.nombre,
-    #             apellido_paterno=parte.apellidoPaterno,
-    #             apellido_materno=parte.apellidoMaterno,
-    #             genero=parte.genero,
-    #             es_persona_moral=parte.esPersonaMoral,
-    #             tipo_parte=parte.tipoParte,
-    #             tipo_parte_nombre=parte.tipoParteNombre,
-    #         )
-    #     )
-    #     database.add(parte)
+    # Insertar las partes
+    for parte in exh_exhorto_in.partes:
+        database.add(
+            ExhExhortoParte(
+                exh_exhorto=exh_exhorto,
+                nombre=parte.nombre,
+                apellido_paterno=parte.apellidoPaterno,
+                apellido_materno=parte.apellidoMaterno,
+                genero=parte.genero,
+                es_persona_moral=parte.esPersonaMoral,
+                tipo_parte=parte.tipoParte,
+                tipo_parte_nombre=parte.tipoParteNombre,
+            )
+        )
 
-    # Procesar los archivos
-    # archivos = []
-    # for archivo in exh_exhorto_in.archivos:
-    #     archivos.append(
-    #         ExhExhortoArchivo(
-    #             exh_exhorto=exh_exhorto,
-    #             nombre_archivo=archivo.nombreArchivo,
-    #             hash_sha1=archivo.hashSha1,
-    #             hash_sha256=archivo.hashSha256,
-    #             tipo_documento=archivo.tipoDocumento,
-    #         )
-    #     )
-    #     database.add(archivo)
+    # Insertar los archivos
+    for archivo in exh_exhorto_in.archivos:
+        database.add(
+            ExhExhortoArchivo(
+                exh_exhorto=exh_exhorto,
+                nombre_archivo=archivo.nombreArchivo,
+                hash_sha1=archivo.hashSha1,
+                hash_sha256=archivo.hashSha256,
+                tipo_documento=archivo.tipoDocumento,
+            )
+        )
 
     # Terminar la transacción
     database.commit()
+    database.refresh(exh_exhorto)
 
     # Entregar
     return exh_exhorto

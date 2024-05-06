@@ -35,8 +35,9 @@ class TestExhExhortos(unittest.TestCase):
     def test_post_exh_exhorto(self):
         """Test POST method for exh_exhorto"""
         random_uuid = uuid.uuid4()
+        exhorto_origen_id = str(random_uuid)
         datos_nuevo_exhorto = {
-            "exhortoOrigenId": str(random_uuid),
+            "exhortoOrigenId": exhorto_origen_id,
             "municipioDestinoId": 30,
             "materiaClave": "FAM",
             "estadoOrigenId": 19,
@@ -83,7 +84,7 @@ class TestExhExhortos(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertEqual(data["success"], True)
-        self.assertEqual(data["data"]["exhortoOrigenId"], "XXX")
+        self.assertEqual(data["data"]["exhortoOrigenId"], exhorto_origen_id)
 
 
 if __name__ == "__main__":
