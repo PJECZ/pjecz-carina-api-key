@@ -2,7 +2,7 @@
 Exh Exhortos Archivos, modelos
 """
 
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from lib.database import Base
@@ -11,6 +11,11 @@ from lib.universal_mixin import UniversalMixin
 
 class ExhExhortoArchivo(Base, UniversalMixin):
     """ExhExhortoArchivo"""
+
+    ESTADOS = {
+        "PENDIENTE": "Pendiente",
+        "RECIBIDO": "Recibido",
+    }
 
     # Nombre de la tabla
     __tablename__ = "exh_exhortos_archivos"
@@ -39,6 +44,9 @@ class ExhExhortoArchivo(Base, UniversalMixin):
 
     # URL del archivo en Google Storage
     url = Column(String(512), nullable=False, default="", server_default="")
+
+    # Estado de la entrega del archivo
+    estado = Column(Enum(*ESTADOS, name="exh_exhortos_archivos_estados", native_enum=False), nullable=False)
 
     @property
     def nombreArchivo(self):

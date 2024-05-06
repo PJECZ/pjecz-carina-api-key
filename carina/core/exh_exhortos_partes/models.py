@@ -39,7 +39,7 @@ class ExhExhortoParte(Base, UniversalMixin):
     # 'M' = Masculino,
     # 'F' = Femenino.
     # Solo cuando aplique y se quiera especificar (que se tenga el dato). NO aplica para persona moral.
-    genero = Column(Enum(*GENEROS, name="tipos_generos", native_enum=False), nullable=True)
+    genero = Column(Enum(*GENEROS, name="exh_exhortos_partes_generos", native_enum=False), nullable=True)
 
     # Valor que indica si la parte es una persona moral.
     es_persona_moral = Column(Boolean, nullable=False)
