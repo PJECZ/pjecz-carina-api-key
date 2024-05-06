@@ -130,6 +130,7 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
                 hash_sha1=archivo.hashSha1,
                 hash_sha256=archivo.hashSha256,
                 tipo_documento=archivo.tipoDocumento,
+                estado="PENDIENTE",
             )
         )
 
