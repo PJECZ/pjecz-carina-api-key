@@ -1,5 +1,5 @@
 """
-Estados, modelos
+Exh Areas, modelos
 """
 
 from sqlalchemy import Column, Integer, String
@@ -9,22 +9,22 @@ from lib.database import Base
 from lib.universal_mixin import UniversalMixin
 
 
-class Estado(Base, UniversalMixin):
-    """Estado"""
+class ExhArea(Base, UniversalMixin):
+    """ExhArea"""
 
     # Nombre de la tabla
-    __tablename__ = "estados"
+    __tablename__ = "exh_areas"
 
     # Clave primaria
     id = Column(Integer, primary_key=True)
 
     # Columnas
-    clave = Column(String(2), nullable=False, unique=True)
-    nombre = Column(String(256), nullable=False)
+    clave = Column(String(16), unique=True, nullable=False)
+    descripcion = Column(String(256), nullable=False)
 
     # Hijos
-    municipios = relationship("Municipio", back_populates="estado")
+    exh_exhortos = relationship("ExhExhorto", back_populates="exh_area")
 
     def __repr__(self):
         """Representación"""
-        return f"<Estado {self.clave}>"
+        return f"<ExhArea {self.clave}>"

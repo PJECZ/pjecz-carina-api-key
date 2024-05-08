@@ -19,7 +19,7 @@ from .schemas import AutoridadOut, OneAutoridadOut
 autoridades = APIRouter(prefix="/v4/autoridades", tags=["autoridades"])
 
 
-@autoridades.get("/", response_model=CustomList[AutoridadOut])
+@autoridades.get("", response_model=CustomList[AutoridadOut])
 async def paginado_autoridades(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],

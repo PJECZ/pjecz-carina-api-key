@@ -2,7 +2,9 @@
 Exh Exhortos v4, CRUD (create, read, update, and delete)
 """
 
+from datetime import datetime
 from typing import Any
+import uuid
 
 from sqlalchemy.orm import Session
 
@@ -103,6 +105,13 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     # Texto simple que contenga información extra o relevante sobre el exhorto.
     exh_exhorto.observaciones = exh_exhorto_in.observaciones
 
+    # GUID/UUID... que sea único
+    random_uuid = uuid.uuid4()
+    exh_exhorto.folio_seguimiento = str(random_uuid)
+
+    # Área de recepción, 1 = NO DEFINIDO
+    exh_exhorto.exh_area_id = 1
+
     # Iniciar la transaccion, agregar el exhorto
     database.add(exh_exhorto)
 
@@ -131,6 +140,8 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
                 hash_sha256=archivo.hashSha256,
                 tipo_documento=archivo.tipoDocumento,
                 estado="PENDIENTE",
+                tamano=0,
+                fecha_hora_recepcion=datetime.now(),
             )
         )
 

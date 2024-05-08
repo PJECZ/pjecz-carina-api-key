@@ -54,31 +54,10 @@ class ExhExhortoParte(Base, UniversalMixin):
     tipo_parte_nombre = Column(String(256))
 
     @property
-    def apellidoPaterno(self):
-        """Apellido paterno"""
-        return self.apellido_paterno
+    def nombre_completo(self):
+        """Junta nombres, apellido_paterno y apellido materno"""
+        return self.nombre + " " + self.apellido_paterno + " " + self.apellido_materno
 
-    @property
-    def apellidoMaterno(self):
-        """Apellido materno"""
-        return self.apellido_materno
-
-    @property
-    def esPersonaMoral(self):
-        """Es persona moral"""
-        return self.es_persona_moral
-
-    @property
-    def tipoParte(self):
-        """Tipo de parte"""
-        return self.tipo_parte
-
-    @property
-    def tipoParteNombre(self):
-        """Nombre del tipo de parte"""
-        return self.tipo_parte_nombre
-
-    @property
     def __repr__(self):
         """Representación"""
         return f"<ExhExhortoParte {self.id}>"
