@@ -1,6 +1,7 @@
 """
 Materias v4, rutas (paths)
 """
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -18,7 +19,7 @@ from .schemas import MateriaOut, OneMateriaOut
 materias = APIRouter(prefix="/v4/materias", tags=["materias"])
 
 
-@materias.get("/", response_model=CustomList[MateriaOut])
+@materias.get("", response_model=CustomList[MateriaOut])
 async def paginado_materias(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
@@ -46,7 +47,4 @@ async def detalle_materia(
         materia = get_materia_with_clave(database, materia_clave)
     except MyAnyError as error:
         return OneMateriaOut(success=False, errors=[str(error)])
-    return OneMateriaOut(
-        success=True,
-        data=materia
-    )
+    return OneMateriaOut(success=True, data=materia)

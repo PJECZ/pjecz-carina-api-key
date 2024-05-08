@@ -31,4 +31,4 @@ class Municipio(Base, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<Municipio {self.id}>"
+        return f"<Municipio {self.estado.clave}{self.clave}>"

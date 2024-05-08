@@ -2,7 +2,7 @@
 Exh Exhortos Archivos, modelos
 """
 
-from sqlalchemy import Column, Enum, ForeignKey, Integer, String
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from lib.database import Base
@@ -33,7 +33,7 @@ class ExhExhortoArchivo(Base, UniversalMixin):
     # Hash SHA1 en hexadecimal que corresponde al archivo a recibir. Esto para comprobar la integridad del archivo.
     hash_sha1 = Column(String(256))
 
-    # Hash SHA256 en hexadecimal que corresponde al archivo a recibir. Esto apra comprobar la integridad del archivo.
+    # Hash SHA256 en hexadecimal que corresponde al archivo a recibir. Esto para comprobar la integridad del archivo.
     hash_sha256 = Column(String(256))
 
     # Identificador del tipo de documento que representa el archivo:
@@ -45,28 +45,14 @@ class ExhExhortoArchivo(Base, UniversalMixin):
     # URL del archivo en Google Storage
     url = Column(String(512), nullable=False, default="", server_default="")
 
-    # Estado de la entrega del archivo
-    estado = Column(Enum(*ESTADOS, name="exh_exhortos_archivos_estados", native_enum=False), nullable=False)
+    # Estado de recepción del documento
+    estado = Column(Enum(*ESTADOS, name="exh_exhortos_archivos_estados", native_enum=False), nullable=True)
 
-    @property
-    def nombreArchivo(self):
-        """Nombre del archivo"""
-        return self.nombre_archivo
+    # Tamaño del archivo recibido en bytes
+    tamano = Column(Integer, nullable=False)
 
-    @property
-    def hashSha1(self):
-        """Hash SHA1"""
-        return self.hash_sha1
-
-    @property
-    def hashSha256(self):
-        """Hash SHA256"""
-        return self.hash_sha256
-
-    @property
-    def tipoDocumento(self):
-        """Tipo de documento"""
-        return self.tipo_documento
+    # Fecha y hora de recepción del documento
+    fecha_hora_recepcion = Column(DateTime, nullable=False)
 
     def __repr__(self):
         """Representación"""

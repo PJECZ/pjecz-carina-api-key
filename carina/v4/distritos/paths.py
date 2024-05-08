@@ -19,7 +19,7 @@ from .schemas import DistritoOut, OneDistritoOut
 distritos = APIRouter(prefix="/v4/distritos", tags=["distritos"])
 
 
-@distritos.get("/", response_model=CustomList[DistritoOut])
+@distritos.get("", response_model=CustomList[DistritoOut])
 async def paginado_distritos(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],

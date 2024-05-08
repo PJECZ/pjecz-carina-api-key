@@ -2,7 +2,7 @@
 Exh Exhortos, modelos
 """
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from lib.database import Base
@@ -11,6 +11,16 @@ from lib.universal_mixin import UniversalMixin
 
 class ExhExhorto(Base, UniversalMixin):
     """ExhExhorto"""
+
+    ESTADOS = {
+        "PENDIENTE": "Pendiente",
+        "RECIBIDO": "Recibido",
+    }
+
+    REMITENTES = {
+        "INTERNO": "Interno",
+        "EXTERNO": "Externo",
+    }
 
     # Nombre de la tabla
     __tablename__ = "exh_exhortos"
@@ -64,7 +74,7 @@ class ExhExhorto(Base, UniversalMixin):
     tipo_diligenciacion_nombre = Column(String(256))
 
     # Fecha y hora en que el Poder Judicial exhortante registró que se envió el exhorto en su hora local. En caso de no enviar este dato, el Poder Judicial exhortado puede tomar su fecha hora local.
-    fecha_origen = Column(DateTime, server_default=func.now())
+    fecha_origen = Column(DateTime, nullable=False)
 
     # Texto simple que contenga información extra o relevante sobre el exhorto.
     observaciones = Column(String(1024))
@@ -75,80 +85,19 @@ class ExhExhorto(Base, UniversalMixin):
     # ArchivoARecibir[] SI Colección de los datos referentes a los archivos que se van a recibir el Poder Judicial exhortado en el envío del Exhorto.
     exh_exhortos_archivos = relationship("ExhExhortoArchivo", back_populates="exh_exhorto")
 
-    # Propiedades que se van a cargar despues
-    partes = []
-    archivos = []
+    # GUID/UUID... que sea único
+    folio_seguimiento = Column(String(64), nullable=False, unique=True)
 
-    @property
-    def exhortoOrigenId(self):
-        """ID del exhorto de origen"""
-        return self.exhorto_origen_id
+    # Área de recepción
+    exh_area_id = Column(Integer, ForeignKey("exh_areas.id"), index=True, nullable=False)
+    exh_area = relationship("ExhArea", back_populates="exh_exhortos")
 
-    @property
-    def municipioDestinoId(self):
-        """Clave INEGI del municipio de destino"""
-        return self.municipio_destino_id
+    # Estado de recepción del documento
+    estado = Column(Enum(*ESTADOS, name="exh_exhortos_estados", native_enum=False), nullable=True)
 
-    @property
-    def materiaClave(self):
-        """Clave de la materia"""
-        return self.materia.clave
-
-    @property
-    def estadoOrigenId(self):
-        """Clave INEGI del estado de origen"""
-        return self.municipio_origen.estado.clave
-
-    @property
-    def municipioOrigenId(self):
-        """Clave INEGI del municipio de origen"""
-        return self.municipio_origen.clave
-
-    @property
-    def juzgadoOrigenId(self):
-        """ID del juzgado de origen"""
-        return self.juzgado_origen_id
-
-    @property
-    def juzgadoOrigenNombre(self):
-        """Nombre del juzgado de origen"""
-        return self.juzgado_origen_nombre
-
-    @property
-    def numeroExpedienteOrigen(self):
-        """Número de expediente de origen"""
-        return self.numero_expediente_origen
-
-    @property
-    def numeroOficioOrigen(self):
-        """Número de oficio de origen"""
-        return self.numero_oficio_origen
-
-    @property
-    def tipoJuicioAsuntoDelitos(self):
-        """Tipo de juicio"""
-        return self.tipo_juicio_asunto_delitos
-
-    @property
-    def juezExhortante(self):
-        """Juez exhortante"""
-        return self.juez_exhortante
-
-    @property
-    def diasResponder(self):
-        """Días para responder"""
-        return self.dias_responder
-
-    @property
-    def tipoDiligenciacionNombre(self):
-        """Tipo de diligenciación"""
-        return self.tipo_diligenciacion_nombre
-
-    @property
-    def fechaOrigen(self):
-        """Fecha de origen"""
-        return self.fecha_origen
+    # Campo para saber si es un proceso interno o extorno
+    remitente = Column(Enum(*REMITENTES, name="exh_exhortos_remitentes", native_enum=False), nullable=True)
 
     def __repr__(self):
         """Representación"""
-        return f"<ExhExhorto {self.exhorto_origen_id}>"
+        return f"<ExhExhorto {self.id}>"
