@@ -54,9 +54,10 @@ async def detalle_exh_exhorto_archivo(
 async def upload_exh_exhorto_archivo(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
-    file: UploadFile = Depends(ExhExhortoArchivoFileIn),
+    exhortoOrigenId: str,
+    archivo: UploadFile,
 ):
     """Entregar un archivo"""
     if current_user.permissions.get("EXH EXHORTOS ARCHIVOS", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
-    return {"message": file.filename}
+    return {"message": archivo.filename}
