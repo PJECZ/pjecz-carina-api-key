@@ -34,7 +34,6 @@ class ExhExhortoArchivoFileIn(BaseModel):
     """Exquema para recibir archivos Content-Disposition, form-data, file"""
 
     exhortoOrigenId: str | None = None
-    archivo: bytes | None = None
 
 
 class ExhExhortoArchivoFileDataArchivoOut(BaseModel):
