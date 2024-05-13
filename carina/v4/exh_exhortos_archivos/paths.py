@@ -8,12 +8,14 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
 from fastapi_pagination.ext.sqlalchemy import paginate
 
-from carina.v4.exh_exhortos.crud import get_exh_exhorto
+from config.settings import get_settings
 from lib.database import Session, get_db
 from lib.exceptions import MyAnyError
 from lib.fastapi_pagination_custom_page import CustomPage
+from lib.google_cloud_storage import get_blob_name_from_url, get_media_type_from_filename, get_file_from_gcs, upload_file_to_gcs
 
 from ...core.permisos.models import Permiso
+from ..exh_exhortos.crud import get_exh_exhorto
 from ..usuarios.authentications import UsuarioInDB, get_current_active_user
 from .crud import get_exh_exhortos_archivos, get_exh_exhorto_archivo
 from .schemas import (
@@ -23,7 +25,6 @@ from .schemas import (
     ExhExhortoArchivoFileOut,
     ExhExhortoArchivoOut,
     OneExhExhortoArchivoOut,
-    ExhExhortoArchivoFileIn,
 )
 
 exh_exhortos_archivos = APIRouter(prefix="/v4/exh_exhortos_archivos", tags=["exhortos"])
@@ -94,6 +95,13 @@ async def upload_exh_exhorto_archivo(
     # Validar la integridad del archivo con los hashes
 
     # Almacenar el archivo en Google Storage
+    settings = get_settings()
+    upload_file_to_gcs(
+        bucket_name=settings.cloud_storage_deposito,
+        blob_name=f"exh_exhortos_archivos/YYYY/MM/DD/{archivo.filename}",
+        content_type="application/pdf",
+        data=archivo.file,
+    )
 
     # Definir los datos del archivo para la respuesta
     archivo = ExhExhortoArchivoFileDataArchivoOut(

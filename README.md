@@ -117,6 +117,9 @@ DB_NAME=pjecz_plataforma_web
 DB_USER=adminpjeczplataformaweb
 DB_PASS=XXXXXXXXXXXXXXXX
 
+# Google Cloud Storage
+CLOUD_STORAGE_DEPOSITO=pjecz-desarrollo
+
 # Origins
 ORIGINS=http://localhost:3000
 
@@ -145,11 +148,13 @@ then
     echo "-- Variables de entorno"
     export $(grep -v '^#' .env | xargs)
     # source .env && export $(sed '/^#/d' .env | cut -d= -f1)
+    echo "   CLOUD_STORAGE_DEPOSITO: ${CLOUD_STORAGE_DEPOSITO}"
     echo "   DB_HOST: ${DB_HOST}"
     echo "   DB_PORT: ${DB_PORT}"
     echo "   DB_NAME: ${DB_NAME}"
     echo "   DB_USER: ${DB_USER}"
     echo "   DB_PASS: ${DB_PASS}"
+    echo "   GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}"
     echo "   ORIGINS: ${ORIGINS}"
     echo "   SALT: ${SALT}"
     echo
