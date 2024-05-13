@@ -12,14 +12,11 @@ from ..exh_exhortos.crud import get_exh_exhorto
 from ...core.exh_exhortos_archivos.models import ExhExhortoArchivo
 
 
-def get_exh_exhortos_archivos(
-    database: Session,
-    exh_exhorto_id: int = None,
-) -> Any:
+def get_exh_exhortos_archivos(database: Session, exhorto_origen_id: str = None) -> Any:
     """Consultar los archivos activos"""
     consulta = database.query(ExhExhortoArchivo)
-    if exh_exhorto_id is not None:
-        exh_exhorto = get_exh_exhorto(database, exh_exhorto_id)
+    if exhorto_origen_id is not None:
+        exh_exhorto = get_exh_exhorto(database, exhorto_origen_id)
         consulta = consulta.filter_by(exh_exhorto_id=exh_exhorto.id)
     return consulta.filter_by(estatus="A").order_by(ExhExhortoArchivo.id)
 

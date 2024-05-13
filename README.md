@@ -55,32 +55,53 @@ Cuando NO se encuentra un registro el **status code** es **200** pero el **succe
 
 Cuando la ruta NO existe, simplemente ocurre un **status code** con error **404**.
 
-## Configure Poetry
+## Instalación
 
-Por defecto, con **poetry** el entorno se guarda en un directorio en `~/.cache/pypoetry/virtualenvs`
-
-Modifique para que el entorno se guarde en el mismo directorio que el proyecto
+Crear el entorno virtual
 
 ```bash
-poetry config --list
-poetry config virtualenvs.in-project true
+python3.11 -m venv .venv
 ```
 
-Verifique que este en True
+Ingresar al entorno virtual
+
+```bash
+source venv/bin/activate
+```
+
+Actualizar el gestor de paquetes **pip**
+
+```bash
+pip install --upgrade pip
+```
+
+Instalar el paquete **wheel** para compilar las dependencias
+
+```bash
+pip install wheel
+```
+
+Instalar **poetry** en el entorno virtual si no lo tiene desde el sistema operativo
+
+```bash
+pip install poetry
+```
+
+Verificar que la configuracion `virtualenvs.in-project` sea True
 
 ```bash
 poetry config virtualenvs.in-project
 ```
 
-## Instalacion
-
-Instale el entorno virtual con **Python 3.11** y los paquetes necesarios
+Si es falso, configurar **poetry** para que use el entorno virtual dentro del proyecto
 
 ```bash
-python3.11 -m venv .venv
-source .venv/bin/activate
-pip install --upgrade pip
-pip install wheel
+poetry config virtualenvs.in-project true
+```
+
+Instalar los paquetes por medio de **poetry**
+
+```bash
 poetry install
 ```
 

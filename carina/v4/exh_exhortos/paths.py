@@ -43,17 +43,19 @@ async def paginado_exh_exhortos(
     return paginate(resultados)
 
 
-@exh_exhortos.get("/{exh_exhorto_id}", response_model=OneExhExhortoOut)
+@exh_exhortos.get("/{exhorto_origen_id}", response_model=OneExhExhortoOut)
 async def detalle_exh_exhorto(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
-    exh_exhorto_id: int,
+    exhorto_origen_id: str,
 ):
     """Detalle de una exhorto a partir de su id"""
     if current_user.permissions.get("EXH EXHORTOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+
+    # Consultar el exhorto
     try:
-        exh_exhorto = get_exh_exhorto(database, exh_exhorto_id)
+        exh_exhorto = get_exh_exhorto(database, exhorto_origen_id)
     except MyAnyError as error:
         return OneExhExhortoOut(success=False, errors=[str(error)])
 
@@ -86,7 +88,7 @@ async def detalle_exh_exhorto(
         )
     exh_exhorto.archivos = archivos
 
-    # Entregar un exhorto
+    # Entregar
     return OneExhExhortoOut(success=True, data=exh_exhorto)
 
 
