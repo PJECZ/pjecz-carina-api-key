@@ -29,3 +29,13 @@ def get_exh_exhorto_archivo(database: Session, exh_exhorto_archivo_id: int) -> E
     if exh_exhorto_archivo.estatus != "A":
         raise MyIsDeletedError("No es activo ese archivo, está eliminado")
     return exh_exhorto_archivo
+
+
+def update_set_exhorto_archivo(database: Session, exh_exhorto_archivo: ExhExhortoArchivo, **kwargs) -> ExhExhortoArchivo:
+    """Actualizar un archivo"""
+    for key, value in kwargs.items():
+        setattr(exh_exhorto_archivo, key, value)
+    database.add(exh_exhorto_archivo)
+    database.commit()
+    database.refresh(exh_exhorto_archivo)
+    return exh_exhorto_archivo

@@ -54,7 +54,6 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     municipio_destino = (
         database.query(Municipio).filter_by(estado_id=ESTADO_DESTINO_ID).filter_by(clave=municipio_destino_clave).first()
     )
-
     if municipio_destino is None:
         raise MyNotExistsError("No existe ese municipio de destino")
     exh_exhorto.municipio_destino_id = municipio_destino.id
@@ -154,4 +153,14 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     database.refresh(exh_exhorto)
 
     # Entregar
+    return exh_exhorto
+
+
+def update_set_exhorto(database: Session, exh_exhorto: ExhExhorto, **kwargs) -> ExhExhorto:
+    """Actualizar un exhorto"""
+    for key, value in kwargs.items():
+        setattr(exh_exhorto, key, value)
+    database.add(exh_exhorto)
+    database.commit()
+    database.refresh(exh_exhorto)
     return exh_exhorto

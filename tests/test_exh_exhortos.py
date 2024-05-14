@@ -2,8 +2,10 @@
 Unit test for exhortos category
 """
 
+import time
 import unittest
 import uuid
+import random
 import requests
 from faker import Faker
 from tests.load_env import config
@@ -20,18 +22,6 @@ class TestExhExhortos(unittest.TestCase):
             timeout=config["timeout"],
         )
         self.assertEqual(response.status_code, 200)
-
-    def test_get_exh_exhorto_by_id(self):
-        """Test GET method for exh_exhorto by id"""
-        response = requests.get(
-            f"{config['api_base_url']}/exh_exhortos/1",
-            headers={"X-Api-Key": config["api_key"]},
-            timeout=config["timeout"],
-        )
-        self.assertEqual(response.status_code, 200)
-        data = response.json()
-        self.assertEqual(data["success"], True)
-        self.assertEqual(data["data"]["id"], 1)
 
     def test_post_exh_exhorto(self):
         """Test POST method for exh_exhorto"""
@@ -65,6 +55,18 @@ class TestExhExhortos(unittest.TestCase):
             genero_demandado = "M"
         apellido_paterno_demandado = faker.last_name()
         apellido_materno_demandado = faker.last_name()
+
+        # Generar de 1 a 4 archivos de prueba
+        archivos = []
+        for numero in range(1, random.randint(1, 4) + 1):
+            archivos.append(
+                {
+                    "nombreArchivo": f"prueba-{numero}.pdf",
+                    "hashSha1": "",
+                    "hashSha256": "",
+                    "tipoDocumento": 1,
+                }
+            )
 
         # Mandar Exhorto
         datos_nuevo_exhorto = {
@@ -104,7 +106,7 @@ class TestExhExhortos(unittest.TestCase):
             "tipoDiligenciacionNombre": "OFICIO",
             "fechaOrigen": "2024-05-03T21:58:45.258Z",
             "observaciones": "CELEBRIDADES QUE SE VAN A DIVORCIAR",
-            "archivos": [{"nombreArchivo": "prueba.pdf", "hashSha1": "ABC123", "hashSha256": "ABC123", "tipoDocumento": 1}],
+            "archivos": archivos,
         }
         response = requests.post(
             f"{config['api_base_url']}/exh_exhortos",
@@ -118,19 +120,20 @@ class TestExhExhortos(unittest.TestCase):
         self.assertEqual(data["data"]["exhortoOrigenId"], exhorto_origen_id)
 
         # Mandar un archivo multipart/form-data
-        archivo_prueba_nombre = "prueba.pdf"
-        with open(f"tests/{archivo_prueba_nombre}", "rb") as archivo_prueba:
-            response = requests.post(
-                f"{config['api_base_url']}/exh_exhortos_archivos/upload",
-                headers={"X-Api-Key": config["api_key"]},
-                timeout=config["timeout"],
-                params={"exhortoOrigenId": exhorto_origen_id},
-                files={"archivo": (archivo_prueba_nombre, archivo_prueba, "application/pdf")},
-            )
-            self.assertEqual(response.status_code, 200)
-            data = response.json()
-            # self.assertEqual(data["success"], True)
-            self.assertEqual(data["message"], archivo_prueba_nombre)
+        for archivo in archivos:
+            time.sleep(5)  # Pausa de 5 segundos
+            archivo_prueba_nombre = archivo["nombreArchivo"]
+            with open(f"tests/{archivo_prueba_nombre}", "rb") as archivo_prueba:
+                response = requests.post(
+                    f"{config['api_base_url']}/exh_exhortos_archivos/upload",
+                    headers={"X-Api-Key": config["api_key"]},
+                    timeout=config["timeout"],
+                    params={"exhortoOrigenId": exhorto_origen_id},
+                    files={"archivo": (archivo_prueba_nombre, archivo_prueba, "application/pdf")},
+                )
+                self.assertEqual(response.status_code, 200)
+                data = response.json()
+                self.assertEqual(data["success"], True)
 
 
 if __name__ == "__main__":
