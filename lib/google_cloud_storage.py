@@ -171,23 +171,23 @@ def upload_file_to_gcs(
 
     # Check content type
     if content_type not in EXTENSIONS_MEDIA_TYPES.values():
-        raise MyFileNotAllowedError("File not allowed")
+        raise MyFileNotAllowedError("Tipo de archivo no permitido")
 
     # Get bucket
     storage_client = storage.Client()
     try:
         bucket = storage_client.get_bucket(bucket_name)
     except NotFound as error:
-        raise MyBucketNotFoundError("Bucket not found") from error
+        raise MyBucketNotFoundError("No existe el deposito en Google Cloud Storage") from error
 
     # Create blob
     blob = bucket.blob(blob_name)
 
     # Upload file
     try:
-        blob.upload_from_string(data, content_type=content_type)
+        blob.upload_from_file(data, content_type=content_type)
     except Exception as error:
-        raise MyUploadError("Error uploading file") from error
+        raise MyUploadError("Error al subir el archivo a Google Cloud Storage") from error
 
     # Return public URL
     return blob.public_url

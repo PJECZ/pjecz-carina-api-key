@@ -20,7 +20,7 @@ class ExhArea(Base, UniversalMixin):
 
     # Columnas
     clave = Column(String(16), unique=True, nullable=False)
-    descripcion = Column(String(256), nullable=False)
+    nombre = Column(String(256), unique=True, nullable=False)
 
     # Hijos
     exh_exhortos = relationship("ExhExhorto", back_populates="exh_area")
