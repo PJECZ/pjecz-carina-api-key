@@ -9,6 +9,7 @@ que se usa en local y por último de variables de entorno.
 Para desarrollo debe crear un archivo .env en la raíz del proyecto
 con las siguientes variables:
 
+- CLOUD_STORAGE_DEPOSITO
 - DB_HOST
 - DB_PORT
 - DB_NAME
@@ -21,6 +22,7 @@ Para producción vaya a Google Secret Manager en
 https://console.cloud.google.com/security/secret-manager
 y cree como secretos las siguientes variable de entorno
 
+- pjecz_carina_api_key_cloud_storage_deposito
 - pjecz_carina_api_key_db_host
 - pjecz_carina_api_key_db_port
 - pjecz_carina_api_key_db_name
@@ -34,6 +36,7 @@ Y en el archivo app.yaml agregue las siguientes variables de entorno
 - PROJECT_ID: justicia-digital-gob-mx
 - SERVICE_PREFIX: pjecz_carina_api_key
 """
+
 import os
 from functools import lru_cache
 
@@ -68,6 +71,7 @@ def get_secret(secret_id: str) -> str:
 class Settings(BaseSettings):
     """Settings"""
 
+    cloud_storage_deposito: str = get_secret("cloud_storage_deposito")
     db_host: str = get_secret("db_host")
     db_port: int = get_secret("db_port")
     db_name: str = get_secret("db_name")

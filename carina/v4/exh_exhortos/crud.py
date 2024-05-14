@@ -8,7 +8,7 @@ import uuid
 
 from sqlalchemy.orm import Session
 
-from lib.exceptions import MyIsDeletedError, MyNotExistsError
+from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
 from ...core.estados.models import Estado
 from ...core.exh_exhortos.models import ExhExhorto
 from ...core.exh_exhortos_archivos.models import ExhExhortoArchivo
@@ -26,9 +26,13 @@ def get_exh_exhortos(database: Session) -> Any:
     return consulta.filter_by(estatus="A").order_by(ExhExhorto.id)
 
 
-def get_exh_exhorto(database: Session, exh_exhorto_id: int) -> ExhExhorto:
+def get_exh_exhorto(database: Session, exhorto_origen_id: str) -> ExhExhorto:
     """Consultar un exhorto por su id"""
-    exh_exhorto = database.query(ExhExhorto).get(exh_exhorto_id)
+    try:
+        uuid.UUID(exhorto_origen_id)
+    except ValueError as error:
+        raise MyNotValidParamError("No es un UUID válido") from error
+    exh_exhorto = database.query(ExhExhorto).filter_by(exhorto_origen_id=exhorto_origen_id).first()
     if exh_exhorto is None:
         raise MyNotExistsError("No existe ese exhorto")
     if exh_exhorto.estatus != "A":
