@@ -51,7 +51,7 @@ def create_app() -> FastAPI:
     # Rutas
     app.include_router(autoridades, include_in_schema=False)
     app.include_router(bitacoras, include_in_schema=False)
-    app.include_router(distritos)
+    app.include_router(distritos, include_in_schema=False)
     app.include_router(entradas_salidas, include_in_schema=False)
     app.include_router(estados)
     app.include_router(exh_areas)

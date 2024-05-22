@@ -37,8 +37,20 @@ class ExhExhortoIn(BaseModel):
 class ExhExhortoOut(ExhExhortoIn):
     """Esquema para entregar exhortos"""
 
-    id: int | None = None
-    model_config = ConfigDict(from_attributes=True)
+    folioSeguimiento: str | None = None
+    estadoDestinoId: int | None = None
+    estadoDestinoNombre: str | None = None
+    municipioDestinoNombre: str | None = None
+    materiaNombre: str | None = None
+    estadoOrigenNombre: str | None = None
+    municipioOrigenNombre: str | None = None
+    fechaHoraRecepcion: datetime | None = None
+    municipioTurnadoId: int | None = None
+    municipioTurnadoNombre: str | None = None
+    areaTurnadoId: str | None = None
+    areaTurnadoNombre: str | None = None
+    numeroExhorto: str | None = None
+    urlInfo: str | None = None
 
 
 class OneExhExhortoOut(OneBaseOut):

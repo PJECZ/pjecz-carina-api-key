@@ -16,7 +16,7 @@ from lib.fastapi_pagination_custom_page import CustomPage
 from lib.google_cloud_storage import upload_file_to_gcs
 
 from carina.core.permisos.models import Permiso
-from carina.v4.exh_exhortos.crud import get_exh_exhorto, update_set_exhorto
+from carina.v4.exh_exhortos.crud import get_exh_exhorto_by_exhorto_origen_id, update_set_exhorto
 from carina.v4.exh_exhortos_archivos.crud import get_exh_exhortos_archivos, get_exh_exhorto_archivo, update_set_exhorto_archivo
 from carina.v4.exh_exhortos_archivos.schemas import (
     ExhExhortoArchivoFileDataAcuseOut,
@@ -79,7 +79,7 @@ async def upload_exh_exhorto_archivo(
 
     # Consultar y validar el exhorto a partir del exhortoOrigenId
     try:
-        exh_exhorto = get_exh_exhorto(database, exhortoOrigenId)
+        exh_exhorto = get_exh_exhorto_by_exhorto_origen_id(database, exhortoOrigenId)
     except MyAnyError as error:
         return ExhExhortoArchivoFileOut(success=False, errors=[str(error)])
 

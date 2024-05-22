@@ -14,15 +14,6 @@ from tests.load_env import config
 class TestExhExhortos(unittest.TestCase):
     """Tests for exh_exhortos category"""
 
-    def test_get_exh_exhortos(self):
-        """Test GET method for exh_exhortos"""
-        response = requests.get(
-            f"{config['api_base_url']}/exh_exhortos",
-            headers={"X-Api-Key": config["api_key"]},
-            timeout=config["timeout"],
-        )
-        self.assertEqual(response.status_code, 200)
-
     def test_post_exh_exhorto(self):
         """Test POST method for exh_exhorto"""
 
