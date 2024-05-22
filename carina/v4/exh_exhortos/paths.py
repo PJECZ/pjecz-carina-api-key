@@ -6,15 +6,14 @@ from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi_pagination.ext.sqlalchemy import paginate
 
 from lib.database import Session, get_db
 from lib.exceptions import MyAnyError
-from lib.fastapi_pagination_custom_page import CustomPage
 
 from ...core.permisos.models import Permiso
+from ..municipios.crud import get_municipio
 from ..usuarios.authentications import UsuarioInDB, get_current_active_user
-from .crud import create_exh_exhorto, get_exh_exhortos, get_exh_exhorto
+from .crud import create_exh_exhorto, get_exh_exhorto_by_folio_seguimiento
 from .schemas import (
     ExhExhortoConfirmacionDatosExhortoRecibidoOut,
     ExhExhortoIn,
@@ -28,34 +27,19 @@ from ..exh_exhortos_partes.schemas import ExhExhortoParteIn
 exh_exhortos = APIRouter(prefix="/v4/exh_exhortos", tags=["exhortos"])
 
 
-@exh_exhortos.get("", response_model=CustomPage[ExhExhortoOut])
-async def paginado_exh_exhortos(
+@exh_exhortos.get("/{folio_seguimiento}", response_model=OneExhExhortoOut)
+async def detalle_exh_exhorto_con_folio_seguimiento(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
+    folio_seguimiento: str,
 ):
-    """Paginado de exhortos"""
-    if current_user.permissions.get("EXH EXHORTOS", 0) < Permiso.VER:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
-    try:
-        resultados = get_exh_exhortos(database)
-    except MyAnyError as error:
-        return CustomPage(success=False, errors=[str(error)])
-    return paginate(resultados)
-
-
-@exh_exhortos.get("/{exhorto_origen_id}", response_model=OneExhExhortoOut)
-async def detalle_exh_exhorto(
-    current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
-    database: Annotated[Session, Depends(get_db)],
-    exhorto_origen_id: str,
-):
-    """Detalle de una exhorto a partir de su id"""
+    """Detalle de un exhorto a partir de su folio de seguimiento"""
     if current_user.permissions.get("EXH EXHORTOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
     # Consultar el exhorto
     try:
-        exh_exhorto = get_exh_exhorto(database, exhorto_origen_id)
+        exh_exhorto = get_exh_exhorto_by_folio_seguimiento(database, folio_seguimiento)
     except MyAnyError as error:
         return OneExhExhortoOut(success=False, errors=[str(error)])
 
@@ -73,7 +57,6 @@ async def detalle_exh_exhorto(
                 tipoParteNombre=exh_exhorto_parte.tipo_parte_nombre,
             )
         )
-    exh_exhorto.partes = partes
 
     # Copiar los archivos del exhorto a instancias de ExhExhortoArchivoOut
     archivos = []
@@ -86,10 +69,51 @@ async def detalle_exh_exhorto(
                 tipoDocumento=exh_exhorto_archivo.tipo_documento,
             )
         )
-    exh_exhorto.archivos = archivos
+
+    # Definir la clave INEGI del municipio de destino
+    municipio_destino = get_municipio(database, exh_exhorto.municipio_destino_id)
+
+    # Definir la clave INEGI del estado de destino
+    estado_destino = municipio_destino.estado
+
+    # Definir datos del exhorto a entregar
+    ext_extorto_data = ExhExhortoOut(
+        exhortoOrigenId=exh_exhorto.exhorto_origen_id,
+        folioSeguimiento=exh_exhorto.folio_seguimiento,
+        estadoDestinoId=estado_destino.clave,
+        estadoDestinoNombre=estado_destino.nombre,
+        municipioDestinoId=municipio_destino.clave,
+        municipioDestinoNombre=municipio_destino.nombre,
+        materiaClave=exh_exhorto.materia.clave,
+        materiaNombre=exh_exhorto.materia.nombre,
+        estadoOrigenId=exh_exhorto.municipio_origen.estado.clave,
+        estadoOrigenNombre=exh_exhorto.municipio_origen.estado.nombre,
+        municipioOrigenId=exh_exhorto.municipio_origen.clave,
+        municipioOrigenNombre=exh_exhorto.municipio_origen.nombre,
+        juzgadoOrigenId=exh_exhorto.juzgado_origen_id,
+        juzgadoOrigenNombre=exh_exhorto.juzgado_origen_nombre,
+        numeroExpedienteOrigen=exh_exhorto.numero_expediente_origen,
+        numeroOficioOrigen=exh_exhorto.numero_oficio_origen,
+        tipoJuicioAsuntoDelitos=exh_exhorto.tipo_juicio_asunto_delitos,
+        juezExhortante=exh_exhorto.juez_exhortante,
+        partes=partes,
+        fojas=exh_exhorto.fojas,
+        diasResponder=exh_exhorto.dias_responder,
+        tipoDiligenciacionNombre=exh_exhorto.tipo_diligenciacion_nombre,
+        fechaOrigen=exh_exhorto.fecha_origen,
+        observaciones=exh_exhorto.observaciones,
+        archivos=archivos,
+        fechaHoraRecepcion=exh_exhorto.creado,
+        municipioTurnadoId=exh_exhorto.autoridad.municipio.clave,
+        municipioTurnadoNombre=exh_exhorto.autoridad.municipio.nombre,
+        areaTurnadoId=exh_exhorto.exh_area.clave,
+        areaTurnadoNombre=exh_exhorto.exh_area.nombre,
+        numeroExhorto=exh_exhorto.numero_exhorto,
+        urlInfo="https://carina.justiciadigital.gob.mx/",
+    )
 
     # Entregar
-    return OneExhExhortoOut(success=True, data=exh_exhorto)
+    return OneExhExhortoOut(success=True, data=ext_extorto_data)
 
 
 @exh_exhortos.post("", response_model=OneExhExhortoConfirmacionDatosExhortoRecibidoOut)

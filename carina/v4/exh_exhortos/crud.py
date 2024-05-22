@@ -8,6 +8,8 @@ import uuid
 
 from sqlalchemy.orm import Session
 
+from carina.core.autoridades.models import Autoridad
+from carina.core.exh_areas.models import ExhArea
 from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
 from ...core.estados.models import Estado
 from ...core.exh_exhortos.models import ExhExhorto
@@ -26,13 +28,27 @@ def get_exh_exhortos(database: Session) -> Any:
     return consulta.filter_by(estatus="A").order_by(ExhExhorto.id)
 
 
-def get_exh_exhorto(database: Session, exhorto_origen_id: str) -> ExhExhorto:
-    """Consultar un exhorto por su id"""
+def get_exh_exhorto_by_exhorto_origen_id(database: Session, exhorto_origen_id: str) -> ExhExhorto:
+    """Consultar un exhorto por su exhorto_origen_id"""
     try:
         uuid.UUID(exhorto_origen_id)
     except ValueError as error:
         raise MyNotValidParamError("No es un UUID válido") from error
     exh_exhorto = database.query(ExhExhorto).filter_by(exhorto_origen_id=exhorto_origen_id).first()
+    if exh_exhorto is None:
+        raise MyNotExistsError("No existe ese exhorto")
+    if exh_exhorto.estatus != "A":
+        raise MyIsDeletedError("No es activo ese exhorto, está eliminado")
+    return exh_exhorto
+
+
+def get_exh_exhorto_by_folio_seguimiento(database: Session, folio_seguimiento: str) -> ExhExhorto:
+    """Consultar un exhorto por su folio de seguimiento"""
+    try:
+        uuid.UUID(folio_seguimiento)
+    except ValueError as error:
+        raise MyNotValidParamError("No es un UUID válido") from error
+    exh_exhorto = database.query(ExhExhorto).filter_by(folio_seguimiento=folio_seguimiento).first()
     if exh_exhorto is None:
         raise MyNotExistsError("No existe ese exhorto")
     if exh_exhorto.estatus != "A":
@@ -113,7 +129,19 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     exh_exhorto.folio_seguimiento = str(random_uuid)
 
     # Área de recepción, 1 = NO DEFINIDO
-    exh_exhorto.exh_area_id = 1
+    exh_exhorto.exh_area = database.query(ExhArea).filter_by(clave="ND").first()
+
+    # Juzgado/Área al que se turna el Exhorto, por defecto ND
+    exh_exhorto.autoridad = database.query(Autoridad).filter_by(clave="ND").first()
+
+    # Número de Exhorto con el que se radica en el Juzgado/Área que se turnó el exhorto, por defecto ''
+    exh_exhorto.numero_exhorto = ""
+
+    # Remitente es EXTERNO
+    exh_exhorto.remitente = "EXTERNO"
+
+    # Estado es PENDIENTE
+    exh_exhorto.estado = "PENDIENTE"
 
     # Iniciar la transaccion, agregar el exhorto
     database.add(exh_exhorto)
