@@ -4,6 +4,7 @@ Exh Exhortos Archivos v4, rutas (paths)
 
 from datetime import datetime
 from typing import Annotated
+import hashlib
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
@@ -87,21 +88,49 @@ async def upload_exh_exhorto_archivo(
     total_contador = 0
     pendientes_contador = 0
     recibidos_contador = 0
-    exh_exhorto_archivo_encontrado = False
-    for exh_exhorto_archivo in get_exh_exhortos_archivos(database, exhortoOrigenId).all():
+    exh_exhorto_archivo = False
+    for item in get_exh_exhortos_archivos(database, exhortoOrigenId).all():
         total_contador += 1
-        if exh_exhorto_archivo.nombre_archivo == archivo.filename and exh_exhorto_archivo.estado == "PENDIENTE":
-            exh_exhorto_archivo_encontrado = exh_exhorto_archivo
-        if exh_exhorto_archivo.estado == "PENDIENTE":
+        if item.nombre_archivo == archivo.filename and item.estado == "PENDIENTE":
+            exh_exhorto_archivo = item
+        if item.estado == "PENDIENTE":
             pendientes_contador += 1
         else:
             recibidos_contador += 1
 
     # Si NO se encontró el archivo, entonces entregar un error
-    if exh_exhorto_archivo_encontrado is False:
+    if exh_exhorto_archivo is False:
         return ExhExhortoArchivoFileOut(success=False, errors=["No se encontró el archivo"])
 
-    # TODO: Validar la integridad del archivo con los hashes
+    # Determinar el tamano del archivo
+    archivo_pdf_tamanio = archivo.size
+
+    # Validar que el archivo no execeda el tamaño máximo permitido de 10MB
+    if archivo_pdf_tamanio > 10 * 1024 * 1024:
+        return ExhExhortoArchivoFileOut(success=False, errors=["El archivo no debe exceder los 10MB"])
+
+    # Cargar el archivo en memoria
+    archivo_en_memoria = archivo.file.read()
+
+    # Validar la integridad del archivo con SHA1
+    if exh_exhorto_archivo.hash_sha1 != "":
+        hasher_sha1 = hashlib.sha1()
+        hasher_sha1.update(archivo_en_memoria)
+        if exh_exhorto_archivo.hash_sha1 != hasher_sha1.hexdigest():
+            return ExhExhortoArchivoFileOut(
+                success=False,
+                errors=[f"El archivo no coincide con el hash SHA1 {exh_exhorto_archivo.hash_sha1}"],
+            )
+
+    # Validar la integridad del archivo con SHA256
+    if exh_exhorto_archivo.hash_sha256 != "":
+        hasher_sha256 = hashlib.sha256()
+        hasher_sha256.update(archivo_en_memoria)
+        if exh_exhorto_archivo.hash_sha256 != hasher_sha256.hexdigest():
+            return ExhExhortoArchivoFileOut(
+                success=False,
+                errors=[f"El archivo no coincide con el hash SHA256 {exh_exhorto_archivo.hash_sha256}"],
+            )
 
     # Definir el nombre del archivo a subir a Google Storage
     archivo_pdf_nombre = f"{exhortoOrigenId}_{str(recibidos_contador + 1).zfill(4)}.pdf"
@@ -113,9 +142,6 @@ async def upload_exh_exhorto_archivo(
     day = fecha_hora_recepcion.strftime("%d")
     blob_name = f"exh_exhortos_archivos/{year}/{month}/{day}/{archivo_pdf_nombre}"
 
-    # Determinar el tamano del archivo
-    archivo_pdf_tamanio = archivo.size
-
     # Almacenar el archivo en Google Storage
     settings = get_settings()
     try:
@@ -123,15 +149,15 @@ async def upload_exh_exhorto_archivo(
             bucket_name=settings.cloud_storage_deposito,
             blob_name=blob_name,
             content_type="application/pdf",
-            data=archivo.file,
+            data=archivo_en_memoria,
         )
     except MyAnyError as error:
         return ExhExhortoArchivoFileOut(success=False, errors=[str(error)])
 
     # Cambiar el estado de exh_exhorto_archivo_encontrado a RECIBIDO
-    exh_exhorto_archivo_encontrado = update_set_exhorto_archivo(
+    exh_exhorto_archivo = update_set_exhorto_archivo(
         database=database,
-        exh_exhorto_archivo=exh_exhorto_archivo_encontrado,
+        exh_exhorto_archivo=exh_exhorto_archivo,
         estado="RECIBIDO",
         url=archivo_pdf_url,
         tamano=archivo_pdf_tamanio,
@@ -140,7 +166,7 @@ async def upload_exh_exhorto_archivo(
 
     # Definir los datos del archivo para la respuesta
     archivo = ExhExhortoArchivoFileDataArchivoOut(
-        nombreArchivo=exh_exhorto_archivo_encontrado.nombre_archivo,
+        nombreArchivo=exh_exhorto_archivo.nombre_archivo,
         tamano=archivo_pdf_tamanio,
     )
 
