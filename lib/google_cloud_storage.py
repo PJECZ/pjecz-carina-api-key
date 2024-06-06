@@ -183,9 +183,9 @@ def upload_file_to_gcs(
     # Create blob
     blob = bucket.blob(blob_name)
 
-    # Upload file
+    # Upload
     try:
-        blob.upload_from_file(data, content_type=content_type)
+        blob.upload_from_string(data, content_type=content_type)
     except Exception as error:
         raise MyUploadError("Error al subir el archivo a Google Cloud Storage") from error
 
