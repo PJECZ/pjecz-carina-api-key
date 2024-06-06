@@ -17,6 +17,12 @@ class ExhExhortoArchivo(Base, UniversalMixin):
         "RECIBIDO": "Recibido",
     }
 
+    TIPOS_DOCUMENTOS = {
+        1: "Oficio",
+        2: "Acuerdo",
+        3: "Anexo",
+    }
+
     # Nombre de la tabla
     __tablename__ = "exh_exhortos_archivos"
 
