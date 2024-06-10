@@ -1,10 +1,14 @@
 """
 UniversalMixin define las columnas y métodos comunes de todos los modelos
 """
+
 import re
+from datetime import datetime
 
 from hashids import Hashids
-from sqlalchemy import Column, DateTime, String, func
+from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.sql.functions import now
+from sqlalchemy.types import CHAR
 
 from config.settings import get_settings
 
@@ -15,9 +19,9 @@ hashids = Hashids(salt=settings.salt, min_length=8)
 class UniversalMixin:
     """Columnas y métodos comunes a todas las tablas"""
 
-    creado = Column(DateTime, server_default=func.now(), nullable=False)
-    modificado = Column(DateTime, onupdate=func.now(), server_default=func.now())
-    estatus = Column(String(1), server_default="A", nullable=False)
+    creado: Mapped[datetime] = mapped_column(default=now())
+    modificado: Mapped[datetime] = mapped_column(default=now(), onupdate=now())
+    estatus: Mapped[str] = mapped_column(CHAR, server_default="A", default="A")
 
     def encode_id(self):
         """Convertir el ID de entero a cadena"""
