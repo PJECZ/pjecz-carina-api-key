@@ -41,3 +41,10 @@ faker = "^25.2.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 128
+
+[tool.isort]
+line_length = 128
+profile = "black"

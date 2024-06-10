@@ -1,8 +1,9 @@
 """
 Tareas, modelos
 """
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
+
+from sqlalchemy import ForeignKey, String, Uuid
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from lib.database import Base
 from lib.universal_mixin import UniversalMixin
@@ -15,16 +16,18 @@ class Tarea(Base, UniversalMixin):
     __tablename__ = "tareas"
 
     # Clave primaria NOTA: El id es string y es el mismo que usa el RQ worker
-    id = Column(String(36), primary_key=True)
+    id: Mapped[str] = mapped_column(Uuid, primary_key=True)
 
     # Clave foránea
-    usuario_id = Column(Integer, ForeignKey("usuarios.id"), index=True, nullable=False)
-    usuario = relationship("Usuario", back_populates="tareas")
+    usuario_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
+    usuario: Mapped["Usuario"] = relationship("Usuario", back_populates="tareas")
 
     # Columnas
-    comando = Column(String(256), nullable=False, index=True)
-    mensaje = Column(String(1024), default="", server_default="")
-    ha_terminado = Column(Boolean, nullable=False, default=False)
+    archivo: Mapped[str] = mapped_column(String(256))
+    comando: Mapped[str] = mapped_column(String(256), index=True)
+    ha_terminado: Mapped[bool] = mapped_column(default=False)
+    mensaje: Mapped[str] = mapped_column(String(1024))
+    url: Mapped[str] = mapped_column(String(512))
 
     def __repr__(self):
         """Representación"""

@@ -1,10 +1,9 @@
 """
 Entradas-Salidas, modelos
 """
-from collections import OrderedDict
 
-from sqlalchemy import Column, Enum, ForeignKey, Integer, String
-from sqlalchemy.orm import relationship
+from sqlalchemy import Enum, ForeignKey, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from lib.database import Base
 from lib.universal_mixin import UniversalMixin
@@ -13,26 +12,24 @@ from lib.universal_mixin import UniversalMixin
 class EntradaSalida(Base, UniversalMixin):
     """EntradaSalida"""
 
-    TIPOS = OrderedDict(
-        [
-            ("INGRESO", "Ingresó"),
-            ("SALIO", "Salió"),
-        ]
-    )
+    TIPOS = {
+        "INGRESO": "Ingresó",
+        "SALIO": "Salió",
+    }
 
     # Nombre de la tabla
     __tablename__ = "entradas_salidas"
 
     # Clave primaria
-    id = Column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
 
     # Claves foráneas
-    usuario_id = Column(Integer, ForeignKey("usuarios.id"), index=True, nullable=False)
-    usuario = relationship("Usuario", back_populates="entradas_salidas")
+    usuario_id: Mapped[int] = mapped_column(ForeignKey("usuarios.id"))
+    usuario: Mapped["Usuario"] = relationship(back_populates="entradas_salidas")
 
     # Columnas
-    tipo = Column(Enum(*TIPOS, name="entradas_salidas_tipos", native_enum=False), index=True, nullable=False)
-    direccion_ip = Column(String(64), nullable=False)
+    tipo: Mapped[str] = mapped_column(Enum(*TIPOS, name="entradas_salidas_tipos", native_enum=False), index=True)
+    direccion_ip: Mapped[str] = mapped_column(String(64))
 
     def __repr__(self):
         """Representación"""
