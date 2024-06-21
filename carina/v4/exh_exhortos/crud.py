@@ -40,7 +40,7 @@ def get_exh_exhorto_by_exhorto_origen_id(database: Session, exhorto_origen_id: s
     if exh_exhorto is None:
         raise MyNotExistsError("No existe ese exhorto")
     if exh_exhorto.estatus != "A":
-        raise MyIsDeletedError("No es activo ese exhorto, está eliminado")
+        raise MyIsDeletedError(f"No es activo ese exhorto, está eliminado con {exh_exhorto.estatus}")
     return exh_exhorto
 
 
@@ -144,6 +144,9 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
 
     # Estado es PENDIENTE
     exh_exhorto.estado = "PENDIENTE"
+
+    # Estatus es A
+    exh_exhorto.estatus = "A"
 
     # Iniciar la transaccion, agregar el exhorto
     database.add(exh_exhorto)
