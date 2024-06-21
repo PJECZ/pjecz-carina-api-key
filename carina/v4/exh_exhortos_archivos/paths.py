@@ -2,23 +2,17 @@
 Exh Exhortos Archivos v4, rutas (paths)
 """
 
-from datetime import datetime
-from typing import Annotated
 import hashlib
 import uuid
+from datetime import datetime
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 from fastapi_pagination.ext.sqlalchemy import paginate
-
-from config.settings import get_settings
-from lib.database import Session, get_db
-from lib.exceptions import MyAnyError
-from lib.fastapi_pagination_custom_page import CustomPage
-from lib.google_cloud_storage import upload_file_to_gcs
 
 from carina.core.permisos.models import Permiso
 from carina.v4.exh_exhortos.crud import get_exh_exhorto_by_exhorto_origen_id, update_set_exhorto
-from carina.v4.exh_exhortos_archivos.crud import get_exh_exhortos_archivos, get_exh_exhorto_archivo, update_set_exhorto_archivo
+from carina.v4.exh_exhortos_archivos.crud import get_exh_exhorto_archivo, get_exh_exhortos_archivos, update_set_exhorto_archivo
 from carina.v4.exh_exhortos_archivos.schemas import (
     ExhExhortoArchivoFileDataAcuseOut,
     ExhExhortoArchivoFileDataArchivoOut,
@@ -28,6 +22,11 @@ from carina.v4.exh_exhortos_archivos.schemas import (
     OneExhExhortoArchivoOut,
 )
 from carina.v4.usuarios.authentications import UsuarioInDB, get_current_active_user
+from config.settings import get_settings
+from lib.database import Session, get_db
+from lib.exceptions import MyAnyError
+from lib.fastapi_pagination_custom_page import CustomPage
+from lib.google_cloud_storage import upload_file_to_gcs
 
 exh_exhortos_archivos = APIRouter(prefix="/v4/exh_exhortos_archivos", tags=["exhortos"])
 
@@ -152,7 +151,11 @@ async def upload_exh_exhorto_archivo(
             data=archivo_en_memoria,
         )
     except MyAnyError as error:
-        return ExhExhortoArchivoFileOut(success=False, errors=[str(error)])
+        return ExhExhortoArchivoFileOut(
+            success=False,
+            message="Error al recibir un archivo de un exhorto",
+            errors=[str(error)],
+        )
 
     # Cambiar el estado de exh_exhorto_archivo_encontrado a RECIBIDO
     exh_exhorto_archivo = update_set_exhorto_archivo(
@@ -183,7 +186,7 @@ async def upload_exh_exhorto_archivo(
         )
         # Y se va a elaborar el acuse
         acuse = ExhExhortoArchivoFileDataAcuseOut(
-            exhortoOrigenId=exh_exhorto_actualizado.exhorto_origen_id,
+            exhortoOrigenId=str(exh_exhorto_actualizado.exhorto_origen_id),
             folioSeguimiento=folio_seguimiento,
             fechaHoraRecepcion=fecha_hora_recepcion,
             municipioAreaRecibeId=exh_exhorto_actualizado.municipio_destino_id,

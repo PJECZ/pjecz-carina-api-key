@@ -60,7 +60,7 @@ def create_app() -> FastAPI:
     app.include_router(exh_areas, include_in_schema=False)
     app.include_router(exh_exhortos)
     app.include_router(exh_exhortos_archivos)
-    app.include_router(exh_exhortos_partes)
+    app.include_router(exh_exhortos_partes, include_in_schema=False)
     app.include_router(materias)
     app.include_router(modulos, include_in_schema=False)
     app.include_router(municipios)

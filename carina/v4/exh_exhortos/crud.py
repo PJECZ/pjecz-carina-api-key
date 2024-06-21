@@ -2,15 +2,16 @@
 Exh Exhortos v4, CRUD (create, read, update, and delete)
 """
 
+import uuid
 from datetime import datetime
 from typing import Any
-import uuid
 
 from sqlalchemy.orm import Session
 
 from carina.core.autoridades.models import Autoridad
 from carina.core.exh_areas.models import ExhArea
 from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
+
 from ...core.estados.models import Estado
 from ...core.exh_exhortos.models import ExhExhorto
 from ...core.exh_exhortos_archivos.models import ExhExhortoArchivo
@@ -19,6 +20,7 @@ from ...core.materias.models import Materia
 from ...core.municipios.models import Municipio
 from ..exh_exhortos.schemas import ExhExhortoIn
 
+ESTADO_DESTINO_NOMBRE = "COAHUILA DE ZARAGOZA"
 ESTADO_DESTINO_ID = 5
 
 
@@ -71,7 +73,7 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
         database.query(Municipio).filter_by(estado_id=ESTADO_DESTINO_ID).filter_by(clave=municipio_destino_clave).first()
     )
     if municipio_destino is None:
-        raise MyNotExistsError("No existe ese municipio de destino")
+        raise MyNotExistsError(f"No existe el municipio de destino {municipio_destino_clave} en {ESTADO_DESTINO_NOMBRE}")
     exh_exhorto.municipio_destino_id = municipio_destino.id
 
     # Consultar y validar la materia
