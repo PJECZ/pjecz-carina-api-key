@@ -154,7 +154,6 @@ then
     echo "   DB_NAME: ${DB_NAME}"
     echo "   DB_USER: ${DB_USER}"
     echo "   DB_PASS: ${DB_PASS}"
-    echo "   GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}"
     echo "   ORIGINS: ${ORIGINS}"
     echo "   SALT: ${SALT}"
     echo

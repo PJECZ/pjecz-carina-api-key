@@ -11,6 +11,8 @@ from lib.database import Session, get_db
 from lib.exceptions import MyAnyError
 
 from ...core.permisos.models import Permiso
+from ..exh_exhortos_archivos.schemas import ExhExhortoArchivoOut
+from ..exh_exhortos_partes.schemas import ExhExhortoParteIn
 from ..municipios.crud import get_municipio
 from ..usuarios.authentications import UsuarioInDB, get_current_active_user
 from .crud import create_exh_exhorto, get_exh_exhorto_by_folio_seguimiento
@@ -21,8 +23,6 @@ from .schemas import (
     OneExhExhortoConfirmacionDatosExhortoRecibidoOut,
     OneExhExhortoOut,
 )
-from ..exh_exhortos_archivos.schemas import ExhExhortoArchivoOut
-from ..exh_exhortos_partes.schemas import ExhExhortoParteIn
 
 exh_exhortos = APIRouter(prefix="/v4/exh_exhortos", tags=["exhortos"])
 
@@ -78,8 +78,8 @@ async def detalle_exh_exhorto_con_folio_seguimiento(
 
     # Definir datos del exhorto a entregar
     ext_extorto_data = ExhExhortoOut(
-        exhortoOrigenId=exh_exhorto.exhorto_origen_id,
-        folioSeguimiento=exh_exhorto.folio_seguimiento,
+        exhortoOrigenId=str(exh_exhorto.exhorto_origen_id),
+        folioSeguimiento=str(exh_exhorto.folio_seguimiento),
         estadoDestinoId=estado_destino.clave,
         estadoDestinoNombre=estado_destino.nombre,
         municipioDestinoId=municipio_destino.clave,
@@ -128,9 +128,13 @@ async def recepcion_exh_exhorto(
     try:
         exh_exhorto = create_exh_exhorto(database, exh_exhorto)
     except MyAnyError as error:
-        return OneExhExhortoConfirmacionDatosExhortoRecibidoOut(success=False, message=str(error))
+        return OneExhExhortoConfirmacionDatosExhortoRecibidoOut(
+            success=False,
+            message="Error al recibir un exhorto",
+            errors=[str(error)],
+        )
     data = ExhExhortoConfirmacionDatosExhortoRecibidoOut(
-        exhortoOrigenId=exh_exhorto.exhorto_origen_id,
+        exhortoOrigenId=str(exh_exhorto.exhorto_origen_id),
         fechaHora=exh_exhorto.creado,
     )
     return OneExhExhortoConfirmacionDatosExhortoRecibidoOut(success=True, data=data)

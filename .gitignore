@@ -3,6 +3,7 @@
 .env
 .DS_Store
 .~lock.*
+*.code-workspace
 *.csv
 *.py[cod]
 *.log
