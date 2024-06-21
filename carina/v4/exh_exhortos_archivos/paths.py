@@ -75,13 +75,21 @@ async def upload_exh_exhorto_archivo(
 
     # Validar que el nombre del archivo termine en pdf
     if not archivo.filename.lower().endswith(".pdf"):
-        return ExhExhortoArchivoFileOut(success=False, errors=["El archivo debe ser un PDF"])
+        return ExhExhortoArchivoFileOut(
+            success=False,
+            message="Tipo de archivo no permitido",
+            errors=["El nombre del archivo no termina en PDF"],
+        )
 
     # Consultar y validar el exhorto a partir del exhortoOrigenId
     try:
         exh_exhorto = get_exh_exhorto_by_exhorto_origen_id(database, exhortoOrigenId)
     except MyAnyError as error:
-        return ExhExhortoArchivoFileOut(success=False, errors=[str(error)])
+        return ExhExhortoArchivoFileOut(
+            success=False,
+            message="No se encontró el exhorto",
+            errors=[str(error)],
+        )
 
     # Consultar los archivos del exhorto y buscar el archivo a partir del nombre del archivo
     total_contador = 0
@@ -99,14 +107,22 @@ async def upload_exh_exhorto_archivo(
 
     # Si NO se encontró el archivo, entonces entregar un error
     if exh_exhorto_archivo is False:
-        return ExhExhortoArchivoFileOut(success=False, errors=["No se encontró el archivo"])
+        return ExhExhortoArchivoFileOut(
+            success=False,
+            message="No se encontró el archivo",
+            errors=["Al parecer el archivo ya fue recibido o no se declaró en el exhorto"],
+        )
 
     # Determinar el tamano del archivo
     archivo_pdf_tamanio = archivo.size
 
     # Validar que el archivo no execeda el tamaño máximo permitido de 10MB
     if archivo_pdf_tamanio > 10 * 1024 * 1024:
-        return ExhExhortoArchivoFileOut(success=False, errors=["El archivo no debe exceder los 10MB"])
+        return ExhExhortoArchivoFileOut(
+            success=False,
+            message="El archivo excede el tamaño máximo permitido",
+            errors=["El archivo no debe exceder los 10MB"],
+        )
 
     # Cargar el archivo en memoria
     archivo_en_memoria = archivo.file.read()
@@ -118,7 +134,8 @@ async def upload_exh_exhorto_archivo(
         if exh_exhorto_archivo.hash_sha1 != hasher_sha1.hexdigest():
             return ExhExhortoArchivoFileOut(
                 success=False,
-                errors=[f"El archivo no coincide con el hash SHA1 {exh_exhorto_archivo.hash_sha1}"],
+                message="El archivo está corrupto",
+                errors=["El archivo no coincide con el hash SHA1"],
             )
 
     # Validar la integridad del archivo con SHA256
@@ -128,7 +145,8 @@ async def upload_exh_exhorto_archivo(
         if exh_exhorto_archivo.hash_sha256 != hasher_sha256.hexdigest():
             return ExhExhortoArchivoFileOut(
                 success=False,
-                errors=[f"El archivo no coincide con el hash SHA256 {exh_exhorto_archivo.hash_sha256}"],
+                message="El archivo está corrupto",
+                errors=["El archivo no coincide con el hash SHA256"],
             )
 
     # Definir el nombre del archivo a subir a Google Storage
@@ -153,7 +171,7 @@ async def upload_exh_exhorto_archivo(
     except MyAnyError as error:
         return ExhExhortoArchivoFileOut(
             success=False,
-            message="Error al recibir un archivo de un exhorto",
+            message="Hubo un error nuestro al subir el archivo a Google Storage",
             errors=[str(error)],
         )
 
