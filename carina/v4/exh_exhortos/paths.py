@@ -28,7 +28,7 @@ exh_exhortos = APIRouter(prefix="/v4/exh_exhortos", tags=["exhortos"])
 
 
 @exh_exhortos.get("/{folio_seguimiento}", response_model=OneExhExhortoOut)
-async def detalle_exh_exhorto_con_folio_seguimiento(
+async def consultar_exhorto_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
     folio_seguimiento: str,
@@ -117,7 +117,7 @@ async def detalle_exh_exhorto_con_folio_seguimiento(
 
 
 @exh_exhortos.post("", response_model=OneExhExhortoConfirmacionDatosExhortoRecibidoOut)
-async def recepcion_exh_exhorto(
+async def recibir_exhorto_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
     exh_exhorto: ExhExhortoIn,
