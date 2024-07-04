@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from carina.core.autoridades.models import Autoridad
 from carina.core.exh_areas.models import ExhArea
 from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
+from lib.safe_string import safe_clave
 
 from ...core.estados.models import Estado
 from ...core.exh_exhortos.models import ExhExhorto
@@ -77,10 +78,13 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     exh_exhorto.municipio_destino_id = municipio_destino.id
 
     # Consultar y validar la materia
-    materia = database.query(Materia).filter_by(clave=exh_exhorto_in.materiaClave).first()
+    materia_clave = safe_clave(exh_exhorto_in.materiaClave)
+    materia = database.query(Materia).filter_by(clave=materia_clave).first()
     if materia is None:
         raise MyNotExistsError("No existe esa materia")
     exh_exhorto.materia = materia
+    exh_exhorto.materia_clave = materia.clave
+    exh_exhorto.materia_nombre = materia.nombre
 
     # Consultar y validar el estado y municipio de origen, que son Identificadores INEGI
     estado_clave = str(exh_exhorto_in.estadoOrigenId).zfill(2)
