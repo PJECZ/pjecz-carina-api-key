@@ -3,7 +3,6 @@ Exh Exhortos Archivos v4, rutas (paths)
 """
 
 import hashlib
-import uuid
 from datetime import datetime
 from typing import Annotated
 
@@ -23,6 +22,7 @@ from config.settings import get_settings
 from lib.database import Session, get_db
 from lib.exceptions import MyAnyError
 from lib.google_cloud_storage import upload_file_to_gcs
+from lib.pwgen import generar_identificador
 
 exh_exhortos_archivos = APIRouter(prefix="/v4/exh_exhortos_archivos", tags=["exhortos archivos"])
 
@@ -159,7 +159,7 @@ async def recibir_exhorto_archivo_request(
     # Si pendientes_contador + 1 = total_contador
     if pendientes_contador + 1 >= total_contador:
         # Generar el folio_seguimiento como un UUID
-        folio_seguimiento = str(uuid.uuid4())
+        folio_seguimiento = generar_identificador()
         # Entonces ES EL ULTIMO ARCHIVO, se cambia el estado de exh_exhorto a RECIBIDO
         exh_exhorto_actualizado = update_set_exhorto(
             database=database,

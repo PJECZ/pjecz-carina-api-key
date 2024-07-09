@@ -2,7 +2,6 @@
 Exh Exhortos v4, CRUD (create, read, update, and delete)
 """
 
-import uuid
 from datetime import datetime
 from typing import Any
 
@@ -11,13 +10,14 @@ from sqlalchemy.orm import Session
 from carina.core.autoridades.models import Autoridad
 from carina.core.exh_areas.models import ExhArea
 from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
-from lib.safe_string import safe_clave
+from lib.pwgen import generar_identificador
+from lib.safe_string import safe_clave, safe_string
 
 from ...core.estados.models import Estado
 from ...core.exh_exhortos.models import ExhExhorto
 from ...core.exh_exhortos_archivos.models import ExhExhortoArchivo
 from ...core.exh_exhortos_partes.models import ExhExhortoParte
-from ...core.materias.models import Materia
+from ...core.exh_externos.models import ExhExterno
 from ...core.municipios.models import Municipio
 from ..exh_exhortos.schemas import ExhExhortoIn
 
@@ -33,10 +33,9 @@ def get_exh_exhortos(database: Session) -> Any:
 
 def get_exh_exhorto_by_exhorto_origen_id(database: Session, exhorto_origen_id: str) -> ExhExhorto:
     """Consultar un exhorto por su exhorto_origen_id"""
-    try:
-        uuid.UUID(exhorto_origen_id)
-    except ValueError as error:
-        raise MyNotValidParamError("No es un UUID válido") from error
+    exhorto_origen_id = safe_string(exhorto_origen_id, max_len=48, do_unidecode=True, to_uppercase=False)
+    if exhorto_origen_id == "":
+        raise MyNotValidParamError("No es un identificador válido")
     exh_exhorto = database.query(ExhExhorto).filter_by(exhorto_origen_id=exhorto_origen_id).first()
     if exh_exhorto is None:
         raise MyNotExistsError("No existe ese exhorto")
@@ -47,10 +46,9 @@ def get_exh_exhorto_by_exhorto_origen_id(database: Session, exhorto_origen_id: s
 
 def get_exh_exhorto_by_folio_seguimiento(database: Session, folio_seguimiento: str) -> ExhExhorto:
     """Consultar un exhorto por su folio de seguimiento"""
-    try:
-        uuid.UUID(folio_seguimiento)
-    except ValueError as error:
-        raise MyNotValidParamError("No es un UUID válido") from error
+    folio_seguimiento = safe_string(folio_seguimiento, max_len=48, do_unidecode=True, to_uppercase=False)
+    if folio_seguimiento == "":
+        raise MyNotValidParamError("No es un identificador válido")
     exh_exhorto = database.query(ExhExhorto).filter_by(folio_seguimiento=folio_seguimiento).first()
     if exh_exhorto is None:
         raise MyNotExistsError("No existe ese exhorto")
@@ -68,23 +66,37 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     # Definir exhorto_origen_id
     exh_exhorto.exhorto_origen_id = exh_exhorto_in.exhortoOrigenId
 
+    # Consultar nuestro estado
+    estado_destino = database.query(Estado).get(ESTADO_DESTINO_ID)
+    if estado_destino is None:
+        raise MyNotExistsError(f"No existe el estado de destino {ESTADO_DESTINO_NOMBRE}")
+
     # Consultar y validar el municipio destino, que es Identificador INEGI
     municipio_destino_clave = str(exh_exhorto_in.municipioDestinoId).zfill(3)
     municipio_destino = (
         database.query(Municipio).filter_by(estado_id=ESTADO_DESTINO_ID).filter_by(clave=municipio_destino_clave).first()
     )
     if municipio_destino is None:
-        raise MyNotExistsError(f"No existe el municipio de destino {municipio_destino_clave} en {ESTADO_DESTINO_NOMBRE}")
+        raise MyNotExistsError(f"No existe el municipio {municipio_destino_clave} en {ESTADO_DESTINO_NOMBRE}")
     exh_exhorto.municipio_destino_id = municipio_destino.id
 
-    # Consultar y validar la materia
+    # Consultar ExhExterno de nuestro estado
+    estado_destino_exh_externo = database.query(ExhExterno).filter_by(estado_id=estado_destino.id).first()
+    if estado_destino_exh_externo is None:
+        raise MyNotExistsError(f"No existe el registro de {ESTADO_DESTINO_NOMBRE} en exh_externos")
+
+    # Tomar las materias de nuestro estado
+    materias = estado_destino_exh_externo.materias
+    if materias is None:
+        raise MyNotExistsError(f"No hay materias para {ESTADO_DESTINO_NOMBRE}")
+
+    # Validar que materia la tenga nuestro estado
     materia_clave = safe_clave(exh_exhorto_in.materiaClave)
-    materia = database.query(Materia).filter_by(clave=materia_clave).first()
+    materia = next((materia for materia in materias if materia["clave"] == materia_clave), None)
     if materia is None:
-        raise MyNotExistsError("No existe esa materia")
-    exh_exhorto.materia = materia
-    exh_exhorto.materia_clave = materia.clave
-    exh_exhorto.materia_nombre = materia.nombre
+        raise MyNotExistsError(f"No tiene la materia {materia_clave} en {ESTADO_DESTINO_NOMBRE}")
+    exh_exhorto.materia_clave = materia_clave
+    exh_exhorto.materia_nombre = materia["nombre"]
 
     # Consultar y validar el estado y municipio de origen, que son Identificadores INEGI
     estado_clave = str(exh_exhorto_in.estadoOrigenId).zfill(2)
@@ -131,8 +143,7 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     exh_exhorto.observaciones = exh_exhorto_in.observaciones
 
     # GUID/UUID... que sea único
-    random_uuid = uuid.uuid4()
-    exh_exhorto.folio_seguimiento = str(random_uuid)
+    exh_exhorto.folio_seguimiento = generar_identificador()
 
     # Área de recepción, 1 = NO DEFINIDO
     exh_exhorto.exh_area = database.query(ExhArea).filter_by(clave="ND").first()

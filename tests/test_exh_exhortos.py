@@ -2,12 +2,14 @@
 Unit test for exhortos category
 """
 
+import random
 import time
 import unittest
-import uuid
-import random
+
 import requests
 from faker import Faker
+
+from lib.pwgen import generar_identificador
 from tests.load_env import config
 
 
@@ -18,8 +20,7 @@ class TestExhExhortos(unittest.TestCase):
         """Test POST method for exh_exhorto"""
 
         # Generar exhortoOrigenId
-        random_uuid = uuid.uuid4()
-        exhorto_origen_id = str(random_uuid)
+        exhorto_origen_id = generar_identificador()
 
         # Inicializar el generardo de nombres aleatorios
         faker = Faker(locale="es_MX")
@@ -107,9 +108,9 @@ class TestExhExhortos(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 200)
         data = response.json()
-        # self.assertEqual(data["success"], True)
-        if data["success"] is False:
+        if "success" in data and data["success"] is False and "errors" in data:
             print("ERRORES: ", data["errors"])
+        self.assertEqual(data["success"], True)
         # self.assertEqual(data["data"]["exhortoOrigenId"], exhorto_origen_id)
 
         # Mandar un archivo multipart/form-data

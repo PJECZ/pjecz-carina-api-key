@@ -21,7 +21,7 @@ class UniversalMixin:
 
     creado: Mapped[datetime] = mapped_column(default=now())
     modificado: Mapped[datetime] = mapped_column(default=now(), onupdate=now())
-    estatus: Mapped[str] = mapped_column(CHAR, server_default="A", default="A")
+    estatus: Mapped[str] = mapped_column(CHAR, default="A")
 
     def encode_id(self):
         """Convertir el ID de entero a cadena"""
