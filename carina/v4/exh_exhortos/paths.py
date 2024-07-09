@@ -2,7 +2,6 @@
 Exh Exhortos v4, rutas (paths)
 """
 
-from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status

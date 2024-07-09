@@ -1,10 +1,11 @@
 [tool.poetry]
+package-mode = false
 name = "pjecz-carina-api-key"
 version = "0.1.0"
 description = "API con autentificación para enviar y recibir exhortos."
 authors = ["Guillermo Valdes <guillermo@movimientolibre.com>"]
 license = "AGPL3"
-packages = [{include = "carina"}]
+readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"

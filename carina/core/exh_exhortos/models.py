@@ -51,19 +51,19 @@ class ExhExhorto(Base, UniversalMixin):
     exh_area_id: Mapped[int] = mapped_column(ForeignKey("exh_areas.id"))
     exh_area: Mapped["ExhArea"] = relationship(back_populates="exh_exhortos")
 
-    # Clave foránea: Materia (el que se obtuvo en la consulta de materias del PJ exhortado) al que el Exhorto hace referencia
-    materia_id: Mapped[int] = mapped_column(ForeignKey("materias.id"))
-    materia: Mapped["Materia"] = relationship(back_populates="exh_exhortos")
+    # Materia (el que se obtuvo en la consulta de materias del PJ exhortado) al que el Exhorto hace referencia
+    materia_clave: Mapped[str] = mapped_column(String(24))
+    materia_nombre: Mapped[str] = mapped_column(String(256))
 
     # Clave foránea: Identificador INEGI del Municipio donde está localizado el Juzgado del PJ exhortante
     municipio_origen_id: Mapped[int] = mapped_column(ForeignKey("municipios.id"))
     municipio_origen: Mapped["Municipio"] = relationship(back_populates="exh_exhortos_origenes")
 
     # GUID/UUID... que sea único. Pero es opcional para nosotros cuando el estado es PENDIENTE
-    folio_seguimiento: Mapped[Optional[str]] = mapped_column(Uuid, unique=True)
+    folio_seguimiento: Mapped[Optional[str]] = mapped_column(String(48), unique=True)
 
     # UUID identificador con el que el PJ exhortante identifica el exhorto que envía
-    exhorto_origen_id: Mapped[str] = mapped_column(Uuid, unique=True)
+    exhorto_origen_id: Mapped[str] = mapped_column(String(48))
 
     # ID de la tabla Municipios: Para el payload es el Identificador INEGI del Municipio del Estado del PJ exhortado al que se quiere enviar el Exhorto
     municipio_destino_id: Mapped[int]
@@ -112,7 +112,8 @@ class ExhExhorto(Base, UniversalMixin):
     remitente: Mapped[str] = mapped_column(Enum(*REMITENTES, name="exh_exhortos_remitentes", native_enum=False), index=True)
 
     # Número de Exhorto con el que se radica en el Juzgado/Área que se turnó el exhorto.
-    # Este número sirve para que el usuario pueda indentificar su exhorto dentro del Juzgado/Área donde se turnó, opcional
+    # Este número sirve para que el usuario pueda indentificar su exhorto dentro del Juzgado/Área donde se turnó,
+    # opcional
     numero_exhorto: Mapped[Optional[str]] = mapped_column(String(256))
 
     # Hijos: PersonaParte[] NO Contiene la definición de las partes del Expediente

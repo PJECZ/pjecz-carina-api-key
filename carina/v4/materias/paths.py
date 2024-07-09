@@ -32,3 +32,19 @@ async def consultar_materias_response(
     except MyAnyError as error:
         return CustomList(success=False, errors=[str(error)])
     return paginate(resultados)
+
+
+@materias.get("/{materia_clave}", response_model=OneMateriaOut)
+async def detalle_materia(
+    current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
+    database: Annotated[Session, Depends(get_db)],
+    materia_clave: str,
+):
+    """Detalle de una materia a partir de su clave"""
+    if current_user.permissions.get("MATERIAS", 0) < Permiso.VER:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        materia = get_materia_with_clave(database, materia_clave)
+    except MyAnyError as error:
+        return OneMateriaOut(success=False, errors=[str(error)])
+    return OneMateriaOut(success=True, data=materia)
