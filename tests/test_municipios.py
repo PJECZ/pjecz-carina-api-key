@@ -3,7 +3,9 @@ Unit test for municipios category
 """
 
 import unittest
+
 import requests
+
 from tests.load_env import config
 
 
@@ -13,7 +15,7 @@ class TestMunicipios(unittest.TestCase):
     def test_get_municipios(self):
         """Test GET method for municipios"""
         response = requests.get(
-            f"{config['api_base_url']}/municipios",
+            url=f"{config['api_base_url']}/municipios",
             headers={"X-Api-Key": config["api_key"]},
             timeout=config["timeout"],
         )
@@ -22,7 +24,7 @@ class TestMunicipios(unittest.TestCase):
     def test_get_municipio_by_clave_inegi(self):
         """Test GET method for municipio by clave INEGI"""
         response = requests.get(
-            f"{config['api_base_url']}/municipios/66",
+            url=f"{config['api_base_url']}/municipios/66",
             headers={"X-Api-Key": config["api_key"]},
             timeout=config["timeout"],
         )

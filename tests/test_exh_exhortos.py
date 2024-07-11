@@ -101,7 +101,7 @@ class TestExhExhortos(unittest.TestCase):
             "archivos": archivos,
         }
         response = requests.post(
-            f"{config['api_base_url']}/exh_exhortos",
+            url=f"{config['api_base_url']}/exh_exhortos",
             headers={"X-Api-Key": config["api_key"]},
             timeout=config["timeout"],
             json=datos_nuevo_exhorto,
@@ -119,7 +119,7 @@ class TestExhExhortos(unittest.TestCase):
             archivo_prueba_nombre = archivo["nombreArchivo"]
             with open(f"tests/{archivo_prueba_nombre}", "rb") as archivo_prueba:
                 response = requests.post(
-                    f"{config['api_base_url']}/exh_exhortos_archivos/upload",
+                    url=f"{config['api_base_url']}/exh_exhortos_archivos/upload",
                     headers={"X-Api-Key": config["api_key"]},
                     timeout=config["timeout"],
                     params={"exhortoOrigenId": exhorto_origen_id},
