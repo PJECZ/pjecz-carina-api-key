@@ -3,7 +3,9 @@ Unit test for materias category
 """
 
 import unittest
+
 import requests
+
 from tests.load_env import config
 
 
@@ -13,7 +15,7 @@ class TestMaterias(unittest.TestCase):
     def test_get_materias(self):
         """Test GET method for materias"""
         response = requests.get(
-            f"{config['api_base_url']}/materias",
+            url=f"{config['api_base_url']}/materias",
             headers={"X-Api-Key": config["api_key"]},
             timeout=config["timeout"],
         )
@@ -22,7 +24,7 @@ class TestMaterias(unittest.TestCase):
     def test_get_materia_clave_fam(self):
         """Test GET method for materia by clave FAM"""
         response = requests.get(
-            f"{config['api_base_url']}/materias/FAM",
+            url=f"{config['api_base_url']}/materias/FAM",
             headers={"X-Api-Key": config["api_key"]},
             timeout=config["timeout"],
         )
