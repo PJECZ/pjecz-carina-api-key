@@ -10,6 +10,7 @@ from lib.schemas_base import OneBaseOut
 
 from ..exh_exhortos_archivos.schemas import ExhExhortoArchivoIn
 from ..exh_exhortos_partes.schemas import ExhExhortoParteIn
+from ..exh_exhortos_videos.schemas import ExhExhortoVideoIn
 
 
 class ExhExhortoIn(BaseModel):
@@ -151,3 +152,75 @@ class OneExhExhortoConfirmacionDatosExhortoRecibidoOut(OneBaseOut):
     """Esquema para entregar una confirmación de la recepción de un exhorto"""
 
     data: ExhExhortoConfirmacionDatosExhortoRecibidoOut | None = None
+
+
+class ExhExhortoRecibirRespuestaIn(BaseModel):
+    """Esquema para recibir la respuesta de un exhorto que el Juzgado envio previamiente al PJ exhortante"""
+
+    # Identificador del Exhorto. Este dato es el identificador con el que el Poder Judicial exhortante identifica su exhorto,
+    # y el Poder Judicial exhortado recibe en en endpoint "Recibir Exhorto" en "exhortoOrigenId",
+    # ya que el exhorto se responde sobre el identificador del origen. Obligatorio y string.
+    exhortoId: str | None = None
+
+    # Identificador propio del Poder Judicial exhortado con el que identifica la respuesta del exhorto.
+    # Este dato puede ser un número consecutivo (ej "1", "2", "3"...), un GUID/UUID o
+    # cualquíer otro valor con que se identifique la respuesta. Obligatorio y string.
+    respuestaOrigenId: str | None = None
+
+    # Identificador del municipio que corresponde al Juzgado/Área al que se turnó el Exhorto y que realiza la respuesta de este.
+    # Obligatorio y entero.
+    municipioTurnadoId: int | None = None
+
+    # Identificador propio del Poder Judicial exhortado que corresponde al Juzgado/Área
+    # al que se turna el Exhorto y está respondiendo. Opcional y string.
+    areaTurnadoId: str | None = None
+
+    # Nombre del Juzgado/Área al que el Exhorto se turnó y está respondiendo. Obligatorio y string.
+    areaTurnadoNombre: str | None = None
+
+    # Número de Exhorto con el que se radicó en el Juzgado/Área que se turnó el exhorto.
+    # Este número sirve para que el usuario pueda indentificar su exhorto dentro del Juzgado/Área donde se turnó.
+    # Opcional y string.
+    numeroExhorto: str | None = None
+
+    # Valor que representa si se realizó la diligenciación del Exhorto:
+    # 0 = No Diligenciado
+    # 1 = Parcialmente Dilgenciado
+    # 2 = Diligenciado
+    # Obligatorio y entero.
+    tipoDiligenciado: int | None = None
+
+    # Texto simple referenta a alguna observación u observaciones correspondientes a la respuesta del Exhorto.
+    # Opcional y string.
+    observaciones: str | None = None
+
+    # Array/Colección de objetos de tipo ArchivoARecibir que corresponden a
+    # los archivos de los documentos de la respuesta del Exhorto. Obligatorio
+    archivos: list[ExhExhortoArchivoIn] | None = None
+
+    # Array/Colección de objetos de tipo VideoAcceso que representan los accesos a
+    # los videos de las audiencias que forman parte de la respuesta. Opcional
+    videos: list[ExhExhortoVideoIn] | None = None
+
+
+class ExhExhortoRecibirRespuestaOut(BaseModel):
+    """Respuesta de la operacion Recibir Respuesta Exhorto"""
+
+    # Identificador del Exhorto. Este dato es el identificador con el que el Poder Judicial exhortante identifica su exhorto,
+    # y el Poder Judicial exhortado recibe en en endpoint "Recibir Exhorto" en "exhortoOrigenId",
+    # ya que el exhorto se responde sobre el identificador del origen. Obligatorio y string.
+    exhortoId: str | None = None
+
+    # Identificador propio del Poder Judicial exhortado con el que identifica la respuesta del exhorto.
+    # Este dato puede ser un número consecutivo (ej "1", "2", "3"...),
+    # un GUID/UUID o cualquíer otro valor con que se identifique la respuesta. Obligatorio y string.
+    respuestaOrigenId: str | None = None
+
+    # Fecha hora local del Poder Judicial que recibe la respuesta del Exhorto. Obligatorio y datetime.
+    fechaHora: datetime | None = None
+
+
+class OneExhExhortoRecibirRespuestaOut(OneBaseOut):
+    """Esquema para entregar la respuesta de la operacion Recibir Respuesta Exhorto"""
+
+    data: ExhExhortoRecibirRespuestaOut | None = None

@@ -44,6 +44,7 @@ Usage:
         return paginate(query)
 
 """
+
 from abc import ABC
 from typing import Any, Generic, Optional, Sequence, TypeVar
 

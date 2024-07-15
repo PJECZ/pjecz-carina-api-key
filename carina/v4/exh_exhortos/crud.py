@@ -19,7 +19,7 @@ from ...core.exh_exhortos_archivos.models import ExhExhortoArchivo
 from ...core.exh_exhortos_partes.models import ExhExhortoParte
 from ...core.exh_externos.models import ExhExterno
 from ...core.municipios.models import Municipio
-from ..exh_exhortos.schemas import ExhExhortoIn
+from ..exh_exhortos.schemas import ExhExhortoIn, ExhExhortoRecibirRespuestaIn
 
 ESTADO_DESTINO_NOMBRE = "COAHUILA DE ZARAGOZA"
 ESTADO_DESTINO_ID = 5
@@ -199,6 +199,16 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     # Terminar la transacción
     database.commit()
     database.refresh(exh_exhorto)
+
+    # Entregar
+    return exh_exhorto
+
+
+def recieve_response_exh_exhorto(database: Session, exh_exhorto_response: ExhExhortoRecibirRespuestaIn) -> ExhExhorto:
+    """Recibir la respuesta de un exhorto"""
+
+    # TODO: Procesar recepcion de la respuesta del exhorto
+    exh_exhorto = ExhExhorto()
 
     # Entregar
     return exh_exhorto

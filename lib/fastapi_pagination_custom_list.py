@@ -41,6 +41,7 @@ Usage:
         return paginate(query)
 
 """
+
 from typing import Any, Generic, Optional, Sequence, TypeVar
 
 from fastapi import Query
