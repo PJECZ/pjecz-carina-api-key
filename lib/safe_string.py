@@ -1,6 +1,7 @@
 """
 Safe string
 """
+
 import re
 from datetime import date
 

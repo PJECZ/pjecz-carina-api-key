@@ -1,6 +1,7 @@
 """
 Permisos v4, rutas (paths)
 """
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -12,8 +13,8 @@ from lib.fastapi_pagination_custom_page import CustomPage
 
 from ...core.permisos.models import Permiso
 from ..usuarios.authentications import UsuarioInDB, get_current_active_user
-from .crud import get_permisos, get_permiso
-from .schemas import PermisoOut, OnePermisoOut
+from .crud import get_permiso, get_permisos
+from .schemas import OnePermisoOut, PermisoOut
 
 permisos = APIRouter(prefix="/v4/permisos", tags=["usuarios"])
 

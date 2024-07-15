@@ -1,6 +1,7 @@
 """
 Usuarios v4, rutas (paths)
 """
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -12,8 +13,8 @@ from lib.fastapi_pagination_custom_page import CustomPage
 
 from ...core.permisos.models import Permiso
 from ..usuarios.authentications import UsuarioInDB, get_current_active_user
-from .crud import get_usuarios, get_usuario_with_email
-from .schemas import UsuarioOut, OneUsuarioOut
+from .crud import get_usuario_with_email, get_usuarios
+from .schemas import OneUsuarioOut, UsuarioOut
 
 usuarios = APIRouter(prefix="/v4/usuarios", tags=["usuarios"])
 

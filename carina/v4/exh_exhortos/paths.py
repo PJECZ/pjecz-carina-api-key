@@ -10,20 +10,48 @@ from lib.database import Session, get_db
 from lib.exceptions import MyAnyError
 
 from ...core.permisos.models import Permiso
-from ..exh_exhortos_archivos.schemas import ExhExhortoArchivoOut
+from ..exh_exhortos_archivos.schemas import ExhExhortoArchivoIn
 from ..exh_exhortos_partes.schemas import ExhExhortoParteIn
 from ..municipios.crud import get_municipio
 from ..usuarios.authentications import UsuarioInDB, get_current_active_user
-from .crud import create_exh_exhorto, get_exh_exhorto_by_folio_seguimiento
+from .crud import create_exh_exhorto, get_exh_exhorto_by_folio_seguimiento, recieve_response_exh_exhorto
 from .schemas import (
     ExhExhortoConfirmacionDatosExhortoRecibidoOut,
     ExhExhortoIn,
     ExhExhortoOut,
+    ExhExhortoRecibirRespuestaIn,
+    ExhExhortoRecibirRespuestaOut,
     OneExhExhortoConfirmacionDatosExhortoRecibidoOut,
     OneExhExhortoOut,
+    OneExhExhortoRecibirRespuestaOut,
 )
 
 exh_exhortos = APIRouter(prefix="/v4/exh_exhortos", tags=["exhortos"])
+
+
+@exh_exhortos.post("/respuesta", response_model=OneExhExhortoRecibirRespuestaOut)
+async def recibir_exhorto_respuesta_request(
+    current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
+    database: Annotated[Session, Depends(get_db)],
+    exh_exhorto_recibir_respuesta: ExhExhortoRecibirRespuestaIn,
+):
+    """Recepción de respuesta de un exhorto"""
+    if current_user.permissions.get("EXH EXHORTOS", 0) < Permiso.CREAR:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        exh_exhorto = recieve_response_exh_exhorto(database, exh_exhorto_recibir_respuesta)
+    except MyAnyError as error:
+        return OneExhExhortoRecibirRespuestaOut(
+            success=False,
+            message="Error al recibir un exhorto",
+            errors=[str(error)],
+        )
+    data = ExhExhortoRecibirRespuestaOut(
+        exhortoId=str(exh_exhorto.exhorto_origen_id),
+        respuestaOrigenId="",
+        fechaHora=exh_exhorto.creado,
+    )
+    return OneExhExhortoRecibirRespuestaOut(success=True, data=data)
 
 
 @exh_exhortos.get("/{folio_seguimiento}", response_model=OneExhExhortoOut)
@@ -61,7 +89,7 @@ async def consultar_exhorto_request(
     archivos = []
     for exh_exhorto_archivo in exh_exhorto.exh_exhortos_archivos:
         archivos.append(
-            ExhExhortoArchivoOut(
+            ExhExhortoArchivoIn(
                 nombreArchivo=exh_exhorto_archivo.nombre_archivo,
                 hashSha1=exh_exhorto_archivo.hash_sha1,
                 hashSha256=exh_exhorto_archivo.hash_sha256,
@@ -83,8 +111,8 @@ async def consultar_exhorto_request(
         estadoDestinoNombre=estado_destino.nombre,
         municipioDestinoId=municipio_destino.clave,
         municipioDestinoNombre=municipio_destino.nombre,
-        materiaClave=exh_exhorto.materia.clave,
-        materiaNombre=exh_exhorto.materia.nombre,
+        materiaClave=exh_exhorto.materia_clave,
+        materiaNombre=exh_exhorto.materia_nombre,
         estadoOrigenId=exh_exhorto.municipio_origen.estado.clave,
         estadoOrigenNombre=exh_exhorto.municipio_origen.estado.nombre,
         municipioOrigenId=exh_exhorto.municipio_origen.clave,

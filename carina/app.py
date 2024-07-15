@@ -18,6 +18,7 @@ from .v4.exh_areas.paths import exh_areas
 from .v4.exh_exhortos.paths import exh_exhortos
 from .v4.exh_exhortos_archivos.paths import exh_exhortos_archivos
 from .v4.exh_exhortos_partes.paths import exh_exhortos_partes
+from .v4.exh_exhortos_videos.paths import exh_exhortos_videos
 from .v4.exh_externos.paths import exh_externos
 from .v4.materias.paths import materias
 from .v4.modulos.paths import modulos
@@ -62,6 +63,7 @@ def create_app() -> FastAPI:
     app.include_router(exh_exhortos)
     app.include_router(exh_exhortos_archivos)
     app.include_router(exh_exhortos_partes, include_in_schema=False)
+    app.include_router(exh_exhortos_videos, include_in_schema=False)
     app.include_router(exh_externos)
     app.include_router(materias)
     app.include_router(modulos, include_in_schema=False)

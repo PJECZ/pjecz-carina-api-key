@@ -1,6 +1,7 @@
 """
 Tareas v4, rutas (paths)
 """
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -12,8 +13,8 @@ from lib.fastapi_pagination_custom_page import CustomPage
 
 from ...core.permisos.models import Permiso
 from ..usuarios.authentications import UsuarioInDB, get_current_active_user
-from .crud import get_tareas, get_tarea
-from .schemas import TareaOut, OneTareaOut
+from .crud import get_tarea, get_tareas
+from .schemas import OneTareaOut, TareaOut
 
 tareas = APIRouter(prefix="/v4/tareas", tags=["usuarios"])
 

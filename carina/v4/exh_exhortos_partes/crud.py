@@ -8,14 +8,11 @@ from sqlalchemy.orm import Session
 
 from lib.exceptions import MyIsDeletedError, MyNotExistsError
 
-from ..exh_exhortos.crud import get_exh_exhorto_by_exhorto_origen_id
 from ...core.exh_exhortos_partes.models import ExhExhortoParte
+from ..exh_exhortos.crud import get_exh_exhorto_by_exhorto_origen_id
 
 
-def get_exh_exhortos_partes(
-    database: Session,
-    exh_exhorto_id: int = None,
-) -> Any:
+def get_exh_exhortos_partes(database: Session, exh_exhorto_id: str = None) -> Any:
     """Consultar los partes activos"""
     consulta = database.query(ExhExhortoParte)
     if exh_exhorto_id is not None:
@@ -25,7 +22,7 @@ def get_exh_exhortos_partes(
 
 
 def get_exh_exhorto_parte(database: Session, exh_exhorto_parte_id: int) -> ExhExhortoParte:
-    """Consultar un parte por su id"""
+    """Consultar una parte por su id"""
     exh_exhorto_parte = database.query(ExhExhortoParte).get(exh_exhorto_parte_id)
     if exh_exhorto_parte is None:
         raise MyNotExistsError("No existe ese parte")
