@@ -100,36 +100,45 @@ class TestExhExhortos(unittest.TestCase):
             "observaciones": "CELEBRIDADES QUE SE VAN A DIVORCIAR",
             "archivos": archivos,
         }
-        response = requests.post(
+        exhorto_response = requests.post(
             url=f"{config['api_base_url']}/exh_exhortos",
             headers={"X-Api-Key": config["api_key"]},
             timeout=config["timeout"],
             json=datos_nuevo_exhorto,
         )
-        self.assertEqual(response.status_code, 200)
-        data = response.json()
-        if "success" in data and data["success"] is False and "errors" in data:
-            print("ERRORES: ", data["errors"])
-        self.assertEqual(data["success"], True)
-        # self.assertEqual(data["data"]["exhortoOrigenId"], exhorto_origen_id)
+        exhorto_res_json = exhorto_response.json()
+        if "success" in exhorto_res_json:
+            if exhorto_res_json["success"] is False:
+                if "message" in exhorto_res_json:
+                    print("MENSAJE: ", exhorto_res_json["message"])
+                if "errors" in exhorto_res_json:
+                    print("ERRORES: ", exhorto_res_json["errors"])
+            self.assertEqual(exhorto_res_json["success"], True)
+        else:
+            self.assertEqual(exhorto_response.status_code, 200)
 
         # Mandar un archivo multipart/form-data
         for archivo in archivos:
             time.sleep(2)  # Pausa de 2 segundos
             archivo_prueba_nombre = archivo["nombreArchivo"]
             with open(f"tests/{archivo_prueba_nombre}", "rb") as archivo_prueba:
-                response = requests.post(
+                archivo_response = requests.post(
                     url=f"{config['api_base_url']}/exh_exhortos_archivos/upload",
                     headers={"X-Api-Key": config["api_key"]},
                     timeout=config["timeout"],
                     params={"exhortoOrigenId": exhorto_origen_id},
                     files={"archivo": (archivo_prueba_nombre, archivo_prueba, "application/pdf")},
                 )
-                self.assertEqual(response.status_code, 200)
-                data = response.json()
-                # self.assertEqual(data["success"], True)
-                if data["success"] is False:
-                    print("ERRORES: ", data["errors"])
+                archivo_res_json = archivo_response.json()
+                if "success" in archivo_res_json:
+                    if archivo_res_json["success"] is False:
+                        if "message" in archivo_res_json:
+                            print("MENSAJE: ", archivo_res_json["message"])
+                        if "errors" in archivo_res_json:
+                            print("ERRORES: ", archivo_res_json["errors"])
+                    self.assertEqual(archivo_res_json["success"], True)
+                else:
+                    self.assertEqual(archivo_response.status_code, 200)
 
 
 if __name__ == "__main__":

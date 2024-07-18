@@ -3,32 +3,33 @@ PJECZ Carina API Key
 """
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
 
+from carina.v4.autoridades.paths import autoridades
+from carina.v4.bitacoras.paths import bitacoras
+from carina.v4.distritos.paths import distritos
+from carina.v4.domicilios.paths import domicilios
+from carina.v4.entradas_salidas.paths import entradas_salidas
+from carina.v4.estados.paths import estados
+from carina.v4.exh_areas.paths import exh_areas
+from carina.v4.exh_exhortos.paths import exh_exhortos
+from carina.v4.exh_exhortos_archivos.paths import exh_exhortos_archivos
+from carina.v4.exh_exhortos_partes.paths import exh_exhortos_partes
+from carina.v4.exh_exhortos_videos.paths import exh_exhortos_videos
+from carina.v4.exh_externos.paths import exh_externos
+from carina.v4.materias.paths import materias
+from carina.v4.modulos.paths import modulos
+from carina.v4.municipios.paths import municipios
+from carina.v4.oficinas.paths import oficinas
+from carina.v4.permisos.paths import permisos
+from carina.v4.roles.paths import roles
+from carina.v4.tareas.paths import tareas
+from carina.v4.usuarios.paths import usuarios
+from carina.v4.usuarios_roles.paths import usuarios_roles
 from config.settings import get_settings
-
-from .v4.autoridades.paths import autoridades
-from .v4.bitacoras.paths import bitacoras
-from .v4.distritos.paths import distritos
-from .v4.domicilios.paths import domicilios
-from .v4.entradas_salidas.paths import entradas_salidas
-from .v4.estados.paths import estados
-from .v4.exh_areas.paths import exh_areas
-from .v4.exh_exhortos.paths import exh_exhortos
-from .v4.exh_exhortos_archivos.paths import exh_exhortos_archivos
-from .v4.exh_exhortos_partes.paths import exh_exhortos_partes
-from .v4.exh_exhortos_videos.paths import exh_exhortos_videos
-from .v4.exh_externos.paths import exh_externos
-from .v4.materias.paths import materias
-from .v4.modulos.paths import modulos
-from .v4.municipios.paths import municipios
-from .v4.oficinas.paths import oficinas
-from .v4.permisos.paths import permisos
-from .v4.roles.paths import roles
-from .v4.tareas.paths import tareas
-from .v4.usuarios.paths import usuarios
-from .v4.usuarios_roles.paths import usuarios_roles
+from lib.fastapi_validation_exception_handler import validation_exception_handler
 
 
 def create_app() -> FastAPI:
@@ -51,6 +52,9 @@ def create_app() -> FastAPI:
         allow_methods=["GET", "POST"],
         allow_headers=["*"],
     )
+
+    # Override the default validation exception handler
+    app.add_exception_handler(RequestValidationError, handler=validation_exception_handler)
 
     # Rutas
     app.include_router(autoridades, include_in_schema=False)
