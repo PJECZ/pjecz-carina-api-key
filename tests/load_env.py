@@ -1,5 +1,5 @@
 """
-Load environment variables
+Load environment variables for tests
 """
 
 import os

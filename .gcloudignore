@@ -7,8 +7,11 @@
 
 *.code-workspace
 *.csv
+*.log
 *.py[cod]
-*.sqlite3
+*.pdf
+*.sql
+*.sqlite
 *.xlsx
 
 __pycache__/

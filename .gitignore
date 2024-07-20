@@ -3,13 +3,15 @@
 .env
 .DS_Store
 .~lock.*
+
 *.code-workspace
 *.csv
 *.py[cod]
 *.log
 *.sql
-*.odt
+*.sqlite
 *.pdf
+*.xlsx
 
 *.egg-info/
 __pycache__/
