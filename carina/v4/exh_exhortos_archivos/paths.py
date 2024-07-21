@@ -28,7 +28,7 @@ from lib.pwgen import generar_identificador
 exh_exhortos_archivos = APIRouter(prefix="/v4/exh_exhortos_archivos", tags=["exhortos archivos"])
 
 
-@exh_exhortos_archivos.post("/upload/respuesta", response_model=OneExhExhortoArchivoRecibirRespuestaExhortoOut)
+@exh_exhortos_archivos.post("/upload/responder", response_model=OneExhExhortoArchivoRecibirRespuestaExhortoOut)
 async def recibir_exhorto_archivo_respuesta_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],

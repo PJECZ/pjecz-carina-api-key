@@ -26,6 +26,7 @@ class ExhExhorto(Base):
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
     exhorto_origen_id: Mapped[str]
     folio_seguimiento: Mapped[Optional[str]]
+    respuesta_origen_id: Mapped[Optional[str]]
 
     exh_exhortos_archivos: Mapped[List["ExhExhortoArchivo"]] = relationship(
         "ExhExhortoArchivo",

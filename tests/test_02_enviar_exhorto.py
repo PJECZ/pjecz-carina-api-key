@@ -7,6 +7,7 @@ import unittest
 
 import requests
 from faker import Faker
+from requests.exceptions import ConnectionError
 
 from lib.pwgen import generar_identificador
 from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
@@ -19,7 +20,7 @@ class Test02EnviarExhorto(unittest.TestCase):
     def test_02_post_exh_exhorto(self):
         """Probar el metodo POST para enviar un exhorto"""
 
-        # Generar el exhorto_origen_id para las pruebas en este archivo
+        # Generar el exhorto_origen_id como el identificador del exhorto del PJ exhortante
         exhorto_origen_id = generar_identificador()
 
         # Inicializar el generardo de nombres aleatorios

@@ -5,6 +5,7 @@ Unit test - 04 Consultar Exhorto
 import unittest
 
 import requests
+from requests.exceptions import ConnectionError
 
 from tests.database import ExhExhorto, get_database_session
 from tests.load_env import config
@@ -83,3 +84,7 @@ class Test04ConsultarExhorto(unittest.TestCase):
         self.assertEqual("areaTurnadoNombre" in data, True)
         self.assertEqual("numeroExhorto" in data, True)
         self.assertEqual("urlInfo" in data, True)
+
+
+if __name__ == "__main__":
+    unittest.main()
