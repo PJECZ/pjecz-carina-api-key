@@ -1,5 +1,8 @@
 """
 Database for tests
+
+Para conservar los datos de la respuesta en test_02_enviar_exhorto y
+pasarlos a las siguientes pruebas, se usa una base de datos SQLite.
 """
 
 from pathlib import Path

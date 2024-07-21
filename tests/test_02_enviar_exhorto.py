@@ -16,7 +16,7 @@ from tests.load_env import config
 class Test02EnviarExhorto(unittest.TestCase):
     """Test 02 Enviar Exhorto"""
 
-    def test_post_exh_exhorto(self):
+    def test_02_post_exh_exhorto(self):
         """Probar el metodo POST para enviar un exhorto"""
 
         # Generar el exhorto_origen_id para las pruebas en este archivo
@@ -105,16 +105,16 @@ class Test02EnviarExhorto(unittest.TestCase):
         }
 
         # Mandar el exhorto
-        response = requests.post(
+        respuesta = requests.post(
             url=f"{config['api_base_url']}/exh_exhortos",
             headers={"X-Api-Key": config["api_key"]},
             timeout=config["timeout"],
             json=datos,
         )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(respuesta.status_code, 200)
 
         # Validar el contenido de la respuesta
-        contenido = response.json()
+        contenido = respuesta.json()
         self.assertEqual("success" in contenido, True)
         self.assertEqual("message" in contenido, True)
         self.assertEqual("errors" in contenido, True)
@@ -123,13 +123,15 @@ class Test02EnviarExhorto(unittest.TestCase):
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)
         data = contenido["data"]
+
+        # Validar que dentro de data venga exhortoOrigenId y fechaHora
         self.assertEqual("exhortoOrigenId" in data, True)
         self.assertEqual("fechaHora" in data, True)
 
         # Validar que nos regrese el mismo exhorto_origen_id
         self.assertEqual(data["exhortoOrigenId"], exhorto_origen_id)
 
-        # Obtener la sesion de la base de datos para conservar los datos para las pruebas siguientes
+        # Cargar la sesion de la base de datos para conservar los datos para las pruebas siguientes
         session = get_database_session()
 
         # Guardar el exhorto
