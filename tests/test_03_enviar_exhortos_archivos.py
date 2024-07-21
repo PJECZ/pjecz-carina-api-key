@@ -35,13 +35,16 @@ class Test03EnviarExhortosArchivos(unittest.TestCase):
             # Leer el archivo
             with open(f"tests/{archivo_nombre}", "rb") as archivo_prueba:
                 # Mandar el archivo
-                respuesta = requests.post(
-                    url=f"{config['api_base_url']}/exh_exhortos_archivos/upload",
-                    headers={"X-Api-Key": config["api_key"]},
-                    timeout=config["timeout"],
-                    params={"exhortoOrigenId": exh_exhorto.exhorto_origen_id},
-                    files={"archivo": (archivo_nombre, archivo_prueba, "application/pdf")},
-                )
+                try:
+                    respuesta = requests.post(
+                        url=f"{config['api_base_url']}/exh_exhortos_archivos/upload",
+                        headers={"X-Api-Key": config["api_key"]},
+                        timeout=config["timeout"],
+                        params={"exhortoOrigenId": exh_exhorto.exhorto_origen_id},
+                        files={"archivo": (archivo_nombre, archivo_prueba, "application/pdf")},
+                    )
+                except ConnectionError as error:
+                    self.fail(error)
                 self.assertEqual(respuesta.status_code, 200)
 
                 # Validar el contenido de la respuesta

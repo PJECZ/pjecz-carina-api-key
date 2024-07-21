@@ -6,7 +6,7 @@ import unittest
 
 import requests
 
-from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
+from tests.database import ExhExhorto, get_database_session
 from tests.load_env import config
 
 
@@ -29,11 +29,14 @@ class Test04ConsultarExhorto(unittest.TestCase):
         self.assertNotEqual(exh_exhorto.folio_seguimiento, "")
 
         # Consultar el exhorto
-        respuesta = requests.get(
-            url=f"{config['api_base_url']}/exh_exhortos/{exh_exhorto.folio_seguimiento}",
-            headers={"X-Api-Key": config["api_key"]},
-            timeout=config["timeout"],
-        )
+        try:
+            respuesta = requests.get(
+                url=f"{config['api_base_url']}/exh_exhortos/{exh_exhorto.folio_seguimiento}",
+                headers={"X-Api-Key": config["api_key"]},
+                timeout=config["timeout"],
+            )
+        except ConnectionError as error:
+            self.fail(error)
         self.assertEqual(respuesta.status_code, 200)
 
         # Validar el contenido de la respuesta

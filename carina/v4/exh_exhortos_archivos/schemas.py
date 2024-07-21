@@ -40,7 +40,7 @@ class ExhExhortoArchivoFileDataArchivoOut(BaseModel):
     """Esquema con datos adicionales del archivo"""
 
     nombreArchivo: str | None = None
-    tamano: int | None = None
+    tamaño: int | None = None
 
 
 class ExhExhortoArchivoFileDataAcuseOut(BaseModel):

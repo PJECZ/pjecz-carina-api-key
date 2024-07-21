@@ -5,6 +5,7 @@ Unit test - 01 Consultar Materias
 import unittest
 
 import requests
+from requests.exceptions import ConnectionError
 
 from tests.load_env import config
 
@@ -16,11 +17,14 @@ class Test01ConsultarMaterias(unittest.TestCase):
         """Test GET method for materias"""
 
         # Consultar las materias
-        response = requests.get(
-            url=f"{config['api_base_url']}/materias",
-            headers={"X-Api-Key": config["api_key"]},
-            timeout=config["timeout"],
-        )
+        try:
+            response = requests.get(
+                url=f"{config['api_base_url']}/materias",
+                headers={"X-Api-Key": config["api_key"]},
+                timeout=config["timeout"],
+            )
+        except ConnectionError as error:
+            self.fail(error)
         self.assertEqual(response.status_code, 200)
 
         # Validar el contenido de la respuesta
@@ -41,11 +45,14 @@ class Test01ConsultarMaterias(unittest.TestCase):
         """Test GET method for materia by clave CIV"""
 
         # Consultar la materia civil
-        response = requests.get(
-            url=f"{config['api_base_url']}/materias/CIV",
-            headers={"X-Api-Key": config["api_key"]},
-            timeout=config["timeout"],
-        )
+        try:
+            response = requests.get(
+                url=f"{config['api_base_url']}/materias/CIV",
+                headers={"X-Api-Key": config["api_key"]},
+                timeout=config["timeout"],
+            )
+        except ConnectionError as error:
+            self.fail(error)
         self.assertEqual(response.status_code, 200)
 
         # Validar el contenido de la respuesta
@@ -70,11 +77,14 @@ class Test01ConsultarMaterias(unittest.TestCase):
         """Test GET method for materia by clave FAM"""
 
         # Consultar la materia familiar
-        response = requests.get(
-            url=f"{config['api_base_url']}/materias/FAM",
-            headers={"X-Api-Key": config["api_key"]},
-            timeout=config["timeout"],
-        )
+        try:
+            response = requests.get(
+                url=f"{config['api_base_url']}/materias/FAM",
+                headers={"X-Api-Key": config["api_key"]},
+                timeout=config["timeout"],
+            )
+        except ConnectionError as error:
+            self.fail(error)
         self.assertEqual(response.status_code, 200)
 
         # Validar el contenido de la respuesta
@@ -99,11 +109,14 @@ class Test01ConsultarMaterias(unittest.TestCase):
         """Test GET method for materia by clave LAB"""
 
         # Consultar la materia laboral
-        response = requests.get(
-            url=f"{config['api_base_url']}/materias/LAB",
-            headers={"X-Api-Key": config["api_key"]},
-            timeout=config["timeout"],
-        )
+        try:
+            response = requests.get(
+                url=f"{config['api_base_url']}/materias/LAB",
+                headers={"X-Api-Key": config["api_key"]},
+                timeout=config["timeout"],
+            )
+        except ConnectionError as error:
+            self.fail(error)
         self.assertEqual(response.status_code, 200)
 
         # Validar el contenido de la respuesta
@@ -128,11 +141,14 @@ class Test01ConsultarMaterias(unittest.TestCase):
         """Test GET method for materia by clave MER"""
 
         # Consultar la materia mercantil
-        response = requests.get(
-            url=f"{config['api_base_url']}/materias/MER",
-            headers={"X-Api-Key": config["api_key"]},
-            timeout=config["timeout"],
-        )
+        try:
+            response = requests.get(
+                url=f"{config['api_base_url']}/materias/MER",
+                headers={"X-Api-Key": config["api_key"]},
+                timeout=config["timeout"],
+            )
+        except ConnectionError as error:
+            self.fail(error)
         self.assertEqual(response.status_code, 200)
 
         # Validar el contenido de la respuesta

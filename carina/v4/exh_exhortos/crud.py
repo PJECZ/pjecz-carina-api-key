@@ -121,7 +121,8 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     # El número del oficio con el que se envía el exhorto, el que corresponde al control interno del Juzgado de origen
     exh_exhorto.numero_oficio_origen = exh_exhorto_in.numeroOficioOrigen
 
-    # Nombre del tipo de Juicio, o asunto, listado de los delitos (para materia Penal) que corresponde al Expediente del cual el Juzgado envía el Exhorto
+    # Nombre del tipo de Juicio, o asunto, listado de los delitos (para materia Penal)
+    # que corresponde al Expediente del cual el Juzgado envía el Exhorto
     exh_exhorto.tipo_juicio_asunto_delitos = exh_exhorto_in.tipoJuicioAsuntoDelitos
 
     # Nombre completo del Juez del Juzgado o titular del Área que envía el Exhorto
@@ -130,20 +131,23 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     # Número de fojas que contiene el exhorto. El valor 0 significa "No Especificado"
     exh_exhorto.fojas = exh_exhorto_in.fojas
 
-    # Cantidad de dias a partir del día que se recibió en el Poder Judicial exhortado que se tiene para responder el Exhorto. El valor de 0 significa "No Especificado"
+    # Cantidad de dias a partir del día que se recibió en el Poder Judicial exhortado
+    # que se tiene para responder el Exhorto. El valor de 0 significa "No Especificado"
     exh_exhorto.dias_responder = exh_exhorto_in.diasResponder
 
-    # Nombre del tipo de diligenciación que le corresponde al exhorto enviado. Este puede contener valores como "Oficio", "Petición de Parte"
+    # Nombre del tipo de diligenciación que le corresponde al exhorto enviado.
+    # Este puede contener valores como "Oficio", "Petición de Parte"
     exh_exhorto.tipo_diligenciacion_nombre = exh_exhorto_in.tipoDiligenciacionNombre
 
-    # Fecha y hora en que el Poder Judicial exhortante registró que se envió el exhorto en su hora local. En caso de no enviar este dato, el Poder Judicial exhortado puede tomar su fecha hora local.
+    # Fecha y hora en que el Poder Judicial exhortante registró que se envió el exhorto en su hora local.
+    # En caso de no enviar este dato, el Poder Judicial exhortado puede tomar su fecha hora local.
     exh_exhorto.fecha_origen = exh_exhorto_in.fechaOrigen
 
     # Texto simple que contenga información extra o relevante sobre el exhorto.
     exh_exhorto.observaciones = exh_exhorto_in.observaciones
 
-    # GUID/UUID... que sea único
-    exh_exhorto.folio_seguimiento = generar_identificador()
+    # GUID/UUID... que sea único. Va a ser generado cuando se vaya a regresar el acuse con el ultimo archivo.
+    exh_exhorto.folio_seguimiento = ""
 
     # Área de recepción, 1 = NO DEFINIDO
     exh_exhorto.exh_area = database.query(ExhArea).filter_by(clave="ND").first()

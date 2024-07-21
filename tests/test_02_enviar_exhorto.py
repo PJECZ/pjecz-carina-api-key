@@ -105,12 +105,15 @@ class Test02EnviarExhorto(unittest.TestCase):
         }
 
         # Mandar el exhorto
-        respuesta = requests.post(
-            url=f"{config['api_base_url']}/exh_exhortos",
-            headers={"X-Api-Key": config["api_key"]},
-            timeout=config["timeout"],
-            json=datos,
-        )
+        try:
+            respuesta = requests.post(
+                url=f"{config['api_base_url']}/exh_exhortos",
+                headers={"X-Api-Key": config["api_key"]},
+                timeout=config["timeout"],
+                json=datos,
+            )
+        except ConnectionError as error:
+            self.fail(error)
         self.assertEqual(respuesta.status_code, 200)
 
         # Validar el contenido de la respuesta
