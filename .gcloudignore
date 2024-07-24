@@ -8,6 +8,7 @@
 *.code-workspace
 *.csv
 *.log
+*.odt
 *.py[cod]
 *.pdf
 *.sql

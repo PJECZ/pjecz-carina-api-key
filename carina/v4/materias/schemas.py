@@ -10,7 +10,6 @@ from lib.schemas_base import OneBaseOut
 class MateriaOut(BaseModel):
     """Esquema para entregar materias"""
 
-    id: int | None = None
     clave: str | None = None
     nombre: str | None = None
     descripcion: str | None = None

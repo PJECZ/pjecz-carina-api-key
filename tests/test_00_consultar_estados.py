@@ -1,5 +1,5 @@
 """
-Unit test - 01 Consultar Materias
+Unit test - 00 Consultar Estados
 """
 
 import unittest
@@ -10,16 +10,16 @@ from requests.exceptions import ConnectionError
 from tests.load_env import config
 
 
-class Test01ConsultarMaterias(unittest.TestCase):
-    """Tests for 01 consultar materias"""
+class Test00ConsultarEstados(unittest.TestCase):
+    """Tests for 01 consultar estados"""
 
-    def test_get_materias(self):
-        """GET method for materias"""
+    def test_get_estados(self):
+        """GET method for estados"""
 
-        # Consultar las materias
+        # Consultar los estados
         try:
             response = requests.get(
-                url=f"{config['api_base_url']}/materias",
+                url=f"{config['api_base_url']}/estados",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )
@@ -34,20 +34,19 @@ class Test01ConsultarMaterias(unittest.TestCase):
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
 
-        # Validar que se listen las materias
+        # Validar que se listen los estados
         self.assertEqual(type(contenido["data"]), list)
         for item in contenido["data"]:
             self.assertEqual("clave" in item, True)
             self.assertEqual("nombre" in item, True)
-            self.assertEqual("descripcion" in item, True)
 
-    def test_get_materia_clave_civ(self):
-        """GET method for materia by clave CIV"""
+    def test_get_estado_clave_05(self):
+        """GET method for estado with clave 05 nombre COAHUILA DE ZARAGOZA"""
 
-        # Consultar la materia civil
+        # Consultar el estado aguascalientes
         try:
             response = requests.get(
-                url=f"{config['api_base_url']}/materias/CIV",
+                url=f"{config['api_base_url']}/estados/05",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )
@@ -67,19 +66,18 @@ class Test01ConsultarMaterias(unittest.TestCase):
         data = contenido["data"]
         self.assertEqual("clave" in data, True)
         self.assertEqual("nombre" in data, True)
-        self.assertEqual("descripcion" in data, True)
 
-        # Validar la materia civil
-        self.assertEqual(data["clave"], "CIV")
-        self.assertEqual(data["nombre"], "CIVIL")
+        # Validar que el estado con clave INEGI 05 sea Coahuila de Zaragoza
+        self.assertEqual(data["clave"], "05")
+        self.assertEqual(data["nombre"], "COAHUILA DE ZARAGOZA")
 
-    def test_get_materia_clave_fam(self):
-        """GET method for materia by clave FAM"""
+    def test_get_estado_clave_10(self):
+        """GET method for estado with clave 10 nombre DURANGO"""
 
-        # Consultar la materia familiar
+        # Consultar el estado aguascalientes
         try:
             response = requests.get(
-                url=f"{config['api_base_url']}/materias/FAM",
+                url=f"{config['api_base_url']}/estados/10",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )
@@ -99,19 +97,18 @@ class Test01ConsultarMaterias(unittest.TestCase):
         data = contenido["data"]
         self.assertEqual("clave" in data, True)
         self.assertEqual("nombre" in data, True)
-        self.assertEqual("descripcion" in data, True)
 
-        # Validar la materia familiar
-        self.assertEqual(data["clave"], "FAM")
-        self.assertEqual(data["nombre"], "FAMILIAR")
+        # Validar que el estado con clave INEGI 10 sea Durango
+        self.assertEqual(data["clave"], "10")
+        self.assertEqual(data["nombre"], "DURANGO")
 
-    def test_get_materia_clave_lab(self):
-        """GET method for materia by clave LAB"""
+    def test_get_estado_clave_19(self):
+        """GET method for estado with clave 19 nombre NUEVO LEON"""
 
-        # Consultar la materia laboral
+        # Consultar el estado aguascalientes
         try:
             response = requests.get(
-                url=f"{config['api_base_url']}/materias/LAB",
+                url=f"{config['api_base_url']}/estados/19",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )
@@ -131,43 +128,10 @@ class Test01ConsultarMaterias(unittest.TestCase):
         data = contenido["data"]
         self.assertEqual("clave" in data, True)
         self.assertEqual("nombre" in data, True)
-        self.assertEqual("descripcion" in data, True)
 
-        # Validar data materia laboral
-        self.assertEqual(data["clave"], "LAB")
-        self.assertEqual(data["nombre"], "LABORAL")
-
-    def test_get_materia_clave_mer(self):
-        """GET method for materia by clave MER"""
-
-        # Consultar la materia mercantil
-        try:
-            response = requests.get(
-                url=f"{config['api_base_url']}/materias/MER",
-                headers={"X-Api-Key": config["api_key"]},
-                timeout=config["timeout"],
-            )
-        except ConnectionError as error:
-            self.fail(error)
-        self.assertEqual(response.status_code, 200)
-
-        # Validar el contenido de la respuesta
-        contenido = response.json()
-        self.assertEqual("success" in contenido, True)
-        self.assertEqual("message" in contenido, True)
-        self.assertEqual("errors" in contenido, True)
-        self.assertEqual("data" in contenido, True)
-
-        # Validar el data
-        self.assertEqual(type(contenido["data"]), dict)
-        data = contenido["data"]
-        self.assertEqual("clave" in data, True)
-        self.assertEqual("nombre" in data, True)
-        self.assertEqual("descripcion" in data, True)
-
-        # Validar la materia mercantil
-        self.assertEqual(data["clave"], "MER")
-        self.assertEqual(data["nombre"], "MERCANTIL")
+        # Validar que el estado con clave INEGI 19 sea Nuevo León
+        self.assertEqual(data["clave"], "19")
+        self.assertEqual(data["nombre"], "NUEVO LEON")
 
 
 if __name__ == "__main__":

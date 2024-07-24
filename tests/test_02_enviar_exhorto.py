@@ -17,7 +17,7 @@ from tests.load_env import config
 class Test02EnviarExhorto(unittest.TestCase):
     """Test 02 Enviar Exhorto"""
 
-    def test_02_post_exh_exhorto(self):
+    def test_post_exh_exhorto(self):
         """Probar el metodo POST para enviar un exhorto"""
 
         # Generar el exhorto_origen_id como el identificador del exhorto del PJ exhortante
@@ -82,6 +82,8 @@ class Test02EnviarExhorto(unittest.TestCase):
                     "tipoDocumento": 1,
                 }
             )
+
+        # TODO: Elegir un estado aleatoriamente
 
         # Definir los datos del exhorto
         datos = {
