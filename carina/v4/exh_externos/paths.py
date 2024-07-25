@@ -14,7 +14,7 @@ from ..usuarios.authentications import UsuarioInDB, get_current_active_user
 from .crud import get_exh_externo_with_clave
 from .schemas import OneExhExternoOut
 
-exh_externos = APIRouter(prefix="/v4/exh_externos", tags=["externos"])
+exh_externos = APIRouter(prefix="/v4/exh_externos", tags=["exhortos"])
 
 
 @exh_externos.get("/{exh_externo_clave}", response_model=OneExhExternoOut)

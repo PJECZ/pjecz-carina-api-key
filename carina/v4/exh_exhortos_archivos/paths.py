@@ -25,7 +25,7 @@ from lib.exceptions import MyAnyError
 from lib.google_cloud_storage import upload_file_to_gcs
 from lib.pwgen import generar_identificador
 
-exh_exhortos_archivos = APIRouter(prefix="/v4/exh_exhortos_archivos", tags=["exhortos archivos"])
+exh_exhortos_archivos = APIRouter(prefix="/v4/exh_exhortos_archivos", tags=["exhortos"])
 
 
 @exh_exhortos_archivos.post("/upload/responder", response_model=OneExhExhortoArchivoRecibirRespuestaExhortoOut)

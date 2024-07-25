@@ -16,7 +16,7 @@ from ..usuarios.authentications import UsuarioInDB, get_current_active_user
 from .crud import get_estado_with_clave, get_estados
 from .schemas import EstadoOut, OneEstadoOut
 
-estados = APIRouter(prefix="/v4/estados", tags=["estados y municipios"])
+estados = APIRouter(prefix="/v4/estados", tags=["estados"])
 
 
 @estados.get("", response_model=CustomList[EstadoOut])

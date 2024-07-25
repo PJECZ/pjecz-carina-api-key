@@ -31,7 +31,7 @@ def get_estado(database: Session, estado_id: int) -> Estado:
 def get_estado_with_clave(database: Session, estado_clave: str) -> Estado:
     """Consultar un estado por su clave"""
     try:
-        clave = safe_clave(estado_clave)
+        clave = safe_clave(estado_clave).zfill(2)
     except ValueError as error:
         raise MyNotValidParamError(str(error)) from error
     try:

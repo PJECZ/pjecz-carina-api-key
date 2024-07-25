@@ -83,16 +83,40 @@ class Test02EnviarExhorto(unittest.TestCase):
                 }
             )
 
-        # TODO: Elegir un estado aleatoriamente
+        # Elegir un estado de origen aleatorio
+        try:
+            response = requests.get(
+                url=f"{config['api_base_url']}/estados",
+                headers={"X-Api-Key": config["api_key"]},
+                timeout=config["timeout"],
+            )
+        except ConnectionError as error:
+            self.fail(error)
+        self.assertEqual(response.status_code, 200)
+        contenido = response.json()
+        estado = random.choice(contenido["data"])
+
+        # Elegir un municipio de origen aleatorio
+        try:
+            response = requests.get(
+                url=f"{config['api_base_url']}/municipios/{estado['clave']}",
+                headers={"X-Api-Key": config["api_key"]},
+                timeout=config["timeout"],
+            )
+        except ConnectionError as error:
+            self.fail(error)
+        self.assertEqual(response.status_code, 200)
+        contenido = response.json()
+        municipio = random.choice(contenido["data"])
 
         # Definir los datos del exhorto
         datos = {
             "exhortoOrigenId": exhorto_origen_id,
             "municipioDestinoId": 30,
             "materiaClave": "FAM",
-            "estadoOrigenId": 19,
-            "municipioOrigenId": 39,
-            "juzgadoOrigenId": "NL-J2-FAM",
+            "estadoOrigenId": estado["clave"],
+            "municipioOrigenId": municipio["clave"],
+            "juzgadoOrigenId": "EDO-J2-FAM",
             "juzgadoOrigenNombre": "JUZGADO SEGUNDO FAMILIAR",
             "numeroExpedienteOrigen": "123/2024",
             "numeroOficioOrigen": "3001/2024",
@@ -144,6 +168,7 @@ class Test02EnviarExhorto(unittest.TestCase):
         exh_exhorto = ExhExhorto(
             exhorto_origen_id=exhorto_origen_id,
             folio_seguimiento=data["exhortoOrigenId"],
+            estado_origen_id=estado["clave"],
         )
         session.add(exh_exhorto)
         session.commit()

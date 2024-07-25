@@ -10,7 +10,6 @@ from lib.schemas_base import OneBaseOut
 class ExhAreaOut(BaseModel):
     """Esquema para entregar areas"""
 
-    id: int | None = None
     clave: str | None = None
     nombre: str | None = None
     model_config = ConfigDict(from_attributes=True)

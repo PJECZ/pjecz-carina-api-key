@@ -63,7 +63,7 @@ def create_app() -> FastAPI:
     app.include_router(domicilios, include_in_schema=False)
     app.include_router(entradas_salidas, include_in_schema=False)
     app.include_router(estados)
-    app.include_router(exh_areas, include_in_schema=False)
+    app.include_router(exh_areas)
     app.include_router(exh_exhortos)
     app.include_router(exh_exhortos_archivos)
     app.include_router(exh_exhortos_partes, include_in_schema=False)

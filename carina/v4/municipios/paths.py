@@ -16,7 +16,7 @@ from ..usuarios.authentications import UsuarioInDB, get_current_active_user
 from .crud import get_municipio_with_clave, get_municipios
 from .schemas import MunicipioOut, OneMunicipioOut
 
-municipios = APIRouter(prefix="/v4/municipios", tags=["estados y municipios"])
+municipios = APIRouter(prefix="/v4/municipios", tags=["municipios"])
 
 
 @municipios.get("/{estado_clave}/{municipio_clave}", response_model=OneMunicipioOut)

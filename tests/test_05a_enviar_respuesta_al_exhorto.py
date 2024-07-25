@@ -31,7 +31,18 @@ class Test05aEnviarRespuestaAlExhorto(unittest.TestCase):
         # Generar el respuesta_origen_id como el identidicador de la respuesta del exhorto del PJ exhortante
         respuesta_origen_id = generar_identificador()
 
-        # TODO: Elegir aleatoriamente el municipio
+        # Elegir aleatoriamente un municipio del estado de Coahuila de Zaragoza (clave 05)
+        try:
+            response = requests.get(
+                url=f"{config['api_base_url']}/municipios/05",
+                headers={"X-Api-Key": config["api_key"]},
+                timeout=config["timeout"],
+            )
+        except ConnectionError as error:
+            self.fail(error)
+        self.assertEqual(response.status_code, 200)
+        contenido = response.json()
+        municipio = random.choice(contenido["data"])
 
         # TODO: Elegir aleatoriamente el area a donde se va a turnar el exhorto
 
@@ -49,7 +60,7 @@ class Test05aEnviarRespuestaAlExhorto(unittest.TestCase):
         datos = {
             "exhortoId": exh_exhorto.exhorto_origen_id,
             "respuestaOrigenId": respuesta_origen_id,
-            "municipioTurnadoId": "",
+            "municipioTurnadoId": municipio["clave"],
             "areaTurnadoId": "",
             "areaTurnadoNombre": "",
             "numeroExhorto": "",

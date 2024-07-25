@@ -10,7 +10,6 @@ from lib.schemas_base import OneBaseOut
 class ExhExternoOut(BaseModel):
     """Esquema para entregar externos"""
 
-    id: int | None = None
     clave: str | None = None
     descripcion: str | None = None
     materias: dict | None = None
