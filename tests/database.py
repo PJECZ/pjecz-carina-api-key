@@ -23,12 +23,21 @@ class ExhExhorto(Base):
 
     __tablename__ = "exh_exhortos"
 
+    # Clave primaria
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
+
+    # Columnas: al enviar el exhorto, se mandan estos datos
     exhorto_origen_id: Mapped[str]
-    folio_seguimiento: Mapped[Optional[str]]
-    respuesta_origen_id: Mapped[Optional[str]]
     estado_origen_id: Mapped[str]
 
+    # Columnas: al enviar el exhorto, se reciben estos datos
+    folio_seguimiento: Mapped[Optional[str]]
+
+    # Columnas: al enviar la respuesta al exhorto, se reciben estos datos
+    exhorto_id: Mapped[Optional[str]]
+    respuesta_origen_id: Mapped[Optional[str]]
+
+    # Hijos
     exh_exhortos_archivos: Mapped[List["ExhExhortoArchivo"]] = relationship(
         "ExhExhortoArchivo",
         back_populates="exh_exhorto",
@@ -41,11 +50,14 @@ class ExhExhortoArchivo(Base):
 
     __tablename__ = "exh_exhortos_archivos"
 
+    # Clave primaria
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
+    # Clave foránea
     exh_exhorto_id: Mapped[int] = mapped_column(ForeignKey("exh_exhortos.id"))
     exh_exhorto: Mapped["ExhExhorto"] = relationship(back_populates="exh_exhortos_archivos")
 
+    # Columnas
     nombre_archivo: Mapped[str]
     hash_sha1: Mapped[str]
     hash_sha256: Mapped[str]
