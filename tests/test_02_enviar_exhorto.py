@@ -164,7 +164,7 @@ class Test02EnviarExhorto(unittest.TestCase):
         # Cargar la sesion de la base de datos para conservar los datos para las pruebas siguientes
         session = get_database_session()
 
-        # Guardar el exhorto
+        # Insertar el registro del exhorto en la base de datos SQLite
         exh_exhorto = ExhExhorto(
             exhorto_origen_id=exhorto_origen_id,
             folio_seguimiento=data["exhortoOrigenId"],
@@ -173,7 +173,7 @@ class Test02EnviarExhorto(unittest.TestCase):
         session.add(exh_exhorto)
         session.commit()
 
-        # Guardar los archivos
+        # Insertar los registros de los archivos en la base de datos SQLite
         for archivo in archivos:
             exh_exhorto_archivo = ExhExhortoArchivo(
                 exh_exhorto_id=exh_exhorto.id,

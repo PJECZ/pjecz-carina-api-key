@@ -1,5 +1,5 @@
 """
-Unit test - 05a Enviar Respuesta al Exhorto
+Unit test - 05a Enviar la Respuesta al Exhorto
 """
 
 import random
@@ -12,7 +12,7 @@ import requests
 from requests.exceptions import ConnectionError
 
 from lib.pwgen import generar_identificador
-from tests.database import ExhExhorto, get_database_session
+from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
 from tests.load_env import config
 
 
@@ -30,7 +30,7 @@ class Test05aEnviarRespuestaAlExhorto(unittest.TestCase):
         if exh_exhorto is None:
             self.fail("No se encontró el último exhorto en database.sqlite")
 
-        # Generar el respuesta_origen_id como el identidicador de la respuesta del exhorto del PJ exhortante
+        # Generar el identificador de la respuesta del exhorto del PJ exhortante
         respuesta_origen_id = generar_identificador()
 
         # Elegir aleatoriamente un municipio del estado de Coahuila de Zaragoza (clave 05)
@@ -138,10 +138,24 @@ class Test05aEnviarRespuestaAlExhorto(unittest.TestCase):
         self.assertEqual("respuestaOrigenId" in data, True)
         self.assertEqual("fechaHora" in data, True)
 
-        # Guardar respuestaOrigenId en la base de datos
+        # Actualizar el regsitro del exhorto en la base de datos SQLite
         exh_exhorto.exhorto_id = data["exhortoId"]
         exh_exhorto.respuesta_origen_id = data["respuestaOrigenId"]
         session.commit()
+
+        # Insertar los registros de los archivos en la base de datos SQLite
+        for archivo in archivos:
+            exh_exhorto_archivo = ExhExhortoArchivo(
+                exh_exhorto_id=exh_exhorto.id,
+                exh_exhorto=exh_exhorto,
+                nombre_archivo=archivo["nombreArchivo"],
+                hash_sha1=archivo["hashSha1"],
+                hash_sha256=archivo["hashSha256"],
+                tipo_documento=archivo["tipoDocumento"],
+                es_respuesta=True,
+            )
+            session.add(exh_exhorto_archivo)
+            session.commit()
 
 
 if __name__ == "__main__":

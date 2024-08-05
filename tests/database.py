@@ -62,6 +62,7 @@ class ExhExhortoArchivo(Base):
     hash_sha1: Mapped[str]
     hash_sha256: Mapped[str]
     tipo_documento: Mapped[int]
+    es_respuesta: Mapped[bool] = mapped_column(default=False)
 
 
 def get_engine() -> Engine:
