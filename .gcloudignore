@@ -22,6 +22,7 @@ __pycache__/
 /.github
 /.venv
 /.vscode
+/poetry.lock
 /rest-client
 /tests
 /venv
