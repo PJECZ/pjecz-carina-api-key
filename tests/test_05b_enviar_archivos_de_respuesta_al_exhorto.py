@@ -5,7 +5,6 @@ Unit test - 05b Enviar los Archivos de la Respuesta al Exhorto
 import unittest
 
 import requests
-from requests.exceptions import ConnectionError
 
 from tests.database import ExhExhorto, get_database_session
 from tests.load_env import config

@@ -5,7 +5,6 @@ Unit test - 04 Consultar Exhorto
 import unittest
 
 import requests
-from requests.exceptions import ConnectionError
 
 from tests.database import ExhExhorto, get_database_session
 from tests.load_env import config
@@ -36,7 +35,7 @@ class Test04ConsultarExhorto(unittest.TestCase):
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )
-        except ConnectionError as error:
+        except requests.exceptions.ConnectionError as error:
             self.fail(error)
         self.assertEqual(respuesta.status_code, 200)
 

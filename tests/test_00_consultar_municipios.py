@@ -5,7 +5,6 @@ Unit test - 00 Consultar Municipios
 import unittest
 
 import requests
-from requests.exceptions import ConnectionError
 
 from tests.load_env import config
 
@@ -23,7 +22,7 @@ class Test00ConsultarMunicipios(unittest.TestCase):
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )
-        except ConnectionError as error:
+        except requests.exceptions.ConnectionError as error:
             self.fail(error)
         self.assertEqual(response.status_code, 200)
 
@@ -50,7 +49,7 @@ class Test00ConsultarMunicipios(unittest.TestCase):
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )
-        except ConnectionError as error:
+        except requests.exceptions.ConnectionError as error:
             self.fail(error)
         self.assertEqual(response.status_code, 200)
 

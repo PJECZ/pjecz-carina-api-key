@@ -7,7 +7,6 @@ import unittest
 
 import requests
 from faker import Faker
-from requests.exceptions import ConnectionError
 
 from lib.pwgen import generar_identificador
 from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
@@ -90,7 +89,7 @@ class Test02EnviarExhorto(unittest.TestCase):
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )
-        except ConnectionError as error:
+        except requests.exceptions.ConnectionError as error:
             self.fail(error)
         self.assertEqual(response.status_code, 200)
         contenido = response.json()
@@ -103,7 +102,7 @@ class Test02EnviarExhorto(unittest.TestCase):
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )
-        except ConnectionError as error:
+        except requests.exceptions.ConnectionError as error:
             self.fail(error)
         self.assertEqual(response.status_code, 200)
         contenido = response.json()
@@ -139,7 +138,7 @@ class Test02EnviarExhorto(unittest.TestCase):
                 timeout=config["timeout"],
                 json=datos,
             )
-        except ConnectionError as error:
+        except requests.exceptions.ConnectionError as error:
             self.fail(error)
         self.assertEqual(respuesta.status_code, 200)
 
