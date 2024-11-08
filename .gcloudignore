@@ -7,8 +7,12 @@
 
 *.code-workspace
 *.csv
+*.log
+*.odt
 *.py[cod]
-*.sqlite3
+*.pdf
+*.sql
+*.sqlite
 *.xlsx
 
 __pycache__/
@@ -18,6 +22,7 @@ __pycache__/
 /.github
 /.venv
 /.vscode
+/poetry.lock
 /rest-client
 /tests
 /venv

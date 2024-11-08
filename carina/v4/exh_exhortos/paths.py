@@ -29,7 +29,7 @@ from .schemas import (
 exh_exhortos = APIRouter(prefix="/v4/exh_exhortos", tags=["exhortos"])
 
 
-@exh_exhortos.post("/respuesta", response_model=OneExhExhortoRecibirRespuestaOut)
+@exh_exhortos.post("/responder", response_model=OneExhExhortoRecibirRespuestaOut)
 async def recibir_exhorto_respuesta_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],

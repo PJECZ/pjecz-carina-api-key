@@ -20,11 +20,11 @@ materias = APIRouter(prefix="/v4/materias", tags=["materias"])
 
 
 @materias.get("", response_model=CustomList[MateriaOut])
-async def consultar_materias_response(
+async def listado_materias(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
 ):
-    """Paginado de materias"""
+    """Listado de materias"""
     if current_user.permissions.get("MATERIAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:

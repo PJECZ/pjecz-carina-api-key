@@ -4,6 +4,7 @@ Materias v4, CRUD (create, read, update, and delete)
 
 from typing import Any
 
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
 from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
@@ -13,7 +14,7 @@ from ...core.materias.models import Materia
 
 
 def get_materias(database: Session) -> Any:
-    """Consultar las materias activas"""
+    """Consultar las materias"""
     return database.query(Materia).filter_by(estatus="A").order_by(Materia.clave)
 
 
@@ -33,8 +34,9 @@ def get_materia_with_clave(database: Session, materia_clave: str) -> Materia:
         clave = safe_clave(materia_clave)
     except ValueError as error:
         raise MyNotValidParamError(str(error)) from error
-    materia = database.query(Materia).filter_by(clave=clave).first()
-    if materia is None:
+    try:
+        materia = database.query(Materia).filter_by(clave=clave).one()
+    except NoResultFound:
         raise MyNotExistsError("No existe ese materia")
     if materia.estatus != "A":
         raise MyIsDeletedError("No es activo ese materia, está eliminado")

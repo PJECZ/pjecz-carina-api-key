@@ -25,10 +25,10 @@ from lib.exceptions import MyAnyError
 from lib.google_cloud_storage import upload_file_to_gcs
 from lib.pwgen import generar_identificador
 
-exh_exhortos_archivos = APIRouter(prefix="/v4/exh_exhortos_archivos", tags=["exhortos archivos"])
+exh_exhortos_archivos = APIRouter(prefix="/v4/exh_exhortos_archivos", tags=["exhortos"])
 
 
-@exh_exhortos_archivos.post("/upload/respuesta", response_model=OneExhExhortoArchivoRecibirRespuestaExhortoOut)
+@exh_exhortos_archivos.post("/upload/responder", response_model=OneExhExhortoArchivoRecibirRespuestaExhortoOut)
 async def recibir_exhorto_archivo_respuesta_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
@@ -166,12 +166,12 @@ async def recibir_exhorto_archivo_request(
     # Definir los datos del archivo para la respuesta
     archivo = ExhExhortoArchivoFileDataArchivoOut(
         nombreArchivo=exh_exhorto_archivo.nombre_archivo,
-        tamano=archivo_pdf_tamanio,
+        tamaño=archivo_pdf_tamanio,
     )
 
     # Si pendientes_contador + 1 = total_contador
     if pendientes_contador + 1 >= total_contador:
-        # Generar el folio_seguimiento como un UUID
+        # Generar el folio_seguimiento
         folio_seguimiento = generar_identificador()
         # Entonces ES EL ULTIMO ARCHIVO, se cambia el estado de exh_exhorto a RECIBIDO
         exh_exhorto_actualizado = update_set_exhorto(
