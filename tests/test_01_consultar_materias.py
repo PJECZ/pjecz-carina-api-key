@@ -1,5 +1,13 @@
 """
 Unit test - 01 Consultar Materias
+
+Listado de materias del PJ exhortado.
+
+- GET /materias
+- GET /materias/{MATERIA_CLAVE}
+
+Se recibe el esquema OneMateriaOut.
+
 """
 
 import unittest

@@ -24,7 +24,7 @@ class ExhExhortoIn(BaseModel):
 
     # municipioDestinoId: Identificador del municipio del Estado del Poder Judical exhortado al que se quiere enviar el Exhorto.
     # Este debe corresponder al identificador definido por el catálogo de municipios y estados del INEGI
-    municipioDestinoId: int | None = None
+    municipioDestinoId: str | None = None
 
     # materiaClave	string	SI	Clave de la materia (el que se obtuvo en la consulta de materias del Poder Judicial exhortado)
     # al que el Exhorto hace referencia. Este contiene la materia actuál del registro del Exhorto

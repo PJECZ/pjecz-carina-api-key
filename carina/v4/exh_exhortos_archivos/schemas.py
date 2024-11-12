@@ -62,7 +62,7 @@ class ExhExhortoArchivoFileDataOut(BaseModel):
     acuse: ExhExhortoArchivoFileDataAcuseOut | None = None
 
 
-class OneExhExhortoArchivoFileOut(OneBaseOut):
+class OneExhExhortoArchivoFileDataOut(OneBaseOut):
     """Esquema para responder por un archivo recibido"""
 
     data: ExhExhortoArchivoFileDataOut | None = None
@@ -107,7 +107,7 @@ class ExhExhortoArchivoRecibirRespuestaExhortoDataOut(BaseModel):
     """Respuesta de la operación de Recibir Respuesta Exhorto Archivo"""
 
     # Contiene los datos del archivo recibido en el proceso
-    archivo: ExhExhortoArchivoIn | None = None
+    archivo: ExhExhortoArchivoFileDataArchivoOut | None = None
 
     # Acuse de recepción de la Respuesta del Exhorto.
     # Este dato se envía cuando se recibe el último archivo de la respuesta del exhorto;

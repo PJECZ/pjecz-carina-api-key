@@ -1,5 +1,14 @@
 """
 Unit test - 02 Enviar Exhorto
+
+Se recibe la materia, juicio, partes, juzgado origen, municipio destino, etc.
+
+Se manda el esquema ExhExhortoIn.
+
+- POST /exh_exhortos
+
+Se recibe el esquema OneExhExhortoConfirmacionDatosExhortoRecibidoOut.
+
 """
 
 import random
@@ -168,6 +177,8 @@ class Test02EnviarExhorto(unittest.TestCase):
             exhorto_origen_id=exhorto_origen_id,
             folio_seguimiento=data["exhortoOrigenId"],
             estado_origen_id=estado["clave"],
+            exhorto_id=None,
+            respuesta_origen_id=None,
         )
         session.add(exh_exhorto)
         session.commit()

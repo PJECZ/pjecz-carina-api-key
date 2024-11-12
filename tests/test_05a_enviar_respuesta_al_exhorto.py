@@ -1,5 +1,14 @@
 """
 Unit test - 05a Enviar la Respuesta al Exhorto
+
+Se envían los datos que conforman la respuesta del exhorto.
+
+Se manda el esquema ExhExhortoRecibirRespuestaIn.
+
+- POST /exh_exhortos/responder
+
+Se recibe el esquema OneExhExhortoRecibirRespuestaOut.
+
 """
 
 import random
@@ -137,7 +146,7 @@ class Test05aEnviarRespuestaAlExhorto(unittest.TestCase):
         self.assertEqual("respuestaOrigenId" in data, True)
         self.assertEqual("fechaHora" in data, True)
 
-        # Actualizar el regsitro del exhorto en la base de datos SQLite
+        # Actualizar el registro del exhorto en la base de datos SQLite
         exh_exhorto.exhorto_id = data["exhortoId"]
         exh_exhorto.respuesta_origen_id = data["respuestaOrigenId"]
         session.commit()

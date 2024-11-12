@@ -1,5 +1,12 @@
 """
 Unit test - 04 Consultar Exhorto
+
+Consultar exhorto enviado al PJ exhortado para ver su información.
+
+- GET /exh_exhortos/{FOLIO_SEGUIMIENTO}
+
+Se recibe el esquema OneExhExhortoOut.
+
 """
 
 import unittest

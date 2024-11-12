@@ -14,7 +14,7 @@ from ..exh_exhortos_archivos.schemas import ExhExhortoArchivoIn
 from ..exh_exhortos_partes.schemas import ExhExhortoParteIn
 from ..municipios.crud import get_municipio
 from ..usuarios.authentications import UsuarioInDB, get_current_active_user
-from .crud import create_exh_exhorto, get_exh_exhorto_by_folio_seguimiento, recieve_response_exh_exhorto
+from .crud import create_exh_exhorto, get_exh_exhorto_by_folio_seguimiento, receive_response_exh_exhorto
 from .schemas import (
     ExhExhortoConfirmacionDatosExhortoRecibidoOut,
     ExhExhortoIn,
@@ -39,7 +39,7 @@ async def recibir_exhorto_respuesta_request(
     if current_user.permissions.get("EXH EXHORTOS", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
-        exh_exhorto = recieve_response_exh_exhorto(database, exh_exhorto_recibir_respuesta)
+        exh_exhorto = receive_response_exh_exhorto(database, exh_exhorto_recibir_respuesta)
     except MyAnyError as error:
         return OneExhExhortoRecibirRespuestaOut(
             success=False,
@@ -48,8 +48,8 @@ async def recibir_exhorto_respuesta_request(
         )
     data = ExhExhortoRecibirRespuestaOut(
         exhortoId=str(exh_exhorto.exhorto_origen_id),
-        respuestaOrigenId="",
-        fechaHora=exh_exhorto.creado,
+        respuestaOrigenId="ABC123",  # TODO: Pendiente de implementar
+        fechaHora=exh_exhorto.modificado,
     )
     return OneExhExhortoRecibirRespuestaOut(success=True, data=data)
 

@@ -138,7 +138,7 @@ class ExhExhorto(Base, UniversalMixin):
     # Acuse fecha hora local en el que el Poder Judicial exhortado marca que se recibió el Exhorto
     acuse_fecha_hora_recepcion: Mapped[Optional[datetime]]
 
-    # Acuse Identificador del muncipio en donde se recibió o turnó el exhorto.
+    # Acuse Identificador del municipio en donde se recibió o turnó el exhorto.
     # Puede dar el caso que el exhorto se turne directamente al Juzgado, por lo que este dato seria
     # el identificador del municipio donde está el Juzgado.
     # En caso que se tenga una "Oficialía Virtual", no es necesario especificar este dato.
@@ -158,6 +158,33 @@ class ExhExhorto(Base, UniversalMixin):
     # Esta página el Juzgado que envió el exhorto la puede imprimir como acuse de recibido y evidencia de que el exhorto
     # fue enviado correctamente al Poder Judicial exhortado o también una página que muestre el estatus del exhorto.
     acuse_url_info: Mapped[Optional[str]] = mapped_column(String(256))
+
+    # Identificador propio del Poder Judicial exhortado con el que identifica la respuesta del exhorto.
+    # Este dato puede ser un número consecutivo (ej "1", "2", "3"...),
+    # un GUID/UUID o cualquíer otro valor con que se identifique la respuesta
+    respuesta_origen_id: Mapped[Optional[str]] = mapped_column(String(48))
+
+    # Identificador del municipio que corresponde al Juzgado/Área al que se turnó el Exhorto y que realiza la respuesta de este
+    respuesta_municipio_turnado_id: Mapped[Optional[int]]
+
+    # Identificador propio del PJ exhortado que corresponde al Juzgado/Área al que se turna el Exhorto y está respondiendo
+    respuesta_area_turnado_id: Mapped[Optional[str]] = mapped_column(String(256))
+
+    # Nombre del Juzgado/Área al que el Exhorto se turnó y está respondiendo.
+    respuesta_area_turnado_nombre: Mapped[Optional[str]] = mapped_column(String(256))
+
+    # Número de Exhorto con el que se radicó en el Juzgado/Área que se turnó el exhorto.
+    # Este número sirve para que el usuario pueda identificar su exhorto dentro del Juzgado/Área donde se turnó.
+    respuesta_numero_exhorto: Mapped[Optional[str]] = mapped_column(String(256))
+
+    # Valor que representa si se realizó la diligenciación del Exhorto:
+    # 0 = No Diligenciado
+    # 1 = Parcialmente Diligenciado
+    # 2 = Diligenciado"
+    respuesta_tipo_diligenciado: Mapped[Optional[int]]
+
+    # Texto simple referente a alguna observación u observaciones correspondientes a la respuesta del Exhorto
+    respuesta_observaciones: Mapped[Optional[str]] = mapped_column(String(1024))
 
     def __repr__(self):
         """Representación"""
