@@ -24,9 +24,9 @@ class Test05bEnviarArchivosDeRespuestaAlExhorto(unittest.TestCase):
     """Test 05b Enviar Archivos de Respuesta al Exhorto"""
 
     def test_05b_post_exh_exhorto_archivos_respuesta(self):
-        """Probar el metodo POST para enviar archivos de respuesta al exhorto"""
+        """Probar el POST para enviar archivos de respuesta al exhorto"""
 
-        # Cargar la sesion de SQLite para recuperar los datos
+        # Cargar la sesión de SQLite para recuperar los datos
         session = get_database_session()
 
         # Consultar el último exhorto

@@ -155,7 +155,7 @@ class OneExhExhortoConfirmacionDatosExhortoRecibidoOut(OneBaseOut):
 
 
 class ExhExhortoRecibirRespuestaIn(BaseModel):
-    """Esquema para recibir la respuesta de un exhorto que el Juzgado envio previamiente al PJ exhortante"""
+    """Esquema para recibir la respuesta de un exhorto que el Juzgado envió previamente al PJ exhortante"""
 
     # Identificador del Exhorto. Este dato es el identificador con el que el Poder Judicial exhortante identifica su exhorto,
     # y el Poder Judicial exhortado recibe en en endpoint "Recibir Exhorto" en "exhortoOrigenId",

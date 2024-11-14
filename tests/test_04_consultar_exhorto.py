@@ -21,9 +21,9 @@ class Test04ConsultarExhorto(unittest.TestCase):
     """Test 04 Consultar Exhorto"""
 
     def test_get_exh_exhortos(self):
-        """Probar el metodo GET para consultar un exhorto"""
+        """Probar el GET para consultar un exhorto"""
 
-        # Cargar la sesion de la base de datos para recuperar los datos
+        # Cargar la sesión de la base de datos para recuperar los datos
         session = get_database_session()
 
         # Consultar el último exhorto

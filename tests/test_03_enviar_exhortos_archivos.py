@@ -24,9 +24,9 @@ class Test03EnviarExhortosArchivos(unittest.TestCase):
     """Test 03 Enviar Archivos"""
 
     def test_03_post_exh_exhortos_archivos(self):
-        """Probar el metodo POST para enviar los archivos de un exhorto"""
+        """Probar el POST para enviar los archivos de un exhorto"""
 
-        # Cargar la sesion de la base de datos para recuperar los datos de la prueba anterior
+        # Cargar la sesión de la base de datos para recuperar los datos de la prueba anterior
         session = get_database_session()
 
         # Consultar el último exhorto

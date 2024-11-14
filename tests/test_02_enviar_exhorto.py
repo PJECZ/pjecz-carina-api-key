@@ -26,12 +26,12 @@ class Test02EnviarExhorto(unittest.TestCase):
     """Test 02 Enviar Exhorto"""
 
     def test_post_exh_exhorto(self):
-        """Probar el metodo POST para enviar un exhorto"""
+        """Probar el POST para enviar un exhorto"""
 
         # Generar el exhorto_origen_id como el identificador del exhorto del PJ exhortante
         exhorto_origen_id = generar_identificador()
 
-        # Inicializar el generardo de nombres aleatorios
+        # Inicializar el generador de nombres aleatorios
         faker = Faker(locale="es_MX")
 
         # Generar el nombre del juez exhortante
@@ -187,7 +187,6 @@ class Test02EnviarExhorto(unittest.TestCase):
         for archivo in archivos:
             exh_exhorto_archivo = ExhExhortoArchivo(
                 exh_exhorto_id=exh_exhorto.id,
-                exh_exhorto=exh_exhorto,
                 nombre_archivo=archivo["nombreArchivo"],
                 hash_sha1=archivo["hashSha1"],
                 hash_sha256=archivo["hashSha256"],
