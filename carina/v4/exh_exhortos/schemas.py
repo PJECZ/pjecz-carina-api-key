@@ -6,11 +6,10 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
+from carina.v4.exh_exhortos_archivos.schemas import ExhExhortoArchivoIn
+from carina.v4.exh_exhortos_partes.schemas import ExhExhortoParteIn
+from carina.v4.exh_exhortos_videos.schemas import ExhExhortoVideoIn
 from lib.schemas_base import OneBaseOut
-
-from ..exh_exhortos_archivos.schemas import ExhExhortoArchivoIn
-from ..exh_exhortos_partes.schemas import ExhExhortoParteIn
-from ..exh_exhortos_videos.schemas import ExhExhortoVideoIn
 
 
 class ExhExhortoIn(BaseModel):
@@ -24,7 +23,7 @@ class ExhExhortoIn(BaseModel):
 
     # municipioDestinoId: Identificador del municipio del Estado del Poder Judical exhortado al que se quiere enviar el Exhorto.
     # Este debe corresponder al identificador definido por el catálogo de municipios y estados del INEGI
-    municipioDestinoId: int | None = None
+    municipioDestinoId: str | None = None
 
     # materiaClave	string	SI	Clave de la materia (el que se obtuvo en la consulta de materias del Poder Judicial exhortado)
     # al que el Exhorto hace referencia. Este contiene la materia actuál del registro del Exhorto
@@ -155,7 +154,7 @@ class OneExhExhortoConfirmacionDatosExhortoRecibidoOut(OneBaseOut):
 
 
 class ExhExhortoRecibirRespuestaIn(BaseModel):
-    """Esquema para recibir la respuesta de un exhorto que el Juzgado envio previamiente al PJ exhortante"""
+    """Esquema para recibir la respuesta de un exhorto que el Juzgado envió previamente al PJ exhortante"""
 
     # Identificador del Exhorto. Este dato es el identificador con el que el Poder Judicial exhortante identifica su exhorto,
     # y el Poder Judicial exhortado recibe en en endpoint "Recibir Exhorto" en "exhortoOrigenId",

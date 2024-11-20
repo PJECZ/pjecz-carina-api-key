@@ -6,18 +6,17 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from carina.core.exh_exhortos_archivos.models import ExhExhortoArchivo
+from carina.v4.exh_exhortos.crud import get_exh_exhorto
 from lib.exceptions import MyIsDeletedError, MyNotExistsError
 
-from ..exh_exhortos.crud import get_exh_exhorto_by_exhorto_origen_id
-from ...core.exh_exhortos_archivos.models import ExhExhortoArchivo
 
-
-def get_exh_exhortos_archivos(database: Session, exhorto_origen_id: str = None) -> Any:
-    """Consultar los archivos activos"""
-    consulta = database.query(ExhExhortoArchivo)
-    if exhorto_origen_id is not None:
-        exh_exhorto = get_exh_exhorto_by_exhorto_origen_id(database, exhorto_origen_id)
-        consulta = consulta.filter_by(exh_exhorto_id=exh_exhorto.id)
+def get_exh_exhortos_archivos(database: Session, exh_exhorto_id: int, es_respuesta: bool = None) -> Any:
+    """Consultar los archivos de un exhorto"""
+    exh_exhorto = get_exh_exhorto(database, exh_exhorto_id)
+    consulta = database.query(ExhExhortoArchivo).filter_by(exh_exhorto_id=exh_exhorto.id)
+    if es_respuesta is not None:
+        return consulta.filter_by(es_respuesta=es_respuesta)
     return consulta.filter_by(estatus="A").order_by(ExhExhortoArchivo.id)
 
 

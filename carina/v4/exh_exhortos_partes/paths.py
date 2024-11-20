@@ -6,15 +6,14 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from carina.core.permisos.models import Permiso
+from carina.v4.exh_exhortos_partes.crud import get_exh_exhorto_parte
+from carina.v4.exh_exhortos_partes.schemas import OneExhExhortoParteOut
+from carina.v4.usuarios.authentications import UsuarioInDB, get_current_active_user
 from lib.database import Session, get_db
 from lib.exceptions import MyAnyError
 
-from ...core.permisos.models import Permiso
-from ..usuarios.authentications import UsuarioInDB, get_current_active_user
-from .crud import get_exh_exhorto_parte
-from .schemas import OneExhExhortoParteOut
-
-exh_exhortos_partes = APIRouter(prefix="/v4/exh_exhortos_partes", tags=["exhortos"])
+exh_exhortos_partes = APIRouter(prefix="/v4/exh_exhortos_partes", tags=["exh exhortos partes"])
 
 
 @exh_exhortos_partes.get("/{exh_exhorto_parte_id}", response_model=OneExhExhortoParteOut)

@@ -8,27 +8,34 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from carina.core.autoridades.models import Autoridad
+from carina.core.estados.models import Estado
 from carina.core.exh_areas.models import ExhArea
+from carina.core.exh_exhortos.models import ExhExhorto
+from carina.core.exh_exhortos_archivos.models import ExhExhortoArchivo
+from carina.core.exh_exhortos_partes.models import ExhExhortoParte
+from carina.core.exh_externos.models import ExhExterno
+from carina.core.municipios.models import Municipio
+from carina.v4.exh_exhortos.schemas import ExhExhortoIn, ExhExhortoRecibirRespuestaIn
 from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
-from lib.pwgen import generar_identificador
 from lib.safe_string import safe_clave, safe_string
-
-from ...core.estados.models import Estado
-from ...core.exh_exhortos.models import ExhExhorto
-from ...core.exh_exhortos_archivos.models import ExhExhortoArchivo
-from ...core.exh_exhortos_partes.models import ExhExhortoParte
-from ...core.exh_externos.models import ExhExterno
-from ...core.municipios.models import Municipio
-from ..exh_exhortos.schemas import ExhExhortoIn, ExhExhortoRecibirRespuestaIn
 
 ESTADO_DESTINO_NOMBRE = "COAHUILA DE ZARAGOZA"
 ESTADO_DESTINO_ID = 5
 
 
 def get_exh_exhortos(database: Session) -> Any:
-    """Consultar los exhortos activos"""
-    consulta = database.query(ExhExhorto)
-    return consulta.filter_by(estatus="A").order_by(ExhExhorto.id)
+    """Consultar los exhortos"""
+    return database.query(ExhExhorto).filter_by(estatus="A").order_by(ExhExhorto.id)
+
+
+def get_exh_exhorto(database: Session, exh_exhorto_id: int) -> ExhExhorto:
+    """Consultar un exhorto por su id"""
+    exh_exhorto = database.query(ExhExhorto).get(exh_exhorto_id)
+    if exh_exhorto is None:
+        raise MyNotExistsError("No existe ese exhorto")
+    if exh_exhorto.estatus != "A":
+        raise MyIsDeletedError("No es activo ese exhorto, está eliminado")
+    return exh_exhorto
 
 
 def get_exh_exhorto_by_exhorto_origen_id(database: Session, exhorto_origen_id: str) -> ExhExhorto:
@@ -40,7 +47,7 @@ def get_exh_exhorto_by_exhorto_origen_id(database: Session, exhorto_origen_id: s
     if exh_exhorto is None:
         raise MyNotExistsError("No existe ese exhorto")
     if exh_exhorto.estatus != "A":
-        raise MyIsDeletedError(f"No es activo ese exhorto, está eliminado con {exh_exhorto.estatus}")
+        raise MyIsDeletedError("No es activo ese exhorto, está eliminado")
     return exh_exhorto
 
 
@@ -98,16 +105,18 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     exh_exhorto.materia_clave = materia_clave
     exh_exhorto.materia_nombre = materia["nombre"]
 
-    # Consultar y validar el estado y municipio de origen, que son Identificadores INEGI
+    # Consultar y validar el estado de origen, se espera un identificador de INEGI de dos dígitos
     estado_clave = str(exh_exhorto_in.estadoOrigenId).zfill(2)
     estado = database.query(Estado).filter_by(clave=estado_clave).first()
     if estado is None:
         raise MyNotExistsError("No existe ese estado de origen")
+
+    # Consultar y validar el municipio de origen, se espera un identificador de INEGI de tres dígitos
     municipio_clave = str(exh_exhorto_in.municipioOrigenId).zfill(3)
     municipio = database.query(Municipio).filter_by(estado_id=estado.id).filter_by(clave=municipio_clave).first()
     if municipio is None:
         raise MyNotExistsError("No existe ese municipio de origen")
-    exh_exhorto.municipio_origen_id = municipio.id
+    exh_exhorto.municipio_origen = municipio
 
     # Identificador propio del Juzgado/Área que envía el Exhorto
     exh_exhorto.juzgado_origen_id = exh_exhorto_in.juzgadoOrigenId
@@ -208,8 +217,29 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     return exh_exhorto
 
 
-def recieve_response_exh_exhorto(database: Session, exh_exhorto_response: ExhExhortoRecibirRespuestaIn) -> ExhExhorto:
+def receive_response_exh_exhorto(database: Session, exh_exhorto_respuesta: ExhExhortoRecibirRespuestaIn) -> ExhExhorto:
     """Recibir la respuesta de un exhorto"""
+
+    # Datos de la respuesta
+    # exh_exhorto_respuesta.exhortoId (str)
+    # exh_exhorto_respuesta.respuestaOrigenId (str)
+    # exh_exhorto_respuesta.municipioTurnadoId (int)
+    # exh_exhorto_respuesta.areaTurnadoId (str)
+    # exh_exhorto_respuesta.areaTurnadoNombre (str)
+    # exh_exhorto_respuesta.numeroExhorto (str)
+    # exh_exhorto_respuesta.tipoDiligenciado (int)
+    # exh_exhorto_respuesta.observaciones (str)
+    # exh_exhorto_respuesta.archivos (str)
+    # exh_exhorto_respuesta.videos (str)
+
+    # Consultar el exhorto por su exhorto_origen_id
+    exh_exhorto = get_exh_exhorto_by_exhorto_origen_id(
+        database=database,
+        exhorto_origen_id=exh_exhorto_respuesta.exhortoOrigenId,
+    )
+
+    # Actualizar el exhorto
+    exh_exhorto.numero_exhorto = exh_exhorto_respuesta.numeroExhorto
 
     # TODO: Procesar recepcion de la respuesta del exhorto
     exh_exhorto = ExhExhorto()

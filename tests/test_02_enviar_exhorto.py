@@ -1,5 +1,14 @@
 """
 Unit test - 02 Enviar Exhorto
+
+Se recibe la materia, juicio, partes, juzgado origen, municipio destino, etc.
+
+Se manda el esquema ExhExhortoIn.
+
+- POST /exh_exhortos
+
+Se recibe el esquema OneExhExhortoConfirmacionDatosExhortoRecibidoOut.
+
 """
 
 import random
@@ -17,12 +26,12 @@ class Test02EnviarExhorto(unittest.TestCase):
     """Test 02 Enviar Exhorto"""
 
     def test_post_exh_exhorto(self):
-        """Probar el metodo POST para enviar un exhorto"""
+        """Probar el POST para enviar un exhorto"""
 
         # Generar el exhorto_origen_id como el identificador del exhorto del PJ exhortante
         exhorto_origen_id = generar_identificador()
 
-        # Inicializar el generardo de nombres aleatorios
+        # Inicializar el generador de nombres aleatorios
         faker = Faker(locale="es_MX")
 
         # Generar el nombre del juez exhortante
@@ -72,7 +81,7 @@ class Test02EnviarExhorto(unittest.TestCase):
 
         # Inicializar los archivos que se van a mandar desde prueba-1.pdf a prueba-4.pdf
         archivos = []
-        for numero in range(1, random.randint(1, 4) + 1):
+        for numero in range(1, random.randint(1, 3) + 1):
             archivos.append(
                 {
                     "nombreArchivo": f"prueba-{numero}.pdf",
@@ -111,10 +120,10 @@ class Test02EnviarExhorto(unittest.TestCase):
         # Definir los datos del exhorto
         datos = {
             "exhortoOrigenId": exhorto_origen_id,
-            "municipioDestinoId": 30,
-            "materiaClave": "FAM",
-            "estadoOrigenId": estado["clave"],
-            "municipioOrigenId": municipio["clave"],
+            "municipioDestinoId": "030",
+            "materiaClave": "CIV",
+            "estadoOrigenId": int(estado["clave"]),
+            "municipioOrigenId": int(municipio["clave"]),
             "juzgadoOrigenId": "EDO-J2-FAM",
             "juzgadoOrigenNombre": "JUZGADO SEGUNDO FAMILIAR",
             "numeroExpedienteOrigen": "123/2024",
@@ -168,6 +177,8 @@ class Test02EnviarExhorto(unittest.TestCase):
             exhorto_origen_id=exhorto_origen_id,
             folio_seguimiento=data["exhortoOrigenId"],
             estado_origen_id=estado["clave"],
+            exhorto_id=None,
+            respuesta_origen_id=None,
         )
         session.add(exh_exhorto)
         session.commit()
@@ -175,8 +186,8 @@ class Test02EnviarExhorto(unittest.TestCase):
         # Insertar los registros de los archivos en la base de datos SQLite
         for archivo in archivos:
             exh_exhorto_archivo = ExhExhortoArchivo(
-                exh_exhorto_id=exh_exhorto.id,
                 exh_exhorto=exh_exhorto,
+                exh_exhorto_id=exh_exhorto.id,
                 nombre_archivo=archivo["nombreArchivo"],
                 hash_sha1=archivo["hashSha1"],
                 hash_sha256=archivo["hashSha256"],

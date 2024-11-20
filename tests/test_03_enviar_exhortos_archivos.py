@@ -1,5 +1,14 @@
 """
 Unit test - 03 Enviar Exhortos Archivos
+
+Se envían los documentos que conforman el exhorto.
+
+Se manda exhortoOrigenId y el archivo
+
+- POST /exh_exhortos_archivos/upload
+
+Se recibe el esquema OneExhExhortoArchivoFileOut.
+
 """
 
 import time
@@ -15,9 +24,9 @@ class Test03EnviarExhortosArchivos(unittest.TestCase):
     """Test 03 Enviar Archivos"""
 
     def test_03_post_exh_exhortos_archivos(self):
-        """Probar el metodo POST para enviar los archivos de un exhorto"""
+        """Probar el POST para enviar los archivos de un exhorto"""
 
-        # Cargar la sesion de la base de datos para recuperar los datos de la prueba anterior
+        # Cargar la sesión de la base de datos para recuperar los datos de la prueba anterior
         session = get_database_session()
 
         # Consultar el último exhorto
@@ -32,7 +41,7 @@ class Test03EnviarExhortosArchivos(unittest.TestCase):
             # Tomar el nombre del archivo
             archivo_nombre = exh_exhorto_archivo.nombre_archivo
 
-            # Leer el archivo
+            # Leer el archivo de prueba
             with open(f"tests/{archivo_nombre}", "rb") as archivo_prueba:
                 # Mandar el archivo
                 try:
@@ -74,11 +83,11 @@ class Test03EnviarExhortosArchivos(unittest.TestCase):
         # Validar el último acuse
         self.assertEqual("exhortoOrigenId" in data_acuse, True)
         self.assertEqual("folioSeguimiento" in data_acuse, True)
-        self.assertEqual("fechaHoraRecepcion" in data_acuse, True)
-        self.assertEqual("municipioAreaRecibeId" in data_acuse, True)
-        self.assertEqual("areaRecibeId" in data_acuse, True)
-        self.assertEqual("areaRecibeNombre" in data_acuse, True)
-        self.assertEqual("urlInfo" in data_acuse, True)
+        self.assertEqual("fechaHoraRecepcion" in data_acuse, True)  # acuse_fecha_hora_recepcion
+        self.assertEqual("municipioAreaRecibeId" in data_acuse, True)  # acuse_municipio_area_recibe_id
+        self.assertEqual("areaRecibeId" in data_acuse, True)  # acuse_area_recibe_id
+        self.assertEqual("areaRecibeNombre" in data_acuse, True)  # acuse_area_recibe_nombre
+        self.assertEqual("urlInfo" in data_acuse, True)  # acuse_url_info
 
         # Validar que se recibe el mismo exhortoOrigenId
         self.assertEqual(type(data_acuse["exhortoOrigenId"]), str)

@@ -7,15 +7,14 @@ from typing import Any
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
+from carina.core.materias.models import Materia
 from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
 from lib.safe_string import safe_clave
-
-from ...core.materias.models import Materia
 
 
 def get_materias(database: Session) -> Any:
     """Consultar las materias"""
-    return database.query(Materia).filter_by(estatus="A").order_by(Materia.clave)
+    return database.query(Materia).filter_by(estatus="A").filter_by(en_exh_exhortos=True).order_by(Materia.clave)
 
 
 def get_materia(database: Session, materia_id: int) -> Materia:
@@ -24,7 +23,9 @@ def get_materia(database: Session, materia_id: int) -> Materia:
     if materia is None:
         raise MyNotExistsError("No existe ese materia")
     if materia.estatus != "A":
-        raise MyIsDeletedError("No es activo ese materia, está eliminado")
+        raise MyIsDeletedError("No es activa esa materia, está eliminada")
+    if materia.en_exh_exhortos is False:
+        raise MyNotExistsError("No se usa esa materia en exhortos electrónicos")
     return materia
 
 
@@ -40,4 +41,6 @@ def get_materia_with_clave(database: Session, materia_clave: str) -> Materia:
         raise MyNotExistsError("No existe ese materia")
     if materia.estatus != "A":
         raise MyIsDeletedError("No es activo ese materia, está eliminado")
+    if materia.en_exh_exhortos is False:
+        raise MyNotExistsError("No se usa esa materia en exhortos electrónicos")
     return materia

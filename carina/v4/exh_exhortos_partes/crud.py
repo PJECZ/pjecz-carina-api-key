@@ -6,19 +6,20 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from carina.core.exh_exhortos_partes.models import ExhExhortoParte
+from carina.v4.exh_exhortos.crud import get_exh_exhorto
 from lib.exceptions import MyIsDeletedError, MyNotExistsError
 
-from ...core.exh_exhortos_partes.models import ExhExhortoParte
-from ..exh_exhortos.crud import get_exh_exhorto_by_exhorto_origen_id
 
-
-def get_exh_exhortos_partes(database: Session, exh_exhorto_id: str = None) -> Any:
-    """Consultar los partes activos"""
-    consulta = database.query(ExhExhortoParte)
-    if exh_exhorto_id is not None:
-        exh_exhorto = get_exh_exhorto_by_exhorto_origen_id(database, exh_exhorto_id)
-        consulta = consulta.filter_by(exh_exhorto_id=exh_exhorto.id)
-    return consulta.filter_by(estatus="A").order_by(ExhExhortoParte.id)
+def get_exh_exhortos_partes(database: Session, exh_exhorto_id: int) -> Any:
+    """Consultar los partes de un exhorto"""
+    exh_exhorto = get_exh_exhorto(database, exh_exhorto_id)
+    return (
+        database.query(ExhExhortoParte)
+        .filter_by(exh_exhorto_id=exh_exhorto.id)
+        .filter_by(estatus="A")
+        .order_by(ExhExhortoParte.id)
+    )
 
 
 def get_exh_exhorto_parte(database: Session, exh_exhorto_parte_id: int) -> ExhExhortoParte:

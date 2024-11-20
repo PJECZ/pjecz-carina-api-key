@@ -1,5 +1,14 @@
 """
 Unit test - 05a Enviar la Respuesta al Exhorto
+
+Se envían los datos que conforman la respuesta del exhorto.
+
+Se manda el esquema ExhExhortoRecibirRespuestaIn que contiene archivos (ExhExhortoArchivoIn) y videos (ExhExhortoVideoIn).
+
+- POST /exh_exhortos/responder
+
+Se recibe el esquema OneExhExhortoRecibirRespuestaOut.
+
 """
 
 import random
@@ -19,9 +28,9 @@ class Test05aEnviarRespuestaAlExhorto(unittest.TestCase):
     """Test 05a Enviar Respuesta al Exhorto"""
 
     def test_05a_post_exh_exhorto_respuesta(self):
-        """Probar el metodo POST para enviar una respuesta al exhorto"""
+        """Probar el POST para enviar una respuesta al exhorto"""
 
-        # Cargar la sesion de la base de datos para recuperar los datos
+        # Cargar la sesión de la base de datos para recuperar los datos
         session = get_database_session()
 
         # Consultar el último exhorto
@@ -137,8 +146,7 @@ class Test05aEnviarRespuestaAlExhorto(unittest.TestCase):
         self.assertEqual("respuestaOrigenId" in data, True)
         self.assertEqual("fechaHora" in data, True)
 
-        # Actualizar el regsitro del exhorto en la base de datos SQLite
-        exh_exhorto.exhorto_id = data["exhortoId"]
+        # Actualizar el registro del exhorto en la base de datos SQLite
         exh_exhorto.respuesta_origen_id = data["respuestaOrigenId"]
         session.commit()
 
@@ -146,7 +154,6 @@ class Test05aEnviarRespuestaAlExhorto(unittest.TestCase):
         for archivo in archivos:
             exh_exhorto_archivo = ExhExhortoArchivo(
                 exh_exhorto_id=exh_exhorto.id,
-                exh_exhorto=exh_exhorto,
                 nombre_archivo=archivo["nombreArchivo"],
                 hash_sha1=archivo["hashSha1"],
                 hash_sha256=archivo["hashSha256"],

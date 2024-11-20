@@ -6,19 +6,18 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from carina.core.exh_areas.models import ExhArea
 from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
 from lib.safe_string import safe_clave
 
-from ...core.exh_areas.models import ExhArea
-
 
 def get_exh_areas(database: Session) -> Any:
-    """Consultar los areas activos"""
+    """Consultar los áreas"""
     return database.query(ExhArea).filter_by(estatus="A").order_by(ExhArea.clave)
 
 
 def get_exh_area(database: Session, exh_area_id: int) -> ExhArea:
-    """Consultar un area por su id"""
+    """Consultar un área por su id"""
     exh_area = database.query(ExhArea).get(exh_area_id)
     if exh_area is None:
         raise MyNotExistsError("No existe ese area")
