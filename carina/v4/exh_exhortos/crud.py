@@ -8,26 +8,34 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from carina.core.autoridades.models import Autoridad
+from carina.core.estados.models import Estado
 from carina.core.exh_areas.models import ExhArea
+from carina.core.exh_exhortos.models import ExhExhorto
+from carina.core.exh_exhortos_archivos.models import ExhExhortoArchivo
+from carina.core.exh_exhortos_partes.models import ExhExhortoParte
+from carina.core.exh_externos.models import ExhExterno
+from carina.core.municipios.models import Municipio
+from carina.v4.exh_exhortos.schemas import ExhExhortoIn, ExhExhortoRecibirRespuestaIn
 from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
-from lib.pwgen import generar_identificador
 from lib.safe_string import safe_clave, safe_string
-
-from ...core.estados.models import Estado
-from ...core.exh_exhortos.models import ExhExhorto
-from ...core.exh_exhortos_archivos.models import ExhExhortoArchivo
-from ...core.exh_exhortos_partes.models import ExhExhortoParte
-from ...core.exh_externos.models import ExhExterno
-from ...core.municipios.models import Municipio
-from ..exh_exhortos.schemas import ExhExhortoIn, ExhExhortoRecibirRespuestaIn
 
 ESTADO_DESTINO_NOMBRE = "COAHUILA DE ZARAGOZA"
 ESTADO_DESTINO_ID = 5
 
 
 def get_exh_exhortos(database: Session) -> Any:
-    """Consultar los exhortos activos"""
+    """Consultar los exhortos"""
     return database.query(ExhExhorto).filter_by(estatus="A").order_by(ExhExhorto.id)
+
+
+def get_exh_exhorto(database: Session, exh_exhorto_id: int) -> ExhExhorto:
+    """Consultar un exhorto por su id"""
+    exh_exhorto = database.query(ExhExhorto).get(exh_exhorto_id)
+    if exh_exhorto is None:
+        raise MyNotExistsError("No existe ese exhorto")
+    if exh_exhorto.estatus != "A":
+        raise MyIsDeletedError("No es activo ese exhorto, está eliminado")
+    return exh_exhorto
 
 
 def get_exh_exhorto_by_exhorto_origen_id(database: Session, exhorto_origen_id: str) -> ExhExhorto:
@@ -39,7 +47,7 @@ def get_exh_exhorto_by_exhorto_origen_id(database: Session, exhorto_origen_id: s
     if exh_exhorto is None:
         raise MyNotExistsError("No existe ese exhorto")
     if exh_exhorto.estatus != "A":
-        raise MyIsDeletedError(f"No es activo ese exhorto, está eliminado con {exh_exhorto.estatus}")
+        raise MyIsDeletedError("No es activo ese exhorto, está eliminado")
     return exh_exhorto
 
 

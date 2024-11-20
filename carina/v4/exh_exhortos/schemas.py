@@ -6,11 +6,10 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
+from carina.v4.exh_exhortos_archivos.schemas import ExhExhortoArchivoIn
+from carina.v4.exh_exhortos_partes.schemas import ExhExhortoParteIn
+from carina.v4.exh_exhortos_videos.schemas import ExhExhortoVideoIn
 from lib.schemas_base import OneBaseOut
-
-from ..exh_exhortos_archivos.schemas import ExhExhortoArchivoIn
-from ..exh_exhortos_partes.schemas import ExhExhortoParteIn
-from ..exh_exhortos_videos.schemas import ExhExhortoVideoIn
 
 
 class ExhExhortoIn(BaseModel):

@@ -7,10 +7,9 @@ from typing import Any
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
+from carina.core.materias.models import Materia
 from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
 from lib.safe_string import safe_clave
-
-from ...core.materias.models import Materia
 
 
 def get_materias(database: Session) -> Any:

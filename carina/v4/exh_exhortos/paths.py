@@ -6,16 +6,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from lib.database import Session, get_db
-from lib.exceptions import MyAnyError
-
-from ...core.permisos.models import Permiso
-from ..exh_exhortos_archivos.schemas import ExhExhortoArchivoIn
-from ..exh_exhortos_partes.schemas import ExhExhortoParteIn
-from ..municipios.crud import get_municipio
-from ..usuarios.authentications import UsuarioInDB, get_current_active_user
-from .crud import create_exh_exhorto, get_exh_exhorto_by_folio_seguimiento, receive_response_exh_exhorto
-from .schemas import (
+from carina.core.permisos.models import Permiso
+from carina.v4.exh_exhortos.crud import create_exh_exhorto, get_exh_exhorto_by_folio_seguimiento, receive_response_exh_exhorto
+from carina.v4.exh_exhortos.schemas import (
     ExhExhortoConfirmacionDatosExhortoRecibidoOut,
     ExhExhortoIn,
     ExhExhortoOut,
@@ -25,8 +18,14 @@ from .schemas import (
     OneExhExhortoOut,
     OneExhExhortoRecibirRespuestaOut,
 )
+from carina.v4.exh_exhortos_archivos.schemas import ExhExhortoArchivoIn
+from carina.v4.exh_exhortos_partes.schemas import ExhExhortoParteIn
+from carina.v4.municipios.crud import get_municipio
+from carina.v4.usuarios.authentications import UsuarioInDB, get_current_active_user
+from lib.database import Session, get_db
+from lib.exceptions import MyAnyError
 
-exh_exhortos = APIRouter(prefix="/v4/exh_exhortos", tags=["exhortos"])
+exh_exhortos = APIRouter(prefix="/v4/exh_exhortos", tags=["exh exhortos"])
 
 
 @exh_exhortos.post("/responder", response_model=OneExhExhortoRecibirRespuestaOut)

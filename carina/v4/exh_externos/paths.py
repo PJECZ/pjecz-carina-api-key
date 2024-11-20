@@ -6,15 +6,14 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from carina.core.permisos.models import Permiso
+from carina.v4.exh_externos.crud import get_exh_externo_with_clave
+from carina.v4.exh_externos.schemas import OneExhExternoOut
+from carina.v4.usuarios.authentications import UsuarioInDB, get_current_active_user
 from lib.database import Session, get_db
 from lib.exceptions import MyAnyError
 
-from ...core.permisos.models import Permiso
-from ..usuarios.authentications import UsuarioInDB, get_current_active_user
-from .crud import get_exh_externo_with_clave
-from .schemas import OneExhExternoOut
-
-exh_externos = APIRouter(prefix="/v4/exh_externos", tags=["exhortos"])
+exh_externos = APIRouter(prefix="/v4/exh_externos", tags=["exh externos"])
 
 
 @exh_externos.get("/{exh_externo_clave}", response_model=OneExhExternoOut)

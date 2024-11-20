@@ -6,15 +6,14 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from carina.core.permisos.models import Permiso
+from carina.v4.exh_exhortos_videos.crud import get_exh_exhorto_video
+from carina.v4.exh_exhortos_videos.schemas import OneExhExhortoVideoOut
+from carina.v4.usuarios.authentications import UsuarioInDB, get_current_active_user
 from lib.database import Session, get_db
 from lib.exceptions import MyAnyError
 
-from ...core.permisos.models import Permiso
-from ..usuarios.authentications import UsuarioInDB, get_current_active_user
-from .crud import get_exh_exhorto_video
-from .schemas import OneExhExhortoVideoOut
-
-exh_exhortos_videos = APIRouter(prefix="/v4/exh_exhortos_videos", tags=["exhortos"])
+exh_exhortos_videos = APIRouter(prefix="/v4/exh_exhortos_videos", tags=["exh exhortos videos"])
 
 
 @exh_exhortos_videos.get("/{exh_exhorto_video_id}", response_model=OneExhExhortoVideoOut)

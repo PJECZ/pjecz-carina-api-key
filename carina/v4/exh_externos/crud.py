@@ -6,10 +6,9 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from carina.core.exh_externos.models import ExhExterno
 from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
 from lib.safe_string import safe_clave
-
-from ...core.exh_externos.models import ExhExterno
 
 
 def get_exh_externos(database: Session) -> Any:

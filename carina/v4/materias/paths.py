@@ -7,14 +7,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
 
+from carina.core.permisos.models import Permiso
+from carina.v4.materias.crud import get_materia_with_clave, get_materias
+from carina.v4.materias.schemas import MateriaOut, OneMateriaOut
+from carina.v4.usuarios.authentications import UsuarioInDB, get_current_active_user
 from lib.database import Session, get_db
 from lib.exceptions import MyAnyError
 from lib.fastapi_pagination_custom_list import CustomList
-
-from ...core.permisos.models import Permiso
-from ..usuarios.authentications import UsuarioInDB, get_current_active_user
-from .crud import get_materia_with_clave, get_materias
-from .schemas import MateriaOut, OneMateriaOut
 
 materias = APIRouter(prefix="/v4/materias", tags=["materias"])
 
@@ -30,9 +29,10 @@ async def detalle_materia(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         materia = get_materia_with_clave(database, materia_clave)
+        data = MateriaOut.model_validate(materia)
     except MyAnyError as error:
         return OneMateriaOut(success=False, errors=[str(error)])
-    return OneMateriaOut(success=True, data=materia)
+    return OneMateriaOut(success=True, data=data)
 
 
 @materias.get("", response_model=CustomList[MateriaOut])

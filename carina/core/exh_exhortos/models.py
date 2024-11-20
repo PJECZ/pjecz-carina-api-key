@@ -128,7 +128,7 @@ class ExhExhorto(Base, UniversalMixin):
     # los videos de las audiencias que forman parte de la respuesta.
     exh_exhortos_videos: Mapped[List["ExhExhortoVideo"]] = relationship("ExhExhortoVideo", back_populates="exh_exhorto")
 
-    # Cuando el exhorto esta en estado POR ENVIAR
+    # Cuando el exhorto está en estado POR ENVIAR
     # Puede tener un tiempo con su anterior intento, si es nulo es que no ha sido enviado aun
     por_enviar_tiempo_anterior: Mapped[Optional[datetime]]
 
@@ -183,27 +183,25 @@ class ExhExhorto(Base, UniversalMixin):
     # 2 = Diligenciado"
     respuesta_tipo_diligenciado: Mapped[Optional[int]]
 
+    # Fecha hora local del Poder Judicial que recibe la respuesta del Exhorto
+    respuesta_fecha_hora_recepcion: Mapped[Optional[datetime]]
+
     # Texto simple referente a alguna observación u observaciones correspondientes a la respuesta del Exhorto
     respuesta_observaciones: Mapped[Optional[str]] = mapped_column(String(1024))
 
-    # Identificador que el Poder Judicial exhortado (quien envía la actualización) genera.
-    # Este puede ser un consecutivo (ej. "1", "2", ... "45545"), un GUID/UUID, código (ej. "EX-00001-2024update55" ...)
-    # o cualquíer dato que no se pueda repetir.
-    # actualizacion_origen_id: Mapped[Optional[str]] = mapped_column(String(48))
+    # Fecha hora local en el que el Poder Judicial exhortante marca la Respuesta del Exhorto como recibida
+    respuesta_fecha_hora_recepcion_acuse: Mapped[Optional[datetime]]
 
-    # Tipo de actualización del exhorto, que está relacionado con el dato o proceso de actualización que sufrió el exhorto.
-    # Estos pueden ser:
-    # - "AreaTurnado" => Cuando se cambia o se turna el Exhorto al Juzgado/Área que hará la diligenciación.
-    # - "NumeroExhorto" => En el Juzgado/Área que va a hacer la diligenciación del exhorto, este ya se radicó y
-    #    se le asignó un Número de Exhorto (local) con el que identifican.
-    # actualizacion_tipo_actualizacion: Mapped[Optional[str]] = mapped_column(String(16))
+    # Hijos: Colección de objetos de tipo Actualizaciones que representan
+    # las diferentes actualizaciones pedidas para el exhorto
+    exh_exhortos_actualizaciones: Mapped[List["ExhExhortoActualizacion"]] = relationship(
+        "ExhExhortoActualizacion", back_populates="exh_exhorto"
+    )
 
-    # Fecha hora local en que se registró la actualización
-    # actualizacion_fecha_hora: Mapped[Optional[datetime]]
-
-    # Una descripción que indique cuál fue el dato y/o información del exhorto que se actualizó.
-    # Este puede ser: "Turnado al Juzgado Tercero Familiar (Municipio)", "Radicado con Número de Exhorto 99999/2024"
-    # actualizacion_descripcion: Mapped[Optional[str]] = mapped_column(String(256))
+    # Hijo
+    exh_exhortos_promociones: Mapped[List["ExhExhortoPromocion"]] = relationship(
+        "ExhExhortoPromocion", back_populates="exh_exhorto"
+    )
 
     def __repr__(self):
         """Representación"""

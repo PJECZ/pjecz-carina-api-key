@@ -29,13 +29,13 @@ class ExhExhortoVideo(Base, UniversalMixin):
     titulo: Mapped[str] = mapped_column(String(256))
 
     # Descripción del video/audiencia realizada
-    descripcion: Mapped[Optional[str]] = mapped_column(Text(1024))
+    descripcion: Mapped[Optional[str]] = mapped_column(String(1024))
 
-    # Fecha (o fecha hora) en que se realizó el video y/o audiencia
+    # Fecha (o fecha hora) en que se realizó el video y/o audiencia.
     fecha: Mapped[Optional[datetime]]
 
     # URL que el usuario final podrá accesar para poder visualizar el video
-    url_acceso: Mapped[str] = mapped_column(String(256))
+    url_acceso: Mapped[str] = mapped_column(String(512))
 
     def __repr__(self):
         """Representación"""

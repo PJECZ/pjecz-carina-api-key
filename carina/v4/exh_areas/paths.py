@@ -7,16 +7,15 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
 
+from carina.core.permisos.models import Permiso
+from carina.v4.exh_areas.crud import get_exh_area_with_clave, get_exh_areas
+from carina.v4.exh_areas.schemas import ExhAreaOut, OneExhAreaOut
+from carina.v4.usuarios.authentications import UsuarioInDB, get_current_active_user
 from lib.database import Session, get_db
 from lib.exceptions import MyAnyError
 from lib.fastapi_pagination_custom_list import CustomList
 
-from ...core.permisos.models import Permiso
-from ..usuarios.authentications import UsuarioInDB, get_current_active_user
-from .crud import get_exh_area_with_clave, get_exh_areas
-from .schemas import ExhAreaOut, OneExhAreaOut
-
-exh_areas = APIRouter(prefix="/v4/exh_areas", tags=["exhortos"])
+exh_areas = APIRouter(prefix="/v4/exh_areas", tags=["exh areas"])
 
 
 @exh_areas.get("", response_model=CustomList[ExhAreaOut])

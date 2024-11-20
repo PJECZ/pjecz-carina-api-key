@@ -15,8 +15,12 @@ from carina.v4.entradas_salidas.paths import entradas_salidas
 from carina.v4.estados.paths import estados
 from carina.v4.exh_areas.paths import exh_areas
 from carina.v4.exh_exhortos.paths import exh_exhortos
+from carina.v4.exh_exhortos_actualizaciones.paths import exh_exhortos_actualizaciones
 from carina.v4.exh_exhortos_archivos.paths import exh_exhortos_archivos
 from carina.v4.exh_exhortos_partes.paths import exh_exhortos_partes
+from carina.v4.exh_exhortos_promociones.paths import exh_exhortos_promociones
+from carina.v4.exh_exhortos_promociones_archivos.paths import exh_exhortos_promociones_archivos
+from carina.v4.exh_exhortos_promociones_promoventes.paths import exh_exhortos_promociones_promoventes
 from carina.v4.exh_exhortos_videos.paths import exh_exhortos_videos
 from carina.v4.exh_externos.paths import exh_externos
 from carina.v4.materias.paths import materias
@@ -62,16 +66,20 @@ def create_app() -> FastAPI:
     app.include_router(distritos, include_in_schema=False)
     app.include_router(domicilios, include_in_schema=False)
     app.include_router(entradas_salidas, include_in_schema=False)
-    app.include_router(estados)
+    app.include_router(estados, include_in_schema=False)
     app.include_router(exh_areas)
     app.include_router(exh_exhortos)
+    app.include_router(exh_exhortos_actualizaciones)
     app.include_router(exh_exhortos_archivos)
-    app.include_router(exh_exhortos_partes, include_in_schema=False)
-    app.include_router(exh_exhortos_videos, include_in_schema=False)
+    app.include_router(exh_exhortos_partes)
+    app.include_router(exh_exhortos_promociones)
+    app.include_router(exh_exhortos_promociones_archivos)
+    app.include_router(exh_exhortos_promociones_promoventes)
+    app.include_router(exh_exhortos_videos)
     app.include_router(exh_externos)
     app.include_router(materias)
     app.include_router(modulos, include_in_schema=False)
-    app.include_router(municipios)
+    app.include_router(municipios, include_in_schema=False)
     app.include_router(oficinas, include_in_schema=False)
     app.include_router(permisos, include_in_schema=False)
     app.include_router(roles, include_in_schema=False)

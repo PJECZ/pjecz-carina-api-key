@@ -27,7 +27,7 @@ from lib.exceptions import MyAnyError
 from lib.google_cloud_storage import upload_file_to_gcs
 from lib.pwgen import generar_identificador
 
-exh_exhortos_archivos = APIRouter(prefix="/v4/exh_exhortos_archivos", tags=["exhortos"])
+exh_exhortos_archivos = APIRouter(prefix="/v4/exh_exhortos_archivos", tags=["exh exhortos archivos"])
 
 
 @exh_exhortos_archivos.post("/responder_upload", response_model=OneExhExhortoArchivoRecibirRespuestaExhortoOut)
@@ -65,7 +65,7 @@ async def recibir_exhorto_archivo_respuesta_request(
     pendientes_contador = 0
     recibidos_contador = 0
     exh_exhorto_archivo = None
-    for item in get_exh_exhortos_archivos(database=database, exhorto_origen_id=exhortoOrigenId, es_respuesta=True).all():
+    for item in get_exh_exhortos_archivos(database=database, exh_exhorto_id=exh_exhorto.id, es_respuesta=True).all():
         total_contador += 1
         if item.nombre_archivo == archivo.filename and item.estado == "PENDIENTE":
             exh_exhorto_archivo = item
@@ -211,7 +211,7 @@ async def recibir_exhorto_archivo_request(
     pendientes_contador = 0
     recibidos_contador = 0
     exh_exhorto_archivo = None
-    for item in get_exh_exhortos_archivos(database=database, exhorto_origen_id=exhortoOrigenId, es_respuesta=False).all():
+    for item in get_exh_exhortos_archivos(database=database, exh_exhorto_id=exh_exhorto.id, es_respuesta=False).all():
         total_contador += 1
         if item.nombre_archivo == archivo.filename and item.estado == "PENDIENTE":
             exh_exhorto_archivo = item
