@@ -120,7 +120,7 @@ class Test02EnviarExhorto(unittest.TestCase):
         # Definir los datos del exhorto
         datos = {
             "exhortoOrigenId": exhorto_origen_id,
-            "municipioDestinoId": "030",
+            "municipioDestinoId": 30,
             "materiaClave": "CIV",
             "estadoOrigenId": int(estado["clave"]),
             "municipioOrigenId": int(municipio["clave"]),
@@ -169,7 +169,7 @@ class Test02EnviarExhorto(unittest.TestCase):
         # Validar que nos regrese el mismo exhorto_origen_id
         self.assertEqual(data["exhortoOrigenId"], exhorto_origen_id)
 
-        # Cargar la sesion de la base de datos para conservar los datos para las pruebas siguientes
+        # Cargar la sesión de la base de datos para conservar los datos para las pruebas siguientes
         session = get_database_session()
 
         # Insertar el registro del exhorto en la base de datos SQLite
