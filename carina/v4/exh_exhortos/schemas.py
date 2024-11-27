@@ -16,7 +16,7 @@ class ExhExhortoIn(BaseModel):
     """Esquema para recibir exhortos"""
 
     exhortoOrigenId: str | None = None
-    municipioDestinoId: str | None = None
+    municipioDestinoId: int | None = None
     materiaClave: str | None = None
     estadoOrigenId: int | None = None
     municipioOrigenId: int | None = None

@@ -11,12 +11,14 @@ from carina.v4.exh_exhortos.crud import get_exh_exhorto
 from lib.exceptions import MyIsDeletedError, MyNotExistsError
 
 
-def get_exh_exhortos_archivos(database: Session, exh_exhorto_id: int, es_respuesta: bool = None) -> Any:
+def get_exh_exhortos_archivos(database: Session, exh_exhorto_id: int, estado: str = None, es_respuesta: bool = None) -> Any:
     """Consultar los archivos de un exhorto"""
     exh_exhorto = get_exh_exhorto(database, exh_exhorto_id)
     consulta = database.query(ExhExhortoArchivo).filter_by(exh_exhorto_id=exh_exhorto.id)
+    if estado is not None:
+        consulta = consulta.filter_by(estado=estado)
     if es_respuesta is not None:
-        return consulta.filter_by(es_respuesta=es_respuesta)
+        consulta = consulta.filter_by(es_respuesta=es_respuesta)
     return consulta.filter_by(estatus="A").order_by(ExhExhortoArchivo.id)
 
 

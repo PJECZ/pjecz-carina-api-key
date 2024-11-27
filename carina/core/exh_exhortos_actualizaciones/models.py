@@ -4,7 +4,7 @@ Exh Exhortos Actualizaciones, modelos
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, String
+from sqlalchemy import DateTime, Enum, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql.functions import now
 
@@ -14,6 +14,11 @@ from lib.universal_mixin import UniversalMixin
 
 class ExhExhortoActualizacion(Base, UniversalMixin):
     """ExhExhortoActualizacion"""
+
+    REMITENTES = {
+        "INTERNO": "Interno",
+        "EXTERNO": "Externo",
+    }
 
     # Nombre de la tabla
     __tablename__ = "exh_exhortos_actualizaciones"
@@ -44,6 +49,11 @@ class ExhExhortoActualizacion(Base, UniversalMixin):
     # Una descripción que indique cuál fue el dato y/o información del exhorto que se actualizó.
     # Este puede ser: "Turnado al Juzgado Tercero Familiar (Municipio)", "Radicado con Número de Exhorto 99999/2024"
     descripcion: Mapped[str] = mapped_column(String(256))
+
+    # Campo para saber si es un proceso interno o extorno
+    remitente: Mapped[str] = mapped_column(
+        Enum(*REMITENTES, name="exh_exhortos_actualizaciones_remitentes", native_enum=False), index=True
+    )
 
     def __repr__(self):
         """Representación"""

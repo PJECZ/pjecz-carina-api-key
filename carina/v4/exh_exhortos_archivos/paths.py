@@ -286,7 +286,7 @@ async def recibir_exhorto_archivo_request(
     except MyAnyError as error:
         return OneExhExhortoArchivoFileDataOut(
             success=False,
-            message="Hubo un error nuestro al subir el archivo a Google Storage",
+            message="Hubo un error al subir el archivo al storage",
             errors=[str(error)],
         )
 
@@ -306,8 +306,15 @@ async def recibir_exhorto_archivo_request(
         tamaño=archivo_pdf_tamanio,
     )
 
-    # Si pendientes_contador + 1 = total_contador
-    if pendientes_contador + 1 >= total_contador:
+    # Consultar los archivos PENDIENTES del exhorto
+    exh_exhorto_archivos_pendientes = get_exh_exhortos_archivos(
+        database=database,
+        exh_exhorto_id=exh_exhorto.id,
+        estado="PENDIENTE",
+    )
+
+    # Si YA NO HAY pendientes, entonces se manda contenido en el acuse
+    if exh_exhorto_archivos_pendientes.count() == 0:
         # Generar el folio_seguimiento
         folio_seguimiento = generar_identificador()
         # Entonces ES EL ULTIMO ARCHIVO, se cambia el estado de exh_exhorto a RECIBIDO
@@ -319,7 +326,7 @@ async def recibir_exhorto_archivo_request(
         )
         # Y se va a elaborar el acuse
         acuse = ExhExhortoArchivoFileDataAcuseOut(
-            exhortoOrigenId=str(exh_exhorto_actualizado.exhorto_origen_id),
+            exhortoOrigenId=exh_exhorto_actualizado.exhorto_origen_id,
             folioSeguimiento=folio_seguimiento,
             fechaHoraRecepcion=fecha_hora_recepcion,
             municipioAreaRecibeId=exh_exhorto_actualizado.municipio_destino_id,
@@ -328,9 +335,9 @@ async def recibir_exhorto_archivo_request(
             urlInfo="https://www.google.com.mx",
         )
     else:
-        # Definir el acuse VACIO, porque aun faltan archivos
+        # Aún faltan archivos, entonces el acuse no lleva contenido
         acuse = ExhExhortoArchivoFileDataAcuseOut(
-            exhortoOrigenId="",
+            exhortoOrigenId="xxxx",
             folioSeguimiento="",
             fechaHoraRecepcion=None,
             municipioAreaRecibeId=1,
