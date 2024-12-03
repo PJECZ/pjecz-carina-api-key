@@ -3,11 +3,10 @@ Unit test - 052 Enviar los Archivos de la Respuesta al Exhorto
 
 Se envían los documentos que conforman la respuesta del exhorto.
 
-Se envía exhortoOrigenId, respuestaOrigenId y el archivo
-
+- DEBE CONFIGURAR en las variables de entorno FOLIO_SEGUIMIENTO
+- Se envía exhortoOrigenId, respuestaOrigenId y el archivo
 - POST /exh_exhortos_archivos/responder_upload
-
-Se recibe el esquema OneExhExhortoArchivoRecibirRespuestaExhortoDataOut.
+- Se recibe el esquema OneExhExhortoArchivoRecibirRespuestaExhortoDataOut.
 
 """
 
@@ -16,7 +15,6 @@ import unittest
 
 import requests
 
-from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
 from tests.load_env import config
 
 
@@ -26,30 +24,58 @@ class Test052EnviarArchivosDeRespuestaAlExhorto(unittest.TestCase):
     def test_05b_post_exh_exhorto_archivos_respuesta(self):
         """Probar el POST para enviar archivos de respuesta al exhorto"""
 
-        # Cargar la sesión de SQLite para recuperar los datos
-        session = get_database_session()
+        # Validar que se haya configurado la variable de entorno FOLIO_SEGUIMIENTO
+        if config["folio_seguimiento"] == "":
+            self.fail("No se ha configurado la variable de entorno FOLIO_SEGUIMIENTO")
 
-        # Consultar el último exhorto
-        exh_exhorto = session.query(ExhExhorto).order_by(ExhExhorto.id.desc()).first()
-        if exh_exhorto is None:
-            self.fail("No se encontró el último exhorto en database.sqlite")
+        # Consultar el exhorto
+        try:
+            respuesta = requests.get(
+                url=f"{config['api_base_url']}/exh_exhortos/{config['folio_seguimiento']}",
+                headers={"X-Api-Key": config["api_key"]},
+                timeout=config["timeout"],
+            )
+        except requests.exceptions.ConnectionError as error:
+            self.fail(error)
+        self.assertEqual(respuesta.status_code, 200)
 
-        # Consultar en SQLite los archivos que se van a enviar como respuesta
-        exh_exhorto_archivos = (
-            session.query(ExhExhortoArchivo).filter_by(exh_exhorto_id=exh_exhorto.id).filter_by(es_respuesta=True).all()
-        )
+        # Validar el contenido
+        contenido = respuesta.json()
+        self.assertEqual("success" in contenido, True)
+        self.assertEqual("message" in contenido, True)
+        self.assertEqual("errors" in contenido, True)
+        self.assertEqual("data" in contenido, True)
+
+        # Validar el data
+        self.assertEqual(type(contenido["data"]), dict)
+        data = contenido["data"]
+
+        # Validar parte del contenido de data
+        self.assertEqual("exhortoOrigenId" in data, True)
+        self.assertEqual("respuestaOrigenId" in data, True)
+        self.assertEqual("archivos" in data, True)
+
+        # Validar que archivos sea una lista
+        self.assertEqual(type(data["archivos"]), list)
+        archivos = data["archivos"]
 
         # Bucle para mandar los archivo por multipart/form-data
-        for exh_exhorto_archivo in exh_exhorto_archivos:
+        for archivo in archivos:
             time.sleep(2)  # Pausa de 2 segundos
 
+            # Validar cada archivo
+            self.assertEqual("nombreArchivo" in archivo, True)
+            self.assertEqual("hashSha1" in archivo, True)
+            self.assertEqual("hashSha256" in archivo, True)
+            self.assertEqual("tipoDocumento" in archivo, True)
+
             # Tomar el nombre del archivo
-            archivo_nombre = exh_exhorto_archivo.nombre_archivo
+            archivo_nombre = archivo["nombreArchivo"]
 
             # Parámetros para el envío del archivo
             params = {
-                "exhortoOrigenId": exh_exhorto.exhorto_origen_id,
-                "respuestaOrigenId": exh_exhorto.respuesta_origen_id,
+                "exhortoOrigenId": config["exhorto_origen_id"],
+                "respuestaOrigenId": data["respuestaOrigenId"],
             }
 
             # Leer el archivo de prueba

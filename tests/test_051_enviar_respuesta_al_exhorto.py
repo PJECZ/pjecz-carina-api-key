@@ -3,11 +3,10 @@ Unit test - 051 Enviar la Respuesta al Exhorto
 
 Se envían los datos que conforman la respuesta del exhorto.
 
-Se manda el esquema ExhExhortoRecibirRespuestaIn que contiene archivos (ExhExhortoArchivoIn) y videos (ExhExhortoVideoIn).
-
+- DEBE CONFIGURAR en las variables de entorno FOLIO_SEGUIMIENTO
+- Se manda el esquema ExhExhortoRecibirRespuestaIn que contiene archivos (ExhExhortoArchivoIn) y videos (ExhExhortoVideoIn).
 - POST /exh_exhortos/responder
-
-Se recibe el esquema OneExhExhortoRecibirRespuestaOut.
+- Se recibe el esquema OneExhExhortoRecibirRespuestaOut.
 
 """
 
@@ -20,7 +19,6 @@ import lorem
 import requests
 
 from lib.pwgen import generar_identificador
-from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
 from tests.load_env import config
 
 
@@ -30,24 +28,62 @@ class Test051EnviarRespuestaAlExhorto(unittest.TestCase):
     def test_05a_post_exh_exhorto_respuesta(self):
         """Probar el POST para enviar una respuesta al exhorto"""
 
-        # Cargar la sesión de la base de datos para recuperar los datos
-        session = get_database_session()
+        # Validar que se haya configurado la variable de entorno FOLIO_SEGUIMIENTO
+        if config["folio_seguimiento"] == "":
+            self.fail("No se ha configurado la variable de entorno FOLIO_SEGUIMIENTO")
 
-        # Consultar el último exhorto
-        exh_exhorto = session.query(ExhExhorto).order_by(ExhExhorto.id.desc()).first()
-        if exh_exhorto is None:
-            self.fail("No se encontró el último exhorto en database.sqlite")
+        # Consultar el exhorto
+        try:
+            respuesta = requests.get(
+                url=f"{config['api_base_url']}/exh_exhortos/{config['folio_seguimiento']}",
+                headers={"X-Api-Key": config["api_key"]},
+                timeout=config["timeout"],
+            )
+        except requests.exceptions.ConnectionError as error:
+            self.fail(error)
+        self.assertEqual(respuesta.status_code, 200)
 
-        # Validar que el estado de origen sea 05 (Coahuila de Zaragoza)
+        # Validar el contenido
+        contenido = respuesta.json()
+        self.assertEqual("success" in contenido, True)
+        self.assertEqual("message" in contenido, True)
+        self.assertEqual("errors" in contenido, True)
+        self.assertEqual("data" in contenido, True)
 
-        # Generar el identificador de la respuesta del exhorto del PJ exhortante
-        exhorto_id = generar_identificador()
+        # Validar el data
+        self.assertEqual(type(contenido["data"]), dict)
+        data = contenido["data"]
+
+        # Validar parte del contenido de data
+        self.assertEqual("exhortoOrigenId" in data, True)
+        self.assertEqual("folioSeguimiento" in data, True)
+        self.assertEqual("estadoDestinoId" in data, True)
+        self.assertEqual("estadoDestinoNombre" in data, True)
+        self.assertEqual("municipioDestinoId" in data, True)
+        self.assertEqual("municipioDestinoNombre" in data, True)
+
+        # Generar el identificador propio del PJ exhortado con el que identifica la respuesta del exhorto
+        respuesta_origen_id = generar_identificador()
 
         # Elegir aleatoriamente un municipio del PJ que responde
+        try:
+            response = requests.get(
+                url=f"{config['api_base_url']}/municipios/{data['estadoDestinoId']}",
+                headers={"X-Api-Key": config["api_key"]},
+                timeout=config["timeout"],
+            )
+        except requests.exceptions.ConnectionError as error:
+            self.fail(error)
+        self.assertEqual(response.status_code, 200)
+        contenido = response.json()
+        municipio = random.choice(contenido["data"])
 
         # Elaborar una clave del área al azar del PJ que responde
+        area_numero = random.randint(1, 99)
+        area_turnado_id = f"A{area_numero}"
 
         # Elaborar un nombre del área al azar del PJ que responde
+        area_turnado_nombre = f"AREA HIPOTETICA NO. {area_numero}"
 
         # Elaborar aleatoriamente un número de exhorto
         numero = random.randint(1, 9999)
@@ -87,16 +123,16 @@ class Test051EnviarRespuestaAlExhorto(unittest.TestCase):
 
         # Definir los datos de la respuesta del exhorto
         datos = {
-            "exhortoId": None,  # string
-            "respuestaOrigenId": None,  # string
-            "municipioTurnadoId": None,  # int
-            "areaTurnadoId": None,  # string
-            "areaTurnadoNombre": None,  # string
-            "numeroExhorto": numero_exhorto,
-            "tipoDiligenciado": tipo_diligenciado,
-            "observaciones": observaciones,
-            "archivos": archivos,
-            "videos": videos,
+            "exhortoId": data["exhortoOrigenId"],  #     exhortoId: str
+            "respuestaOrigenId": respuesta_origen_id,  #     respuestaOrigenId: str
+            "municipioTurnadoId": int(municipio["clave"]),  #     municipioTurnadoId: int
+            "areaTurnadoId": area_turnado_id,  #     areaTurnadoId: str
+            "areaTurnadoNombre": area_turnado_nombre,  #     areaTurnadoNombre: str
+            "numeroExhorto": numero_exhorto,  #     numeroExhorto: str
+            "tipoDiligenciado": tipo_diligenciado,  #     tipoDiligenciado: int
+            "observaciones": observaciones,  #     observaciones: str
+            "archivos": archivos,  #     archivos: list[ExhExhortoArchivoIn]
+            "videos": videos,  #     videos: list[ExhExhortoVideoIn]
         }
 
         # Mandar la respuesta del exhorto
@@ -126,23 +162,6 @@ class Test051EnviarRespuestaAlExhorto(unittest.TestCase):
         self.assertEqual("exhortoId" in data, True)
         self.assertEqual("respuestaOrigenId" in data, True)
         self.assertEqual("fechaHora" in data, True)
-
-        # Actualizar el registro del exhorto en la base de datos SQLite
-        exh_exhorto.respuesta_origen_id = data["respuestaOrigenId"]
-        session.commit()
-
-        # Insertar los registros de los archivos en la base de datos SQLite
-        for archivo in archivos:
-            exh_exhorto_archivo = ExhExhortoArchivo(
-                exh_exhorto_id=exh_exhorto.id,
-                nombre_archivo=archivo["nombreArchivo"],
-                hash_sha1=archivo["hashSha1"],
-                hash_sha256=archivo["hashSha256"],
-                tipo_documento=archivo["tipoDocumento"],
-                es_respuesta=True,
-            )
-            session.add(exh_exhorto_archivo)
-            session.commit()
 
 
 if __name__ == "__main__":

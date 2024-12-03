@@ -52,6 +52,7 @@ class ExhExhortoOut(ExhExhortoIn):
     areaTurnadoNombre: str | None = None
     numeroExhorto: str | None = None
     urlInfo: str | None = None
+    respuestaOrigenId: str | None = None
 
 
 class OneExhExhortoOut(OneBaseOut):

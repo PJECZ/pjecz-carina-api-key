@@ -180,7 +180,7 @@ def demo_02_enviar(exhorto_origen_id):
     }
 
     # Mostrar el acuse recibido
-    click.echo(click.style("He simulado que llegan estos datos como acuse...", fg="white"))
+    click.echo(click.style("He SIMULADO que llegan estos datos como acuse...", fg="white"))
     click.echo(click.style(f"  exhortoOrigenId:       {acuse['exhortoOrigenId']}", fg="green"))
     click.echo(click.style(f"  folioSeguimiento:      {acuse['folioSeguimiento']}", fg="green"))
     click.echo(click.style(f"  fechaHoraRecepcion:    {acuse['fechaHoraRecepcion']}", fg="green"))
