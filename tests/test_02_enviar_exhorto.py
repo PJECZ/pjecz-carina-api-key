@@ -81,7 +81,7 @@ class Test02EnviarExhorto(unittest.TestCase):
 
         # Inicializar los archivos que se van a mandar desde prueba-1.pdf a prueba-4.pdf
         archivos = []
-        for numero in range(1, random.randint(1, 3) + 1):
+        for numero in range(1, random.randint(1, 4)):
             archivos.append(
                 {
                     "nombreArchivo": f"prueba-{numero}.pdf",

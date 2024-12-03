@@ -90,14 +90,14 @@ class Test051EnviarRespuestaAlExhorto(unittest.TestCase):
         numero_exhorto = f"{numero}/{datetime.now().year}"
 
         # Elegir aleatoriamente el tipo de diligenciado
-        tipo_diligenciado = random.choice(["", "OFICIO", "PETICION DE PARTE"])
+        tipo_diligenciado = random.randint(0, 2)  # 0 = No Diligenciado, 1 = Parcialmente Dilgenciado, 2 = Diligenciado
 
         # Definir aleatoriamente las observaciones
         observaciones = lorem.sentence()
 
         # Definir aleatoriamente definir los archivos que se recibirán más adelante
         archivos = []
-        for numero in range(1, random.randint(1, 2) + 1):
+        for numero in range(1, random.randint(1, 2)):
             archivos.append(
                 {
                     "nombreArchivo": f"prueba-{numero}.pdf",
@@ -109,7 +109,7 @@ class Test051EnviarRespuestaAlExhorto(unittest.TestCase):
 
         # Definir aleatoriamente definir los videos
         videos = []
-        for numero in range(1, random.randint(1, 2) + 1):
+        for numero in range(1, random.randint(1, 2)):
             characters = string.ascii_letters + string.digits
             random_video_id = "".join(random.choice(characters) for _ in range(11))
             videos.append(
@@ -123,16 +123,16 @@ class Test051EnviarRespuestaAlExhorto(unittest.TestCase):
 
         # Definir los datos de la respuesta del exhorto
         datos = {
-            "exhortoId": data["exhortoOrigenId"],  #     exhortoId: str
-            "respuestaOrigenId": respuesta_origen_id,  #     respuestaOrigenId: str
-            "municipioTurnadoId": int(municipio["clave"]),  #     municipioTurnadoId: int
-            "areaTurnadoId": area_turnado_id,  #     areaTurnadoId: str
-            "areaTurnadoNombre": area_turnado_nombre,  #     areaTurnadoNombre: str
-            "numeroExhorto": numero_exhorto,  #     numeroExhorto: str
-            "tipoDiligenciado": tipo_diligenciado,  #     tipoDiligenciado: int
-            "observaciones": observaciones,  #     observaciones: str
-            "archivos": archivos,  #     archivos: list[ExhExhortoArchivoIn]
-            "videos": videos,  #     videos: list[ExhExhortoVideoIn]
+            "exhortoId": data["exhortoOrigenId"],
+            "respuestaOrigenId": respuesta_origen_id,
+            "municipioTurnadoId": int(municipio["clave"]),
+            "areaTurnadoId": area_turnado_id,
+            "areaTurnadoNombre": area_turnado_nombre,
+            "numeroExhorto": numero_exhorto,
+            "tipoDiligenciado": tipo_diligenciado,
+            "observaciones": observaciones,
+            "archivos": archivos,
+            "videos": videos,
         }
 
         # Mandar la respuesta del exhorto

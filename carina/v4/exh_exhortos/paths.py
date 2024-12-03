@@ -2,6 +2,7 @@
 Exh Exhortos v4, rutas (paths)
 """
 
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -37,18 +38,18 @@ async def recibir_exhorto_respuesta_request(
     """Recepción de respuesta de un exhorto"""
     if current_user.permissions.get("EXH EXHORTOS", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
-    try:
-        exh_exhorto = receive_response_exh_exhorto(database, exh_exhorto_recibir_respuesta)
-    except MyAnyError as error:
-        return OneExhExhortoRecibirRespuestaOut(
-            success=False,
-            message="Error al recibir un exhorto",
-            errors=[str(error)],
-        )
+    # try:
+    #     exh_exhorto = receive_response_exh_exhorto(database, exh_exhorto_recibir_respuesta)
+    # except MyAnyError as error:
+    #     return OneExhExhortoRecibirRespuestaOut(
+    #         success=False,
+    #         message="Error al recibir un exhorto",
+    #         errors=[str(error)],
+    #     )
     data = ExhExhortoRecibirRespuestaOut(
-        exhortoId=str(exh_exhorto.exhorto_origen_id),
+        exhortoId="ABC123",  # str(exh_exhorto.exhorto_origen_id),
         respuestaOrigenId="ABC123",  # TODO: Pendiente de implementar
-        fechaHora=exh_exhorto.modificado,
+        fechaHora=datetime.now(),  # exh_exhorto.modificado,
     )
     return OneExhExhortoRecibirRespuestaOut(success=True, data=data)
 

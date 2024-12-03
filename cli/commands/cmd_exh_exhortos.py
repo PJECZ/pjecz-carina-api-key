@@ -259,7 +259,7 @@ def demo_02_recibir(estado_origen):
 
     # Preparar el listado de archivos hipotéticos que se recibirán
     archivos = []
-    for numero in range(1, random.randint(1, 2) + 1):
+    for numero in range(1, random.randint(1, 2)):
         archivos.append(
             {
                 "nombreArchivo": f"prueba-{numero}.pdf",
@@ -285,7 +285,7 @@ def demo_02_recibir(estado_origen):
         "numeroOficioOrigen": f"{random.randint(1, 999)}/{datetime.now().year}",
         "tipoJuicioAsuntoDelitos": "DIVORCIO",
         "juezExhortante": safe_string(faker.name(), save_enie=True),
-        "fojas": random.randint(1, 100),
+        "fojas": random.randint(1, 99),
         "diasResponder": 15,
         "tipoDiligenciacionNombre": "OFICIO",
         "fechaOrigen": datetime.now(),
@@ -571,7 +571,7 @@ def demo_05_recibir_respuesta(exhorto_origen_id):
     # Definir el listado con los videos hipotéticos que se recibirían en la respuesta
     characters = string.ascii_letters + string.digits
     videos = []
-    for numero in range(1, random.randint(1, 2) + 1):
+    for numero in range(1, random.randint(1, 2)):
         random_video_id = "".join(random.choice(characters) for _ in range(11))
         videos.append(
             {
