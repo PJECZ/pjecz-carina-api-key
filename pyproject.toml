@@ -9,6 +9,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+click = "^8.1.7"
 cryptography = "^44.0.0"
 fastapi = {extras = ["sqlalchemy"], version = "^0.115.4"}
 fastapi-pagination = "^0.12.26"
@@ -22,7 +23,7 @@ psycopg2-binary = "^2.9.9"
 pydantic = "^2.8.2"
 pydantic-settings = "^2.4.0"
 python-dotenv = "^1.0.1"
-python-multipart = "^0.0.17"
+python-multipart = "^0.0.19"
 pytz = "^2024.1"
 sqlalchemy = "^2.0.32"
 sqlalchemy-utils = "^0.41.2"

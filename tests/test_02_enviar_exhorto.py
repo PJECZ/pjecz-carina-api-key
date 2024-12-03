@@ -176,9 +176,7 @@ class Test02EnviarExhorto(unittest.TestCase):
         exh_exhorto = ExhExhorto(
             exhorto_origen_id=exhorto_origen_id,
             folio_seguimiento=data["exhortoOrigenId"],
-            estado_origen_id=estado["clave"],
-            exhorto_id=None,
-            respuesta_origen_id=None,
+            estado_origen_id=int(estado["clave"]),
         )
         session.add(exh_exhorto)
         session.commit()

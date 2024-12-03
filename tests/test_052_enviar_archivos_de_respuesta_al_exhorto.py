@@ -1,5 +1,5 @@
 """
-Unit test - 05b Enviar los Archivos de la Respuesta al Exhorto
+Unit test - 052 Enviar los Archivos de la Respuesta al Exhorto
 
 Se envían los documentos que conforman la respuesta del exhorto.
 
@@ -20,7 +20,7 @@ from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
 from tests.load_env import config
 
 
-class Test05bEnviarArchivosDeRespuestaAlExhorto(unittest.TestCase):
+class Test052EnviarArchivosDeRespuestaAlExhorto(unittest.TestCase):
     """Test 05b Enviar Archivos de Respuesta al Exhorto"""
 
     def test_05b_post_exh_exhorto_archivos_respuesta(self):

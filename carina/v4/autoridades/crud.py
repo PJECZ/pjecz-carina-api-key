@@ -19,7 +19,7 @@ def get_autoridades(
     distrito_clave: str = None,
     es_extinto: bool = None,
 ) -> Any:
-    """Consultar los autoridades activos"""
+    """Consultar las autoridades"""
     consulta = database.query(Autoridad)
     if distrito_id is not None:
         distrito = get_distrito(database, distrito_id)
@@ -33,7 +33,7 @@ def get_autoridades(
 
 
 def get_autoridad(database: Session, autoridad_id: int) -> Autoridad:
-    """Consultar un autoridad por su id"""
+    """Consultar una autoridad por su id"""
     autoridad = database.query(Autoridad).get(autoridad_id)
     if autoridad is None:
         raise MyNotExistsError("No existe ese autoridad")
@@ -43,7 +43,7 @@ def get_autoridad(database: Session, autoridad_id: int) -> Autoridad:
 
 
 def get_autoridad_with_clave(database: Session, autoridad_clave: str) -> Autoridad:
-    """Consultar un autoridad por su clave"""
+    """Consultar una autoridad por su clave"""
     try:
         clave = safe_clave(autoridad_clave)
     except ValueError as error:

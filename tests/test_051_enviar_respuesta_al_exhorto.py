@@ -1,5 +1,5 @@
 """
-Unit test - 05a Enviar la Respuesta al Exhorto
+Unit test - 051 Enviar la Respuesta al Exhorto
 
 Se envían los datos que conforman la respuesta del exhorto.
 
@@ -24,7 +24,7 @@ from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
 from tests.load_env import config
 
 
-class Test05aEnviarRespuestaAlExhorto(unittest.TestCase):
+class Test051EnviarRespuestaAlExhorto(unittest.TestCase):
     """Test 05a Enviar Respuesta al Exhorto"""
 
     def test_05a_post_exh_exhorto_respuesta(self):
@@ -38,47 +38,28 @@ class Test05aEnviarRespuestaAlExhorto(unittest.TestCase):
         if exh_exhorto is None:
             self.fail("No se encontró el último exhorto en database.sqlite")
 
+        # Validar que el estado de origen sea 05 (Coahuila de Zaragoza)
+
         # Generar el identificador de la respuesta del exhorto del PJ exhortante
-        respuesta_origen_id = generar_identificador()
+        exhorto_id = generar_identificador()
 
-        # Elegir aleatoriamente un municipio del estado de Coahuila de Zaragoza (clave 05)
-        try:
-            response = requests.get(
-                url=f"{config['api_base_url']}/municipios/05",
-                headers={"X-Api-Key": config["api_key"]},
-                timeout=config["timeout"],
-            )
-        except requests.exceptions.ConnectionError as error:
-            self.fail(error)
-        self.assertEqual(response.status_code, 200)
-        contenido = response.json()
-        municipio = random.choice(contenido["data"])
+        # Elegir aleatoriamente un municipio del PJ que responde
 
-        # Elegir aleatoriamente el area a donde se va a turnar el exhorto
-        exh_area_clave = random.choice(["SLT-OCP", "TRC-OCP"])
-        try:
-            response = requests.get(
-                url=f"{config['api_base_url']}/exh_areas/{exh_area_clave}",
-                headers={"X-Api-Key": config["api_key"]},
-                timeout=config["timeout"],
-            )
-        except requests.exceptions.ConnectionError as error:
-            self.fail(error)
-        self.assertEqual(response.status_code, 200)
-        contenido = response.json()
-        exh_area = contenido["data"]
+        # Elaborar una clave del área al azar del PJ que responde
 
-        # Definir aleatoriamente un número de exhorto
+        # Elaborar un nombre del área al azar del PJ que responde
+
+        # Elaborar aleatoriamente un número de exhorto
         numero = random.randint(1, 9999)
         numero_exhorto = f"{numero}/{datetime.now().year}"
 
-        # Definir aleatoriamente el tipo de diligenciado
+        # Elegir aleatoriamente el tipo de diligenciado
         tipo_diligenciado = random.choice(["", "OFICIO", "PETICION DE PARTE"])
 
         # Definir aleatoriamente las observaciones
         observaciones = lorem.sentence()
 
-        # Definir aleatoriamente definir los archivos de la respuesta
+        # Definir aleatoriamente definir los archivos que se recibirán más adelante
         archivos = []
         for numero in range(1, random.randint(1, 2) + 1):
             archivos.append(
@@ -90,7 +71,7 @@ class Test05aEnviarRespuestaAlExhorto(unittest.TestCase):
                 }
             )
 
-        # Definir aleatoriamente definir los videos de la respuesta
+        # Definir aleatoriamente definir los videos
         videos = []
         for numero in range(1, random.randint(1, 2) + 1):
             characters = string.ascii_letters + string.digits
@@ -104,13 +85,13 @@ class Test05aEnviarRespuestaAlExhorto(unittest.TestCase):
                 }
             )
 
-        # Definir los datos que se van a mandar
+        # Definir los datos de la respuesta del exhorto
         datos = {
-            "exhortoId": exh_exhorto.exhorto_origen_id,
-            "respuestaOrigenId": respuesta_origen_id,
-            "municipioTurnadoId": municipio["clave"],
-            "areaTurnadoId": exh_area["clave"],
-            "areaTurnadoNombre": exh_area["nombre"],
+            "exhortoId": None,  # string
+            "respuestaOrigenId": None,  # string
+            "municipioTurnadoId": None,  # int
+            "areaTurnadoId": None,  # string
+            "areaTurnadoNombre": None,  # string
             "numeroExhorto": numero_exhorto,
             "tipoDiligenciado": tipo_diligenciado,
             "observaciones": observaciones,

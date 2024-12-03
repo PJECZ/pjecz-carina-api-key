@@ -28,14 +28,14 @@ class ExhExhorto(Base):
 
     # Columnas: al enviar el exhorto, se mandan estos datos
     exhorto_origen_id: Mapped[str]
-    estado_origen_id: Mapped[str]
+    estado_origen_id: Mapped[int]
 
     # Columnas: al enviar el exhorto, se reciben estos datos
     folio_seguimiento: Mapped[Optional[str]]
 
     # Columnas: al enviar la respuesta al exhorto, se reciben estos datos
-    exhorto_id: Mapped[Optional[str]]
-    respuesta_origen_id: Mapped[Optional[str]]
+    exhorto_id: Mapped[Optional[str]] = mapped_column(default="")
+    respuesta_origen_id: Mapped[Optional[str]] = mapped_column(default="")
 
     # Hijos
     exh_exhortos_archivos: Mapped[List["ExhExhortoArchivo"]] = relationship(
