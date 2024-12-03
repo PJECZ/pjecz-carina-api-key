@@ -2,6 +2,7 @@
 Exh Exhortos v4, rutas (paths)
 """
 
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -46,9 +47,9 @@ async def recibir_exhorto_respuesta_request(
             errors=[str(error)],
         )
     data = ExhExhortoRecibirRespuestaOut(
-        exhortoId=str(exh_exhorto.exhorto_origen_id),
-        respuestaOrigenId="ABC123",  # TODO: Pendiente de implementar
-        fechaHora=exh_exhorto.modificado,
+        exhortoId=exh_exhorto.exhorto_origen_id,
+        respuestaOrigenId=exh_exhorto.respuesta_origen_id,
+        fechaHora=exh_exhorto.respuesta_fecha_hora_recepcion,
     )
     return OneExhExhortoRecibirRespuestaOut(success=True, data=data)
 
@@ -108,7 +109,7 @@ async def consultar_exhorto_request(
         folioSeguimiento=str(exh_exhorto.folio_seguimiento),
         estadoDestinoId=estado_destino.clave,
         estadoDestinoNombre=estado_destino.nombre,
-        municipioDestinoId=municipio_destino.clave,
+        municipioDestinoId=int(municipio_destino.clave),
         municipioDestinoNombre=municipio_destino.nombre,
         materiaClave=exh_exhorto.materia_clave,
         materiaNombre=exh_exhorto.materia_nombre,
@@ -136,6 +137,7 @@ async def consultar_exhorto_request(
         areaTurnadoNombre=exh_exhorto.exh_area.nombre,
         numeroExhorto=exh_exhorto.numero_exhorto,
         urlInfo="https://carina.justiciadigital.gob.mx/",
+        respuestaOrigenId=exh_exhorto.respuesta_origen_id,
     )
 
     # Entregar

@@ -81,7 +81,7 @@ class Test02EnviarExhorto(unittest.TestCase):
 
         # Inicializar los archivos que se van a mandar desde prueba-1.pdf a prueba-4.pdf
         archivos = []
-        for numero in range(1, random.randint(1, 3) + 1):
+        for numero in range(1, random.randint(1, 4) + 1):  # Hasta 4 archivos
             archivos.append(
                 {
                     "nombreArchivo": f"prueba-{numero}.pdf",
@@ -176,9 +176,7 @@ class Test02EnviarExhorto(unittest.TestCase):
         exh_exhorto = ExhExhorto(
             exhorto_origen_id=exhorto_origen_id,
             folio_seguimiento=data["exhortoOrigenId"],
-            estado_origen_id=estado["clave"],
-            exhorto_id=None,
-            respuesta_origen_id=None,
+            estado_origen_id=int(estado["clave"]),
         )
         session.add(exh_exhorto)
         session.commit()

@@ -13,6 +13,7 @@ from carina.core.exh_areas.models import ExhArea
 from carina.core.exh_exhortos.models import ExhExhorto
 from carina.core.exh_exhortos_archivos.models import ExhExhortoArchivo
 from carina.core.exh_exhortos_partes.models import ExhExhortoParte
+from carina.core.exh_exhortos_videos.models import ExhExhortoVideo
 from carina.core.exh_externos.models import ExhExterno
 from carina.core.municipios.models import Municipio
 from carina.v4.exh_exhortos.schemas import ExhExhortoIn, ExhExhortoRecibirRespuestaIn
@@ -181,33 +182,29 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
 
     # Insertar las partes
     for parte in exh_exhorto_in.partes:
-        database.add(
-            ExhExhortoParte(
-                exh_exhorto=exh_exhorto,
-                nombre=parte.nombre,
-                apellido_paterno=parte.apellidoPaterno,
-                apellido_materno=parte.apellidoMaterno,
-                genero=parte.genero,
-                es_persona_moral=parte.esPersonaMoral,
-                tipo_parte=parte.tipoParte,
-                tipo_parte_nombre=parte.tipoParteNombre,
-            )
-        )
+        exh_exhorto_parte = ExhExhortoParte()
+        exh_exhorto_parte.exh_exhorto = exh_exhorto
+        exh_exhorto_parte.nombre = safe_string(parte.nombre, save_enie=True)
+        exh_exhorto_parte.apellido_paterno = safe_string(parte.apellidoPaterno, save_enie=True)
+        exh_exhorto_parte.apellido_materno = safe_string(parte.apellidoMaterno, save_enie=True)
+        exh_exhorto_parte.genero = parte.genero
+        exh_exhorto_parte.es_persona_moral = parte.esPersonaMoral
+        exh_exhorto_parte.tipo_parte = parte.tipoParte
+        exh_exhorto_parte.tipo_parte_nombre = safe_string(parte.tipoParteNombre, save_enie=True)
+        database.add(exh_exhorto_parte)
 
     # Insertar los archivos
     for archivo in exh_exhorto_in.archivos:
-        database.add(
-            ExhExhortoArchivo(
-                exh_exhorto=exh_exhorto,
-                nombre_archivo=archivo.nombreArchivo,
-                hash_sha1=archivo.hashSha1,
-                hash_sha256=archivo.hashSha256,
-                tipo_documento=archivo.tipoDocumento,
-                estado="PENDIENTE",
-                tamano=0,
-                fecha_hora_recepcion=datetime.now(),
-            )
-        )
+        exh_exhorto_archivo = ExhExhortoArchivo()
+        exh_exhorto_archivo.exh_exhorto = exh_exhorto
+        exh_exhorto_archivo.nombre_archivo = archivo.nombreArchivo
+        exh_exhorto_archivo.hash_sha1 = archivo.hashSha1
+        exh_exhorto_archivo.hash_sha256 = archivo.hashSha256
+        exh_exhorto_archivo.tipo_documento = archivo.tipoDocumento
+        exh_exhorto_archivo.estado = "PENDIENTE"
+        exh_exhorto_archivo.tamano = 0
+        exh_exhorto_archivo.fecha_hora_recepcion = datetime.now()
+        database.add(exh_exhorto_archivo)
 
     # Terminar la transacción
     database.commit()
@@ -220,31 +217,55 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
 def receive_response_exh_exhorto(database: Session, exh_exhorto_respuesta: ExhExhortoRecibirRespuestaIn) -> ExhExhorto:
     """Recibir la respuesta de un exhorto"""
 
-    # Datos de la respuesta
-    # exh_exhorto_respuesta.exhortoId (str)
-    # exh_exhorto_respuesta.respuestaOrigenId (str)
-    # exh_exhorto_respuesta.municipioTurnadoId (int)
-    # exh_exhorto_respuesta.areaTurnadoId (str)
-    # exh_exhorto_respuesta.areaTurnadoNombre (str)
-    # exh_exhorto_respuesta.numeroExhorto (str)
-    # exh_exhorto_respuesta.tipoDiligenciado (int)
-    # exh_exhorto_respuesta.observaciones (str)
-    # exh_exhorto_respuesta.archivos (str)
-    # exh_exhorto_respuesta.videos (str)
+    # Tomar de la respuesta el exhorto_origen_id
+    exhorto_origen_id = safe_string(exh_exhorto_respuesta.exhortoId)
 
-    # Consultar el exhorto por su exhorto_origen_id
-    exh_exhorto = get_exh_exhorto_by_exhorto_origen_id(
-        database=database,
-        exhorto_origen_id=exh_exhorto_respuesta.exhortoOrigenId,
-    )
+    # Consultar el exhorto
+    exh_exhorto = get_exh_exhorto_by_exhorto_origen_id(database=database, exhorto_origen_id=exhorto_origen_id)
 
-    # Actualizar el exhorto
-    exh_exhorto.numero_exhorto = exh_exhorto_respuesta.numeroExhorto
+    # Actualizar el exhorto con los datos de la respuesta
+    exh_exhorto.respuesta_origen_id = exh_exhorto_respuesta.respuestaOrigenId
+    exh_exhorto.respuesta_municipio_turnado_id = exh_exhorto_respuesta.municipioTurnadoId
+    exh_exhorto.respuesta_area_turnado_id = exh_exhorto_respuesta.areaTurnadoId
+    exh_exhorto.respuesta_area_turnado_nombre = exh_exhorto_respuesta.areaTurnadoNombre
+    exh_exhorto.respuesta_numero_exhorto = exh_exhorto_respuesta.numeroExhorto
+    exh_exhorto.respuesta_tipo_diligenciado = exh_exhorto_respuesta.tipoDiligenciado
+    exh_exhorto.respuesta_fecha_hora_recepcion = datetime.now()
+    exh_exhorto.respuesta_observaciones = safe_string(exh_exhorto_respuesta.observaciones, save_enie=True)
 
-    # TODO: Procesar recepcion de la respuesta del exhorto
-    exh_exhorto = ExhExhorto()
+    # El estado del exhorto cambia a RESPONDIDO
+    exh_exhorto.estado = "RESPONDIDO"
+    database.add(exh_exhorto)
 
-    # Entregar
+    # Insertar los archivos
+    for archivo in exh_exhorto_respuesta.archivos:
+        exh_exhorto_archivo = ExhExhortoArchivo()
+        exh_exhorto_archivo.exh_exhorto = exh_exhorto
+        exh_exhorto_archivo.nombre_archivo = archivo.nombreArchivo
+        exh_exhorto_archivo.hash_sha1 = archivo.hashSha1
+        exh_exhorto_archivo.hash_sha256 = archivo.hashSha256
+        exh_exhorto_archivo.tipo_documento = archivo.tipoDocumento
+        exh_exhorto_archivo.estado = "PENDIENTE"
+        exh_exhorto_archivo.tamano = 0
+        exh_exhorto_archivo.fecha_hora_recepcion = datetime.now()
+        exh_exhorto_archivo.es_respuesta = True  # Es un archivo que viene de una respuesta
+        database.add(exh_exhorto_archivo)
+
+    # Insertar los videos
+    for video in exh_exhorto_respuesta.videos:
+        exh_exhorto_video = ExhExhortoVideo()
+        exh_exhorto_video.exh_exhorto = exh_exhorto
+        exh_exhorto_video.titulo = safe_string(video.titulo, save_enie=True)
+        exh_exhorto_video.descripcion = safe_string(video.descripcion, save_enie=True)
+        exh_exhorto_video.fecha = video.fecha
+        exh_exhorto_video.url_acceso = video.urlAcceso
+        database.add(exh_exhorto_video)
+
+    # Terminar la transacción
+    database.commit()
+    database.refresh(exh_exhorto)
+
+    # Entregar el exhorto actualizado
     return exh_exhorto
 
 

@@ -13,6 +13,7 @@ Se recibe el esquema OneExhExhortoArchivoFileOut.
 
 import time
 import unittest
+from pathlib import Path
 
 import requests
 
@@ -40,6 +41,11 @@ class Test03EnviarExhortosArchivos(unittest.TestCase):
 
             # Tomar el nombre del archivo
             archivo_nombre = exh_exhorto_archivo.nombre_archivo
+
+            # Validar que el archivo exista
+            archivo_ruta = Path(f"tests/{archivo_nombre}")
+            if not archivo_ruta.is_file():
+                self.fail(f"No se encontró el archivo {archivo_nombre}")
 
             # Leer el archivo de prueba
             with open(f"tests/{archivo_nombre}", "rb") as archivo_prueba:

@@ -3,9 +3,9 @@ Unit test - 04 Consultar Exhorto
 
 Consultar exhorto enviado al PJ exhortado para ver su información.
 
+- DEBE CONFIGURAR en las variables de entorno FOLIO_SEGUIMIENTO
 - GET /exh_exhortos/{FOLIO_SEGUIMIENTO}
-
-Se recibe el esquema OneExhExhortoOut.
+- Se recibe el esquema OneExhExhortoOut.
 
 """
 
@@ -13,7 +13,6 @@ import unittest
 
 import requests
 
-from tests.database import ExhExhorto, get_database_session
 from tests.load_env import config
 
 
@@ -23,22 +22,14 @@ class Test04ConsultarExhorto(unittest.TestCase):
     def test_get_exh_exhortos(self):
         """Probar el GET para consultar un exhorto"""
 
-        # Cargar la sesión de la base de datos para recuperar los datos
-        session = get_database_session()
-
-        # Consultar el último exhorto
-        exh_exhorto = session.query(ExhExhorto).order_by(ExhExhorto.id.desc()).first()
-        if exh_exhorto is None:
-            self.fail("No se encontró el último exhorto en database.sqlite")
-
-        # Validar que exh_exhorto.folio_seguimiento sea string y que no este vacio
-        self.assertIsInstance(exh_exhorto.folio_seguimiento, str)
-        self.assertNotEqual(exh_exhorto.folio_seguimiento, "")
+        # Validar que se haya configurado la variable de entorno FOLIO_SEGUIMIENTO
+        if config["folio_seguimiento"] == "":
+            self.fail("No se ha configurado la variable de entorno FOLIO_SEGUIMIENTO")
 
         # Consultar el exhorto
         try:
             respuesta = requests.get(
-                url=f"{config['api_base_url']}/exh_exhortos/{exh_exhorto.folio_seguimiento}",
+                url=f"{config['api_base_url']}/exh_exhortos/{config['folio_seguimiento']}",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )
@@ -52,6 +43,9 @@ class Test04ConsultarExhorto(unittest.TestCase):
         self.assertEqual("message" in contenido, True)
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
+
+        # Validar que se haya tenido éxito
+        self.assertEqual(contenido["success"], True)
 
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)

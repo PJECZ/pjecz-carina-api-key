@@ -52,6 +52,7 @@ class ExhExhortoOut(ExhExhortoIn):
     areaTurnadoNombre: str | None = None
     numeroExhorto: str | None = None
     urlInfo: str | None = None
+    respuestaOrigenId: str | None = None
 
 
 class OneExhExhortoOut(OneBaseOut):
@@ -82,7 +83,7 @@ class ExhExhortoRecibirRespuestaIn(BaseModel):
     areaTurnadoId: str | None = None
     areaTurnadoNombre: str | None = None
     numeroExhorto: str | None = None
-    tipoDiligenciado: int | None = None
+    tipoDiligenciado: int | None = None  # 0 = No Diligenciado, 1 = Parcialmente Dilgenciado, 2 = Diligenciado
     observaciones: str | None = None
     archivos: list[ExhExhortoArchivoIn] | None = None
     videos: list[ExhExhortoVideoIn] | None = None
