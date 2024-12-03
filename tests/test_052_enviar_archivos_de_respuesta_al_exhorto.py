@@ -12,6 +12,7 @@ Se envían los documentos que conforman la respuesta del exhorto.
 
 import time
 import unittest
+from pathlib import Path
 
 import requests
 
@@ -46,18 +47,25 @@ class Test052EnviarArchivosDeRespuestaAlExhorto(unittest.TestCase):
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
 
+        # Validar que se haya tenido éxito
+        self.assertEqual(contenido["success"], True)
+
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)
         data = contenido["data"]
 
-        # Validar parte del contenido de data
+        # Validar el contenido QUE NOS INTERESA de data
         self.assertEqual("exhortoOrigenId" in data, True)
         self.assertEqual("respuestaOrigenId" in data, True)
         self.assertEqual("archivos" in data, True)
-
-        # Validar que archivos sea una lista
         self.assertEqual(type(data["archivos"]), list)
         archivos = data["archivos"]
+
+        # Parámetros para el envío del archivo
+        params = {
+            "exhortoOrigenId": data["exhortoOrigenId"],
+            "respuestaOrigenId": data["respuestaOrigenId"],
+        }
 
         # Bucle para mandar los archivo por multipart/form-data
         for archivo in archivos:
@@ -72,14 +80,17 @@ class Test052EnviarArchivosDeRespuestaAlExhorto(unittest.TestCase):
             # Tomar el nombre del archivo
             archivo_nombre = archivo["nombreArchivo"]
 
-            # Parámetros para el envío del archivo
-            params = {
-                "exhortoOrigenId": config["exhorto_origen_id"],
-                "respuestaOrigenId": data["respuestaOrigenId"],
-            }
+            # Si el nombre del archivo NO comienza con "respuesta", se omite
+            if not archivo_nombre.startswith("respuesta"):
+                continue
+
+            # Validar que el archivo exista
+            respuesta_archivo = Path(f"tests/{archivo_nombre}")
+            if not respuesta_archivo.exists():
+                self.fail(f"El archivo {archivo_nombre} no existe")
 
             # Leer el archivo de prueba
-            with open(f"tests/{archivo_nombre}", "rb") as archivo_prueba:
+            with open(respuesta_archivo, "rb") as archivo_prueba:
                 # Mandar el archivo
                 try:
                     respuesta = requests.post(
@@ -99,6 +110,9 @@ class Test052EnviarArchivosDeRespuestaAlExhorto(unittest.TestCase):
                 self.assertEqual("message" in contenido, True)
                 self.assertEqual("errors" in contenido, True)
                 self.assertEqual("data" in contenido, True)
+
+                # Validar que se haya tenido éxito
+                self.assertEqual(contenido["success"], True)
 
                 # Validar el data
                 self.assertEqual(type(contenido["data"]), dict)

@@ -189,6 +189,12 @@ def demo_02_enviar(exhorto_origen_id):
     click.echo(click.style(f"  areaRecibeNombre:      {acuse['areaRecibeNombre']}", fg="green"))
     click.echo(click.style(f"  urlInfo:               {acuse['urlInfo']}", fg="green"))
 
+    # Actualizar los archivos con el estado "RECIBIDO"
+    click.echo(click.style("Actualizando los archivos...", fg="yellow"))
+    for exh_exhorto_archivo in exh_exhorto.exh_exhortos_archivos:
+        exh_exhorto_archivo.estado = "RECIBIDO"
+        session.add(exh_exhorto_archivo)
+
     # Actualizar el exhorto con los datos del acuse
     click.echo(click.style("Actualizando el exhorto...", fg="yellow"))
     exh_exhorto.folio_seguimiento = acuse["folioSeguimiento"]
@@ -259,7 +265,7 @@ def demo_02_recibir(estado_origen):
 
     # Preparar el listado de archivos hipotéticos que se recibirán
     archivos = []
-    for numero in range(1, random.randint(1, 2)):
+    for numero in range(1, random.randint(1, 4) + 1):  # Hasta 4 archivos
         archivos.append(
             {
                 "nombreArchivo": f"prueba-{numero}.pdf",
@@ -571,7 +577,7 @@ def demo_05_recibir_respuesta(exhorto_origen_id):
     # Definir el listado con los videos hipotéticos que se recibirían en la respuesta
     characters = string.ascii_letters + string.digits
     videos = []
-    for numero in range(1, random.randint(1, 2)):
+    for numero in range(1, random.randint(1, 2) + 1):  # Hasta 2 videos
         random_video_id = "".join(random.choice(characters) for _ in range(11))
         videos.append(
             {

@@ -31,14 +31,14 @@ exh_exhortos_archivos = APIRouter(prefix="/v4/exh_exhortos_archivos", tags=["exh
 
 
 @exh_exhortos_archivos.post("/responder_upload", response_model=OneExhExhortoArchivoRecibirRespuestaExhortoOut)
-async def recibir_exhorto_archivo_respuesta_request(
+async def recibir_archivo_respuesta_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
     exhortoOrigenId: str,
     respuestaOrigenId: str,
     archivo: UploadFile,
 ):
-    """Recibir un archivo de respuesta"""
+    """Recibir un archivo de una respuesta"""
     if current_user.permissions.get("EXH EXHORTOS ARCHIVOS", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
@@ -178,13 +178,13 @@ async def recibir_exhorto_archivo_respuesta_request(
 
 
 @exh_exhortos_archivos.post("/upload", response_model=OneExhExhortoArchivoFileDataOut)
-async def recibir_exhorto_archivo_request(
+async def recibir_archivo_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
     exhortoOrigenId: str,
     archivo: UploadFile,
 ):
-    """Recibir un archivo del exhorto"""
+    """Recibir un archivo de un exhorto"""
     if current_user.permissions.get("EXH EXHORTOS ARCHIVOS", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
@@ -290,7 +290,7 @@ async def recibir_exhorto_archivo_request(
             errors=[str(error)],
         )
 
-    # Cambiar el estado a RECIBIDO
+    # Cambiar el estado del archivo a RECIBIDO
     exh_exhorto_archivo = update_set_exhorto_archivo(
         database=database,
         exh_exhorto_archivo=exh_exhorto_archivo,
@@ -315,29 +315,27 @@ async def recibir_exhorto_archivo_request(
 
     # Si YA NO HAY pendientes, entonces se manda contenido en el acuse
     if exh_exhorto_archivos_pendientes.count() == 0:
-        # Generar el folio_seguimiento
-        folio_seguimiento = generar_identificador()
-        # Entonces ES EL ULTIMO ARCHIVO, se cambia el estado de exh_exhorto a RECIBIDO
+        # Entonces ES EL ULTIMO ARCHIVO, se cambia el estado de exh_exhorto a RECIBIDO y se define el folio de seguimiento
         exh_exhorto_actualizado = update_set_exhorto(
             database=database,
             exh_exhorto=exh_exhorto,
             estado="RECIBIDO",
-            folio_seguimiento=folio_seguimiento,
+            folio_seguimiento=generar_identificador(),
         )
         # Y se va a elaborar el acuse
         acuse = ExhExhortoArchivoFileDataAcuseOut(
             exhortoOrigenId=exh_exhorto_actualizado.exhorto_origen_id,
-            folioSeguimiento=folio_seguimiento,
-            fechaHoraRecepcion=fecha_hora_recepcion,
-            municipioAreaRecibeId=exh_exhorto_actualizado.municipio_destino_id,
-            areaRecibeId=exh_exhorto_actualizado.exh_area.clave,
-            areaRecibeNombre=exh_exhorto_actualizado.exh_area.nombre,
+            folioSeguimiento=exh_exhorto_actualizado.folio_seguimiento,
+            fechaHoraRecepcion=exh_exhorto_actualizado.respuesta_fecha_hora_recepcion,
+            municipioAreaRecibeId=exh_exhorto_actualizado.respuesta_municipio_turnado_id,
+            areaRecibeId=exh_exhorto_actualizado.respuesta_area_turnado_id,
+            areaRecibeNombre=exh_exhorto_actualizado.respuesta_area_turnado_nombre,
             urlInfo="https://www.google.com.mx",
         )
     else:
         # Aún faltan archivos, entonces el acuse no lleva contenido
         acuse = ExhExhortoArchivoFileDataAcuseOut(
-            exhortoOrigenId="xxxx",
+            exhortoOrigenId=exh_exhorto.exhorto_origen_id,
             folioSeguimiento="",
             fechaHoraRecepcion=None,
             municipioAreaRecibeId=1,

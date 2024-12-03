@@ -50,11 +50,14 @@ class Test051EnviarRespuestaAlExhorto(unittest.TestCase):
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
 
+        # Validar que se haya tenido éxito
+        self.assertEqual(contenido["success"], True)
+
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)
         data = contenido["data"]
 
-        # Validar parte del contenido de data
+        # Validar el contenido QUE NOS INTERESA de data
         self.assertEqual("exhortoOrigenId" in data, True)
         self.assertEqual("folioSeguimiento" in data, True)
         self.assertEqual("estadoDestinoId" in data, True)
@@ -97,10 +100,10 @@ class Test051EnviarRespuestaAlExhorto(unittest.TestCase):
 
         # Definir aleatoriamente definir los archivos que se recibirán más adelante
         archivos = []
-        for numero in range(1, random.randint(1, 2)):
+        for numero in range(1, random.randint(1, 4) + 1):  # Hasta 4 archivos
             archivos.append(
                 {
-                    "nombreArchivo": f"prueba-{numero}.pdf",
+                    "nombreArchivo": f"respuesta-{numero}.pdf",
                     "hashSha1": "3a9a09bbb22a6da576b2868c4b861cae6b096050",
                     "hashSha256": "df3d983d24a5002e7dcbff1629e25f45bb3def406682642643efc4c1c8950a77",
                     "tipoDocumento": 1,
@@ -109,7 +112,7 @@ class Test051EnviarRespuestaAlExhorto(unittest.TestCase):
 
         # Definir aleatoriamente definir los videos
         videos = []
-        for numero in range(1, random.randint(1, 2)):
+        for numero in range(1, random.randint(1, 2) + 1):  # Hasta 2 videos
             characters = string.ascii_letters + string.digits
             random_video_id = "".join(random.choice(characters) for _ in range(11))
             videos.append(

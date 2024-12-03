@@ -17,12 +17,12 @@ exh_exhortos_videos = APIRouter(prefix="/v4/exh_exhortos_videos", tags=["exh exh
 
 
 @exh_exhortos_videos.get("/{exh_exhorto_video_id}", response_model=OneExhExhortoVideoOut)
-async def detalle_exh_exhorto_video(
+async def consultar_video(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
     exh_exhorto_video_id: int,
 ):
-    """Detalle de un video a partir de su id"""
+    """Consultar un video a partir de su ID"""
     if current_user.permissions.get("EXH EXHORTOS VIDEOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
