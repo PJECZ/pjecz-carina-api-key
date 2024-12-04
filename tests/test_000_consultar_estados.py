@@ -1,5 +1,5 @@
 """
-Unit test - 00 Consultar Estados
+Unit test - Consultar Estados
 """
 
 import unittest
@@ -9,8 +9,8 @@ import requests
 from tests.load_env import config
 
 
-class Test00ConsultarEstados(unittest.TestCase):
-    """Tests for 01 consultar estados"""
+class TestsConsultarEstados(unittest.TestCase):
+    """Test Consultar Estados"""
 
     def test_get_estados(self):
         """GET method for estados"""

@@ -1,12 +1,10 @@
 """
-Unit test - 01 Consultar Materias
+Unit test - Consultar Materias
 
 Listado de materias del PJ exhortado.
 
 - GET /materias
 - GET /materias/{MATERIA_CLAVE}
-
-Se recibe el esquema OneMateriaOut.
 
 """
 
@@ -17,8 +15,8 @@ import requests
 from tests.load_env import config
 
 
-class Test01ConsultarMaterias(unittest.TestCase):
-    """Tests for 01 consultar materias"""
+class TestsConsultarMaterias(unittest.TestCase):
+    """Tests Consultar Materias"""
 
     def test_get_materias(self):
         """GET method for materias"""

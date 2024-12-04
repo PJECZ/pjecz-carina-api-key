@@ -1,5 +1,5 @@
 """
-Unit test - 052 Enviar los Archivos de la Respuesta al Exhorto
+Unit test - Enviar los Archivos de la Respuesta
 
 Se envían los documentos que conforman la respuesta del exhorto.
 
@@ -19,10 +19,10 @@ import requests
 from tests.load_env import config
 
 
-class Test052EnviarArchivosDeRespuestaAlExhorto(unittest.TestCase):
-    """Test 05b Enviar Archivos de Respuesta al Exhorto"""
+class TestsEnviarRespuestaArchivos(unittest.TestCase):
+    """Tests Enviar Respuesta Archivos"""
 
-    def test_05b_post_exh_exhorto_archivos_respuesta(self):
+    def test_post_respuesta_archivos(self):
         """Probar el POST para enviar archivos de respuesta al exhorto"""
 
         # Validar que se haya configurado la variable de entorno FOLIO_SEGUIMIENTO

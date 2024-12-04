@@ -1,5 +1,5 @@
 """
-Unit test - 04 Consultar Exhorto
+Unit test - Consultar Exhorto
 
 Consultar exhorto enviado al PJ exhortado para ver su información.
 
@@ -16,10 +16,10 @@ import requests
 from tests.load_env import config
 
 
-class Test04ConsultarExhorto(unittest.TestCase):
-    """Test 04 Consultar Exhorto"""
+class TestsConsultarExhorto(unittest.TestCase):
+    """Tests Consultar Exhorto"""
 
-    def test_get_exh_exhortos(self):
+    def test_get_exhorto(self):
         """Probar el GET para consultar un exhorto"""
 
         # Validar que se haya configurado la variable de entorno FOLIO_SEGUIMIENTO

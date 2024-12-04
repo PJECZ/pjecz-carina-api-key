@@ -1,5 +1,5 @@
 """
-Unit test - 051 Enviar la Respuesta al Exhorto
+Unit test - Enviar Respuesta
 
 Se envían los datos que conforman la respuesta del exhorto.
 
@@ -22,10 +22,10 @@ from lib.pwgen import generar_identificador
 from tests.load_env import config
 
 
-class Test051EnviarRespuestaAlExhorto(unittest.TestCase):
-    """Test 05a Enviar Respuesta al Exhorto"""
+class TestsEnviarRespuesta(unittest.TestCase):
+    """Tests Enviar Respuesta"""
 
-    def test_05a_post_exh_exhorto_respuesta(self):
+    def test_post_respuesta(self):
         """Probar el POST para enviar una respuesta al exhorto"""
 
         # Validar que se haya configurado la variable de entorno FOLIO_SEGUIMIENTO

@@ -1,7 +1,5 @@
 """
-Unit test - 03 Enviar Exhortos Archivos
-
-Se envían los documentos que conforman el exhorto.
+Unit test - Enviar los Archivos del Exhorto
 
 Se manda exhortoOrigenId y el archivo
 
@@ -21,10 +19,10 @@ from tests.database import ExhExhorto, get_database_session
 from tests.load_env import config
 
 
-class Test03EnviarExhortosArchivos(unittest.TestCase):
-    """Test 03 Enviar Archivos"""
+class TestsEnviarExhortosArchivos(unittest.TestCase):
+    """Tests Enviar Exhorto Archivos"""
 
-    def test_03_post_exh_exhortos_archivos(self):
+    def test_post_exhorto_archivos(self):
         """Probar el POST para enviar los archivos de un exhorto"""
 
         # Cargar la sesión de la base de datos para recuperar los datos de la prueba anterior

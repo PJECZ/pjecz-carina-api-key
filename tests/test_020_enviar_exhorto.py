@@ -1,7 +1,5 @@
 """
-Unit test - 02 Enviar Exhorto
-
-Se recibe la materia, juicio, partes, juzgado origen, municipio destino, etc.
+Unit test - Enviar Exhorto
 
 Se manda el esquema ExhExhortoIn.
 
@@ -22,10 +20,10 @@ from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
 from tests.load_env import config
 
 
-class Test02EnviarExhorto(unittest.TestCase):
-    """Test 02 Enviar Exhorto"""
+class TestsEnviarExhorto(unittest.TestCase):
+    """Tests Enviar Exhorto"""
 
-    def test_post_exh_exhorto(self):
+    def test_post_exhorto(self):
         """Probar el POST para enviar un exhorto"""
 
         # Generar el exhorto_origen_id como el identificador del exhorto del PJ exhortante

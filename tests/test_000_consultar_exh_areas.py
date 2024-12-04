@@ -1,5 +1,5 @@
 """
-Unit test - 00 Consultar ExhAreas
+Unit test - Consultar ExhAreas
 """
 
 import unittest
@@ -9,8 +9,8 @@ import requests
 from tests.load_env import config
 
 
-class Test00ConsultarExhAreas(unittest.TestCase):
-    """Tests for 00 consultar exh_areas"""
+class TestsConsultarExhAreas(unittest.TestCase):
+    """Tests Consultar ExhAreas"""
 
     def test_get_exh_areas(self):
         """GET method for exh_areas"""

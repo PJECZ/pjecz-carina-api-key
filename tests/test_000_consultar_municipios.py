@@ -1,5 +1,5 @@
 """
-Unit test - 00 Consultar Municipios
+Unit test - Consultar Municipios
 """
 
 import unittest
@@ -9,8 +9,8 @@ import requests
 from tests.load_env import config
 
 
-class Test00ConsultarMunicipios(unittest.TestCase):
-    """Tests for 00 consultar municipios"""
+class TestsConsultarMunicipios(unittest.TestCase):
+    """Tests Consultar Municipios"""
 
     def test_get_municipios_estado_clave_05(self):
         """GET method for municipios for estado with clave 05"""
