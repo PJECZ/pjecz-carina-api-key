@@ -14,11 +14,11 @@ from carina.v4.exh_exhortos_archivos.crud import get_exh_exhortos_archivos, upda
 from carina.v4.exh_exhortos_archivos.schemas import (
     ExhExhortoArchivoFileDataAcuseOut,
     ExhExhortoArchivoFileDataArchivo,
-    ExhExhortoArchivoFileDataOut,
+    ExhExhortoArchivoOut,
     ExhExhortoArchivoRespuestaDataAcuse,
-    ExhExhortoArchivoRespuestaDataOut,
-    OneExhExhortoArchivoFileDataOut,
-    OneExhExhortoArchivoRespuestaDataOut,
+    ExhExhortoArchivoRespuestaOut,
+    OneExhExhortoArchivoOut,
+    OneExhExhortoArchivoRespuestaOut,
 )
 from carina.v4.usuarios.authentications import UsuarioInDB, get_current_active_user
 from config.settings import get_settings
@@ -30,7 +30,7 @@ from lib.pwgen import generar_identificador
 exh_exhortos_archivos = APIRouter(prefix="/v4/exh_exhortos_archivos", tags=["exh exhortos archivos"])
 
 
-@exh_exhortos_archivos.post("/responder_upload", response_model=OneExhExhortoArchivoRespuestaDataOut)
+@exh_exhortos_archivos.post("/responder_upload", response_model=OneExhExhortoArchivoRespuestaOut)
 async def recibir_archivo_respuesta_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
@@ -44,7 +44,7 @@ async def recibir_archivo_respuesta_request(
 
     # Validar que el nombre del archivo termine en pdf
     if not archivo.filename.lower().endswith(".pdf"):
-        return OneExhExhortoArchivoRespuestaDataOut(
+        return OneExhExhortoArchivoRespuestaOut(
             success=False,
             message="Tipo de archivo no permitido",
             errors=["El nombre del archivo no termina en PDF"],
@@ -54,7 +54,7 @@ async def recibir_archivo_respuesta_request(
     try:
         exh_exhorto = get_exh_exhorto_by_exhorto_origen_id(database, exhortoOrigenId)
     except MyAnyError as error:
-        return OneExhExhortoArchivoRespuestaDataOut(
+        return OneExhExhortoArchivoRespuestaOut(
             success=False,
             message="No se encontró el exhorto",
             errors=[str(error)],
@@ -76,7 +76,7 @@ async def recibir_archivo_respuesta_request(
 
     # Si NO se encontró el archivo, entonces entregar un error
     if exh_exhorto_archivo is None:
-        return OneExhExhortoArchivoRespuestaDataOut(
+        return OneExhExhortoArchivoRespuestaOut(
             success=False,
             message="No se encontró el archivo",
             errors=["Al parecer el archivo ya fue recibido o no se declaró en el exhorto"],
@@ -87,7 +87,7 @@ async def recibir_archivo_respuesta_request(
 
     # Validar que el archivo no exceda el tamaño máximo permitido de 10MB
     if archivo_pdf_tamanio > 10 * 1024 * 1024:
-        return OneExhExhortoArchivoRespuestaDataOut(
+        return OneExhExhortoArchivoRespuestaOut(
             success=False,
             message="El archivo excede el tamaño máximo permitido",
             errors=["El archivo no debe exceder los 10MB"],
@@ -101,7 +101,7 @@ async def recibir_archivo_respuesta_request(
         hasher_sha1 = hashlib.sha1()
         hasher_sha1.update(archivo_en_memoria)
         if exh_exhorto_archivo.hash_sha1 != hasher_sha1.hexdigest():
-            return OneExhExhortoArchivoRespuestaDataOut(
+            return OneExhExhortoArchivoRespuestaOut(
                 success=False,
                 message="El archivo está corrupto",
                 errors=["El archivo no coincide con el hash SHA1"],
@@ -112,7 +112,7 @@ async def recibir_archivo_respuesta_request(
         hasher_sha256 = hashlib.sha256()
         hasher_sha256.update(archivo_en_memoria)
         if exh_exhorto_archivo.hash_sha256 != hasher_sha256.hexdigest():
-            return OneExhExhortoArchivoRespuestaDataOut(
+            return OneExhExhortoArchivoRespuestaOut(
                 success=False,
                 message="El archivo está corrupto",
                 errors=["El archivo no coincide con el hash SHA256"],
@@ -138,7 +138,7 @@ async def recibir_archivo_respuesta_request(
             data=archivo_en_memoria,
         )
     except MyAnyError as error:
-        return OneExhExhortoArchivoFileDataOut(
+        return OneExhExhortoArchivoOut(
             success=False,
             message="Hubo un error nuestro al subir el archivo a Google Storage",
             errors=[str(error)],
@@ -168,16 +168,16 @@ async def recibir_archivo_respuesta_request(
     )
 
     # Definir el data
-    data = ExhExhortoArchivoRespuestaDataOut(
+    data = ExhExhortoArchivoRespuestaOut(
         archivo=archivo,
         acuse=acuse,
     )
 
     # Entregar la respuesta
-    return OneExhExhortoArchivoRespuestaDataOut(data=data)
+    return OneExhExhortoArchivoRespuestaOut(data=data)
 
 
-@exh_exhortos_archivos.post("/upload", response_model=OneExhExhortoArchivoFileDataOut)
+@exh_exhortos_archivos.post("/upload", response_model=OneExhExhortoArchivoOut)
 async def recibir_archivo_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
@@ -190,7 +190,7 @@ async def recibir_archivo_request(
 
     # Validar que el nombre del archivo termine en pdf
     if not archivo.filename.lower().endswith(".pdf"):
-        return OneExhExhortoArchivoFileDataOut(
+        return OneExhExhortoArchivoOut(
             success=False,
             message="Tipo de archivo no permitido",
             errors=["El nombre del archivo no termina en PDF"],
@@ -200,7 +200,7 @@ async def recibir_archivo_request(
     try:
         exh_exhorto = get_exh_exhorto_by_exhorto_origen_id(database, exhortoOrigenId)
     except MyAnyError as error:
-        return OneExhExhortoArchivoFileDataOut(
+        return OneExhExhortoArchivoOut(
             success=False,
             message="No se encontró el exhorto",
             errors=[str(error)],
@@ -222,7 +222,7 @@ async def recibir_archivo_request(
 
     # Si NO se encontró el archivo, entonces entregar un error
     if exh_exhorto_archivo is None:
-        return OneExhExhortoArchivoFileDataOut(
+        return OneExhExhortoArchivoOut(
             success=False,
             message="No se encontró el archivo",
             errors=["Al parecer el archivo ya fue recibido o no se declaró en el exhorto"],
@@ -233,7 +233,7 @@ async def recibir_archivo_request(
 
     # Validar que el archivo no exceda el tamaño máximo permitido de 10MB
     if archivo_pdf_tamanio > 10 * 1024 * 1024:
-        return OneExhExhortoArchivoFileDataOut(
+        return OneExhExhortoArchivoOut(
             success=False,
             message="El archivo excede el tamaño máximo permitido",
             errors=["El archivo no debe exceder los 10MB"],
@@ -247,7 +247,7 @@ async def recibir_archivo_request(
         hasher_sha1 = hashlib.sha1()
         hasher_sha1.update(archivo_en_memoria)
         if exh_exhorto_archivo.hash_sha1 != hasher_sha1.hexdigest():
-            return OneExhExhortoArchivoFileDataOut(
+            return OneExhExhortoArchivoOut(
                 success=False,
                 message="El archivo está corrupto",
                 errors=["El archivo no coincide con el hash SHA1"],
@@ -258,7 +258,7 @@ async def recibir_archivo_request(
         hasher_sha256 = hashlib.sha256()
         hasher_sha256.update(archivo_en_memoria)
         if exh_exhorto_archivo.hash_sha256 != hasher_sha256.hexdigest():
-            return OneExhExhortoArchivoFileDataOut(
+            return OneExhExhortoArchivoOut(
                 success=False,
                 message="El archivo está corrupto",
                 errors=["El archivo no coincide con el hash SHA256"],
@@ -284,7 +284,7 @@ async def recibir_archivo_request(
             data=archivo_en_memoria,
         )
     except MyAnyError as error:
-        return OneExhExhortoArchivoFileDataOut(
+        return OneExhExhortoArchivoOut(
             success=False,
             message="Hubo un error al subir el archivo al storage",
             errors=[str(error)],
@@ -345,10 +345,10 @@ async def recibir_archivo_request(
         )
 
     # Juntar los datos para la respuesta
-    data = ExhExhortoArchivoFileDataOut(
+    data = ExhExhortoArchivoOut(
         archivo=archivo,
         acuse=acuse,
     )
 
     # Entregar la respuesta
-    return OneExhExhortoArchivoFileDataOut(success=True, data=data)
+    return OneExhExhortoArchivoOut(success=True, data=data)

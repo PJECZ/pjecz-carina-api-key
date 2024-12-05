@@ -20,7 +20,7 @@ from carina.v4.exh_exhortos.schemas import (
     OneExhExhortoRespuestaOut,
 )
 from carina.v4.exh_exhortos_archivos.schemas import ExhExhortoArchivo
-from carina.v4.exh_exhortos_partes.schemas import ExhExhortoParteIn
+from carina.v4.exh_exhortos_partes.schemas import ExhExhortoParte
 from carina.v4.municipios.crud import get_municipio
 from carina.v4.usuarios.authentications import UsuarioInDB, get_current_active_user
 from lib.database import Session, get_db
@@ -74,7 +74,7 @@ async def consultar_exhorto_request(
     partes = []
     for exh_exhorto_parte in exh_exhorto.exh_exhortos_partes:
         partes.append(
-            ExhExhortoParteIn(
+            ExhExhortoParte(
                 nombre=exh_exhorto_parte.nombre,
                 apellidoPaterno=exh_exhorto_parte.apellido_paterno,
                 apellidoMaterno=exh_exhorto_parte.apellido_materno,

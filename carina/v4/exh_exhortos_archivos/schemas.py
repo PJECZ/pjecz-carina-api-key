@@ -10,7 +10,7 @@ from lib.schemas_base import OneBaseOut
 
 
 class ExhExhortoArchivo(BaseModel):
-    """Esquema para estructurar el listado de archivos de un exhorto"""
+    """Esquema para estructurar el listado de archivos"""
 
     nombreArchivo: str | None = None
     hashSha1: str | None = None
@@ -25,14 +25,14 @@ class ExhExhortoArchivoFileIn(BaseModel):
 
 
 class ExhExhortoArchivoFileDataArchivo(BaseModel):
-    """Esquema con datos del archivo"""
+    """Esquema para estructurar los datos del archivo"""
 
     nombreArchivo: str | None = None
     tamaño: int | None = None
 
 
 class ExhExhortoArchivoFileDataAcuse(BaseModel):
-    """Esquema con el acuse"""
+    """Esquema para estructurar los datos del acuse"""
 
     exhortoOrigenId: str | None = None
     folioSeguimiento: str | None = None
@@ -43,21 +43,21 @@ class ExhExhortoArchivoFileDataAcuse(BaseModel):
     urlInfo: str | None = None
 
 
-class ExhExhortoArchivoFileDataOut(BaseModel):
+class ExhExhortoArchivoOut(BaseModel):
     """Esquema con el data"""
 
     archivo: ExhExhortoArchivoFileDataArchivo | None = None
     acuse: ExhExhortoArchivoFileDataAcuse | None = None
 
 
-class OneExhExhortoArchivoFileDataOut(OneBaseOut):
+class OneExhExhortoArchivoOut(OneBaseOut):
     """Esquema para responder por un archivo recibido"""
 
-    data: ExhExhortoArchivoFileDataOut | None = None
+    data: ExhExhortoArchivoOut | None = None
 
 
-class ExhExhortoArchivoRespuestaIn(BaseModel):
-    """Petición que se va a hacer por cada archivo que se quiere enviar en la respuesta del Exhorto"""
+class ExhExhortoArchivoRespuestaFileIn(BaseModel):
+    """Esquema para recibir archivos Content-Disposition, form-data, file"""
 
     exhortoId: str | None = None
     respuestaOrigenId: str | None = None
@@ -71,14 +71,14 @@ class ExhExhortoArchivoRespuestaDataAcuse(BaseModel):
     fechaHoraRecepcion: datetime | None = None
 
 
-class ExhExhortoArchivoRespuestaDataOut(BaseModel):
+class ExhExhortoArchivoRespuestaOut(BaseModel):
     """Respuesta de la operación de Recibir Respuesta Exhorto Archivo"""
 
     archivo: ExhExhortoArchivoFileDataArchivo | None = None
     acuse: ExhExhortoArchivoRespuestaDataAcuse | None = None
 
 
-class OneExhExhortoArchivoRespuestaDataOut(OneBaseOut):
+class OneExhExhortoArchivoRespuestaOut(OneBaseOut):
     """Respuesta de la operación de Recibir Respuesta Exhorto Archivo"""
 
-    data: ExhExhortoArchivoRespuestaDataOut | None = None
+    data: ExhExhortoArchivoRespuestaOut | None = None

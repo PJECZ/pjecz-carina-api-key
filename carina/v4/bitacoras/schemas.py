@@ -20,5 +20,7 @@ class BitacoraOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class OneBitacoraOut(BitacoraOut, OneBaseOut):
+class OneBitacoraOut(OneBaseOut):
     """Esquema para entregar un bitacora"""
+
+    data: BitacoraOut | None = None

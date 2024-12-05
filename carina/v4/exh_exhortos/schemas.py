@@ -7,7 +7,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 from carina.v4.exh_exhortos_archivos.schemas import ExhExhortoArchivo
-from carina.v4.exh_exhortos_partes.schemas import ExhExhortoParteIn
+from carina.v4.exh_exhortos_partes.schemas import ExhExhortoParte
 from carina.v4.exh_exhortos_videos.schemas import ExhExhortoVideoIn
 from lib.schemas_base import OneBaseOut
 
@@ -26,7 +26,7 @@ class ExhExhortoIn(BaseModel):
     numeroOficioOrigen: str | None = None
     tipoJuicioAsuntoDelitos: str | None = None
     juezExhortante: str | None = None
-    partes: list[ExhExhortoParteIn] | None = None
+    partes: list[ExhExhortoParte] | None = None
     fojas: int | None = None
     diasResponder: int | None = None
     tipoDiligenciacionNombre: str | None = None
