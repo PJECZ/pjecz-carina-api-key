@@ -2,13 +2,18 @@
 Exh Exhortos Promociones v4, CRUD (create, read, update, and delete)
 """
 
+from datetime import datetime
 from typing import Any
 
 from sqlalchemy.orm import Session
 
 from carina.core.exh_exhortos_promociones.models import ExhExhortoPromocion
-from carina.v4.exh_exhortos.crud import get_exh_exhorto
+from carina.core.exh_exhortos_promociones_archivos.models import ExhExhortoPromocionArchivo
+from carina.core.exh_exhortos_promociones_promoventes.models import ExhExhortoPromocionPromovente
+from carina.v4.exh_exhortos.crud import get_exh_exhorto, get_exh_exhorto_by_folio_seguimiento
+from carina.v4.exh_exhortos_promociones.schemas import ExhExhortoPromocionIn
 from lib.exceptions import MyIsDeletedError, MyNotExistsError
+from lib.safe_string import safe_string
 
 
 def get_exh_exhortos_promociones(database: Session, exh_exhorto_id: int) -> Any:
@@ -32,5 +37,56 @@ def get_exh_exhorto_promocion(database: Session, exh_exhorto_promocion_id: int) 
     return exh_exhorto_promocion
 
 
-def create_exh_exhorto_promocion(database: Session, exh_exhorto_promocion: ExhExhortoPromocion):
-    """Crear una promocion de un exhorto"""
+def create_exh_exhorto_promocion(database: Session, exh_exhorto_promocion_in: ExhExhortoPromocionIn) -> ExhExhortoPromocion:
+    """Crear una promoción de un exhorto"""
+
+    # Inicializar
+    exh_exhorto_promocion = ExhExhortoPromocion()
+
+    # Consultar el exhorto
+    exh_exhorto = get_exh_exhorto_by_folio_seguimiento(database, exh_exhorto_promocion_in.folioSeguimiento)
+
+    # Definir las propiedades
+    exh_exhorto_promocion.exh_exhorto_id = exh_exhorto.id
+    exh_exhorto_promocion.folio_origen_promocion = exh_exhorto_promocion_in.folioOrigenPromocion
+    exh_exhorto_promocion.fojas = exh_exhorto_promocion_in.fojas
+    exh_exhorto_promocion.fecha_origen = exh_exhorto_promocion_in.fechaOrigen
+    exh_exhorto_promocion.observaciones = safe_string(exh_exhorto_promocion_in.observaciones, save_enie=True, max_len=1000)
+    exh_exhorto_promocion.remitente = "EXTERNO"
+    exh_exhorto_promocion.estado = "ENVIADO"
+
+    # Insertar
+    database.add(exh_exhorto_promocion)
+
+    # Insertar los promoventes
+    for promovente in exh_exhorto_promocion_in.promoventes:
+        exh_exhorto_promocion_promovente = ExhExhortoPromocionPromovente()
+        exh_exhorto_promocion_promovente.exh_exhorto_promocion_id = exh_exhorto_promocion.id
+        exh_exhorto_promocion_promovente.nombre = safe_string(promovente.nombre, save_enie=True)
+        exh_exhorto_promocion_promovente.apellido_paterno = safe_string(promovente.apellidoPaterno, save_enie=True)
+        exh_exhorto_promocion_promovente.apellido_materno = safe_string(promovente.apellidoMaterno, save_enie=True)
+        exh_exhorto_promocion_promovente.genero = safe_string(promovente.genero)
+        exh_exhorto_promocion_promovente.es_persona_moral = promovente.esPersonaMoral
+        exh_exhorto_promocion_promovente.tipo_parte = promovente.tipoParte
+        exh_exhorto_promocion_promovente.tipo_parte_nombre = safe_string(promovente.tipoParteNombre, save_enie=True)
+        database.add(exh_exhorto_promocion_promovente)
+
+    # Insertar los archivos
+    for archivo in exh_exhorto_promocion_in.archivos:
+        exh_exhorto_promocion_archivo = ExhExhortoPromocionArchivo()
+        exh_exhorto_promocion_archivo.exh_exhorto_promocion_id = exh_exhorto_promocion.id
+        exh_exhorto_promocion_archivo.nombre_archivo = archivo.nombreArchivo
+        exh_exhorto_promocion_archivo.hash_sha1 = archivo.hashSha1
+        exh_exhorto_promocion_archivo.hash_sha256 = archivo.hashSha256
+        exh_exhorto_promocion_archivo.tipo_documento = archivo.tipoDocumento
+        exh_exhorto_promocion_archivo.estado = "PENDIENTE"
+        exh_exhorto_promocion_archivo.tamano = 0
+        exh_exhorto_promocion_archivo.fecha_hora_recepcion = datetime.now()
+        database.add(exh_exhorto_promocion_archivo)
+
+    # Terminar la transacción
+    database.commit()
+    database.refresh(exh_exhorto_promocion)
+
+    # Entregar
+    return exh_exhorto_promocion

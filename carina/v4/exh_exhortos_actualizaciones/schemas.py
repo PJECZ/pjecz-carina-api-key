@@ -15,7 +15,7 @@ class ExhExhortoActualizacionIn(BaseModel):
     exhortoId: str | None = None
     actualizacionOrigenId: str | None = None
     tipoActualizacion: str | None = None
-    fechaHora: str | None = None
+    fechaHora: datetime | None = None
     descripcion: str | None = None
 
 
