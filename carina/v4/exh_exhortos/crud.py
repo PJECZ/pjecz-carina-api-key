@@ -16,7 +16,7 @@ from carina.core.exh_exhortos_partes.models import ExhExhortoParte
 from carina.core.exh_exhortos_videos.models import ExhExhortoVideo
 from carina.core.exh_externos.models import ExhExterno
 from carina.core.municipios.models import Municipio
-from carina.v4.exh_exhortos.schemas import ExhExhortoIn, ExhExhortoRecibirRespuestaIn
+from carina.v4.exh_exhortos.schemas import ExhExhortoIn, ExhExhortoRespuestaIn
 from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
 from lib.safe_string import safe_clave, safe_string
 
@@ -214,7 +214,7 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     return exh_exhorto
 
 
-def receive_response_exh_exhorto(database: Session, exh_exhorto_respuesta: ExhExhortoRecibirRespuestaIn) -> ExhExhorto:
+def receive_response_exh_exhorto(database: Session, exh_exhorto_respuesta: ExhExhortoRespuestaIn) -> ExhExhorto:
     """Recibir la respuesta de un exhorto"""
 
     # Tomar de la respuesta el exhorto_origen_id

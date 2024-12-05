@@ -20,13 +20,13 @@ class ExhExhortoPromocionPromoventeIn(BaseModel):
 
 
 class ExhExhortoPromocionPromoventeOut(ExhExhortoPromocionPromoventeIn):
-    """Esquema para entregar promoventes de promociones"""
+    """Esquema para confirmar la recepción de un promovente de promoción"""
 
     id: int | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
 class OneExhExhortoPromocionPromoventeOut(OneBaseOut):
-    """Esquema para entregar un promovente de promoción"""
+    """Esquema para entregar la confirmación de la recepción de un promovente de promoción"""
 
     data: ExhExhortoPromocionPromoventeOut | None = None

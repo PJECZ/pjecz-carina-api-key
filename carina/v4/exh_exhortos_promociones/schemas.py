@@ -6,13 +6,13 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
-from carina.v4.exh_exhortos_promociones_archivos.schemas import ExhExhortoPromocionArchivoIn
+from carina.v4.exh_exhortos_promociones_archivos.schemas import ExhExhortoPromocionArchivo
 from carina.v4.exh_exhortos_promociones_promoventes.schemas import ExhExhortoPromocionPromoventeIn
 from lib.schemas_base import OneBaseOut
 
 
 class ExhExhortoPromocionIn(BaseModel):
-    """Esquema para recibir promociones"""
+    """Esquema para recibir una promoción"""
 
     folioSeguimiento: str | None = None
     folioOrigenPromocion: str | None = None
@@ -20,26 +20,18 @@ class ExhExhortoPromocionIn(BaseModel):
     fojas: int | None = None
     fechaOrigen: datetime | None = None
     observaciones: str | None = None
-    archivos: list[ExhExhortoPromocionArchivoIn] | None = None
+    archivos: list[ExhExhortoPromocionArchivo] | None = None
 
 
 class ExhExhortoPromocionOut(ExhExhortoPromocionIn):
-    """Esquema para entregar promociones"""
+    """Esquema para confirmar la recepción de una promoción"""
 
-    id: int | None = None
-    model_config = ConfigDict(from_attributes=True)
-
-
-class OneExhExhortoPromocionOut(OneBaseOut):
-    """Esquema para entregar una promoción de exhorto"""
-
-    data: ExhExhortoPromocionOut | None = None
-
-
-class ExhExhortoPromocionConfirmacionOut(BaseModel):
+    folioSeguimiento: str | None = None
     folioOrigenPromocion: str | None = None
     fechaHora: datetime | None = None
 
 
-class OneExhExhortoPromocionConfirmacionOut(OneBaseOut):
-    data: ExhExhortoPromocionConfirmacionOut | None = None
+class OneExhExhortoPromocionOut(OneBaseOut):
+    """Esquema para entregar una confirmación de recepción de una promoción"""
+
+    data: ExhExhortoPromocionOut | None = None

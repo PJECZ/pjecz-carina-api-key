@@ -8,7 +8,7 @@ from lib.schemas_base import OneBaseOut
 
 
 class ExhExhortoVideoIn(BaseModel):
-    """Esquema para recibir videos"""
+    """Esquema para recibir un video"""
 
     titulo: str | None = None
     descripcion: str | None = None
