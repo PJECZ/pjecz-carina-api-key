@@ -30,3 +30,16 @@ def get_exh_exhorto_promocion_archivo(database: Session, exh_exhorto_promocion_a
     if exh_exhorto_promocion_archivo.estatus != "A":
         raise MyIsDeletedError("No es activo ese archivo de promoción de exhorto, está eliminado")
     return exh_exhorto_promocion_archivo
+
+
+def update_exh_exhorto_promocion_archivo(
+    database: Session, exh_exhorto_promocion_archivo: ExhExhortoPromocionArchivo, **kwargs
+) -> ExhExhortoPromocionArchivo:
+    """Actualizar un archivo de una promoción de un exhorto"""
+
+    for key, value in kwargs.items():
+        setattr(exh_exhorto_promocion_archivo, key, value)
+    database.add(exh_exhorto_promocion_archivo)
+    database.commit()
+    database.refresh(exh_exhorto_promocion_archivo)
+    return exh_exhorto_promocion_archivo

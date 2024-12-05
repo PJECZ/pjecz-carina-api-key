@@ -2,11 +2,10 @@
 Exh Exhortos Actualizaciones v4, rutas (paths)
 """
 
-import hashlib
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from carina.core.permisos.models import Permiso
 from carina.v4.exh_exhortos_actualizaciones.crud import get_exh_exhorto_actualizacion

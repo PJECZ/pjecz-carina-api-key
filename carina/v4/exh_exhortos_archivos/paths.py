@@ -9,8 +9,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 
 from carina.core.permisos.models import Permiso
-from carina.v4.exh_exhortos.crud import get_exh_exhorto_by_exhorto_origen_id, update_set_exhorto
-from carina.v4.exh_exhortos_archivos.crud import get_exh_exhortos_archivos, update_set_exhorto_archivo
+from carina.v4.exh_exhortos.crud import get_exh_exhorto_by_exhorto_origen_id, update_exh_exhorto
+from carina.v4.exh_exhortos_archivos.crud import get_exh_exhortos_archivos, update_exh_exhorto_archivo
 from carina.v4.exh_exhortos_archivos.schemas import (
     ExhExhortoArchivoFileDataAcuseOut,
     ExhExhortoArchivoFileDataArchivo,
@@ -145,7 +145,7 @@ async def recibir_archivo_respuesta_request(
         )
 
     # Cambiar el estado a RECIBIDO
-    exh_exhorto_archivo = update_set_exhorto_archivo(
+    exh_exhorto_archivo = update_exh_exhorto_archivo(
         database=database,
         exh_exhorto_archivo=exh_exhorto_archivo,
         estado="RECIBIDO",
@@ -291,7 +291,7 @@ async def recibir_archivo_request(
         )
 
     # Cambiar el estado del archivo a RECIBIDO
-    exh_exhorto_archivo = update_set_exhorto_archivo(
+    exh_exhorto_archivo = update_exh_exhorto_archivo(
         database=database,
         exh_exhorto_archivo=exh_exhorto_archivo,
         estado="RECIBIDO",
@@ -316,7 +316,7 @@ async def recibir_archivo_request(
     # Si YA NO HAY pendientes, entonces se manda contenido en el acuse
     if exh_exhorto_archivos_pendientes.count() == 0:
         # Entonces ES EL ULTIMO ARCHIVO, se cambia el estado de exh_exhorto a RECIBIDO y se define el folio de seguimiento
-        exh_exhorto_actualizado = update_set_exhorto(
+        exh_exhorto_actualizado = update_exh_exhorto(
             database=database,
             exh_exhorto=exh_exhorto,
             estado="RECIBIDO",

@@ -269,7 +269,7 @@ def receive_response_exh_exhorto(database: Session, exh_exhorto_respuesta: ExhEx
     return exh_exhorto
 
 
-def update_set_exhorto(database: Session, exh_exhorto: ExhExhorto, **kwargs) -> ExhExhorto:
+def update_exh_exhorto(database: Session, exh_exhorto: ExhExhorto, **kwargs) -> ExhExhorto:
     """Actualizar un exhorto"""
     for key, value in kwargs.items():
         setattr(exh_exhorto, key, value)

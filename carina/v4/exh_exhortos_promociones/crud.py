@@ -30,3 +30,7 @@ def get_exh_exhorto_promocion(database: Session, exh_exhorto_promocion_id: int) 
     if exh_exhorto_promocion.estatus != "A":
         raise MyIsDeletedError("No es activa esa promoción de exhorto, está eliminada")
     return exh_exhorto_promocion
+
+
+def create_exh_exhorto_promocion(database: Session, exh_exhorto_promocion: ExhExhortoPromocion):
+    """Crear una promocion de un exhorto"""

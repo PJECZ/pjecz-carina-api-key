@@ -30,3 +30,7 @@ def get_exh_exhorto_actualizacion(database: Session, exh_exhorto_actualizacion_i
     if exh_exhorto_actualizacion.estatus != "A":
         raise MyIsDeletedError("No es activa esa actualización de exhorto, está eliminada")
     return exh_exhorto_actualizacion
+
+
+def create_exh_exhorto_actualizacion(database: Session, exh_exhorto_actualizacion: ExhExhortoActualizacion):
+    """Crear una actualización de un exhorto"""
