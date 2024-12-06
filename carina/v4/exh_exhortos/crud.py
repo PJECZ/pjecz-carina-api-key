@@ -41,27 +41,39 @@ def get_exh_exhorto(database: Session, exh_exhorto_id: int) -> ExhExhorto:
 
 def get_exh_exhorto_by_exhorto_origen_id(database: Session, exhorto_origen_id: str) -> ExhExhorto:
     """Consultar un exhorto por su exhorto_origen_id"""
+
+    # Normalizar a 48 caracteres permitidos como máximo
     exhorto_origen_id = safe_string(exhorto_origen_id, max_len=48, do_unidecode=True, to_uppercase=False)
     if exhorto_origen_id == "":
         raise MyNotValidParamError("No es un identificador válido")
-    exh_exhorto = database.query(ExhExhorto).filter_by(exhorto_origen_id=exhorto_origen_id).first()
+
+    # Consultar
+    exh_exhorto = database.query(ExhExhorto).filter_by(exhorto_origen_id=exhorto_origen_id).filter_by(estatus="A").first()
+
+    # Verificar que exista
     if exh_exhorto is None:
         raise MyNotExistsError("No existe ese exhorto")
-    if exh_exhorto.estatus != "A":
-        raise MyIsDeletedError("No es activo ese exhorto, está eliminado")
+
+    # Entregar
     return exh_exhorto
 
 
 def get_exh_exhorto_by_folio_seguimiento(database: Session, folio_seguimiento: str) -> ExhExhorto:
     """Consultar un exhorto por su folio de seguimiento"""
+
+    # Normalizar a 48 caracteres permitidos como máximo
     folio_seguimiento = safe_string(folio_seguimiento, max_len=48, do_unidecode=True, to_uppercase=False)
     if folio_seguimiento == "":
-        raise MyNotValidParamError("No es un identificador válido")
-    exh_exhorto = database.query(ExhExhorto).filter_by(folio_seguimiento=folio_seguimiento).first()
+        raise MyNotValidParamError("No es un folio de seguimiento válido")
+
+    # Consultar
+    exh_exhorto = database.query(ExhExhorto).filter_by(folio_seguimiento=folio_seguimiento).filter_by(estatus="A").first()
+
+    # Verificar que exista
     if exh_exhorto is None:
         raise MyNotExistsError("No existe ese exhorto")
-    if exh_exhorto.estatus != "A":
-        raise MyIsDeletedError("No es activo ese exhorto, está eliminado")
+
+    # Entregar
     return exh_exhorto
 
 

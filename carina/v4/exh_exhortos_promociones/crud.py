@@ -7,12 +7,13 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+from carina.core.exh_exhortos.models import ExhExhorto
 from carina.core.exh_exhortos_promociones.models import ExhExhortoPromocion
 from carina.core.exh_exhortos_promociones_archivos.models import ExhExhortoPromocionArchivo
 from carina.core.exh_exhortos_promociones_promoventes.models import ExhExhortoPromocionPromovente
 from carina.v4.exh_exhortos.crud import get_exh_exhorto, get_exh_exhorto_by_folio_seguimiento
 from carina.v4.exh_exhortos_promociones.schemas import ExhExhortoPromocionIn
-from lib.exceptions import MyIsDeletedError, MyNotExistsError
+from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
 from lib.safe_string import safe_string
 
 
@@ -34,6 +35,41 @@ def get_exh_exhorto_promocion(database: Session, exh_exhorto_promocion_id: int) 
         raise MyNotExistsError("No existe esa promoción de exhorto")
     if exh_exhorto_promocion.estatus != "A":
         raise MyIsDeletedError("No es activa esa promoción de exhorto, está eliminada")
+    return exh_exhorto_promocion
+
+
+def get_exh_exhorto_promocion_by_folio_origen_promocion(
+    database: Session,
+    folio_seguimiento: str,
+    folio_origen_promocion: str,
+):
+    """Consultar una promoción de un exhorto por su folio de origen de promoción"""
+
+    # Normalizar a 48 caracteres permitidos como máximo
+    folio_seguimiento = safe_string(folio_seguimiento, max_len=48, do_unidecode=True, to_uppercase=False)
+    if folio_seguimiento == "":
+        raise MyNotValidParamError("No es un folio de seguimiento válido")
+
+    # Normalizar a 48 caracteres permitidos como máximo
+    folio_origen_promocion = safe_string(folio_origen_promocion, max_len=48, do_unidecode=True, to_uppercase=False)
+    if folio_origen_promocion == "":
+        raise MyNotValidParamError("No es un folio de origen de promoción válido")
+
+    # Consultar la promoción
+    exh_exhorto_promocion = (
+        database.query(ExhExhortoPromocion)
+        .join(ExhExhorto)
+        .filter_by(ExhExhorto.folio_seguimiento == folio_seguimiento)
+        .filter_by(folio_origen_promocion=folio_origen_promocion)
+        .filter_by(estatus="A")
+        .first()
+    )
+
+    # Verificar que exista
+    if exh_exhorto_promocion is None:
+        raise MyNotExistsError("No existe esa promoción de exhorto")
+
+    # Entregar
     return exh_exhorto_promocion
 
 
@@ -89,4 +125,16 @@ def create_exh_exhorto_promocion(database: Session, exh_exhorto_promocion_in: Ex
     database.refresh(exh_exhorto_promocion)
 
     # Entregar
+    return exh_exhorto_promocion
+
+
+def update_exh_exhorto_promocion(
+    database: Session, exh_exhorto_promocion: ExhExhortoPromocion, **kwargs
+) -> ExhExhortoPromocion:
+    """Actualizar una promoción de un exhorto"""
+    for key, value in kwargs.items():
+        setattr(exh_exhorto_promocion, key, value)
+    database.add(exh_exhorto_promocion)
+    database.commit()
+    database.refresh(exh_exhorto_promocion)
     return exh_exhorto_promocion

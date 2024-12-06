@@ -149,9 +149,9 @@ async def recibir_archivo_respuesta_request(
         database=database,
         exh_exhorto_archivo=exh_exhorto_archivo,
         estado="RECIBIDO",
-        url=archivo_pdf_url,
-        tamano=archivo_pdf_tamanio,
         fecha_hora_recepcion=fecha_hora_recepcion,
+        tamano=archivo_pdf_tamanio,
+        url=archivo_pdf_url,
     )
 
     # Definir los datos del archivo para la respuesta
@@ -295,9 +295,9 @@ async def recibir_archivo_request(
         database=database,
         exh_exhorto_archivo=exh_exhorto_archivo,
         estado="RECIBIDO",
-        url=archivo_pdf_url,
-        tamano=archivo_pdf_tamanio,
         fecha_hora_recepcion=fecha_hora_recepcion,
+        tamano=archivo_pdf_tamanio,
+        url=archivo_pdf_url,
     )
 
     # Definir los datos del archivo para la respuesta

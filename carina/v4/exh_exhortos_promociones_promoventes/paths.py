@@ -7,10 +7,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from carina.core.permisos.models import Permiso
-from carina.v4.exh_exhortos_promociones_promoventes.crud import (
-    get_exh_exhorto_promocion_promovente,
-    get_exh_exhortos_promociones_promoventes,
-)
+from carina.v4.exh_exhortos_promociones_promoventes.crud import get_exh_exhorto_promocion_promovente
 from carina.v4.exh_exhortos_promociones_promoventes.schemas import (
     ExhExhortoPromocionPromoventeOut,
     OneExhExhortoPromocionPromoventeOut,
