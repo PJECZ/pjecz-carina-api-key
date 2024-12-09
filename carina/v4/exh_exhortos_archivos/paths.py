@@ -27,11 +27,11 @@ from lib.exceptions import MyAnyError
 from lib.google_cloud_storage import upload_file_to_gcs
 from lib.pwgen import generar_identificador
 
-exh_exhortos_archivos = APIRouter(prefix="/v4/exh_exhortos_archivos", tags=["exh exhortos archivos"])
+exh_exhortos_archivos = APIRouter(prefix="/v4/exh_exhortos_archivos", tags=["exh exhortos"])
 
 
 @exh_exhortos_archivos.post("/responder_upload", response_model=OneExhExhortoArchivoRespuestaOut)
-async def recibir_archivo_respuesta_request(
+async def recibir_exhorto_respuesta_archivo_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
     exhortoOrigenId: str,
@@ -178,7 +178,7 @@ async def recibir_archivo_respuesta_request(
 
 
 @exh_exhortos_archivos.post("/upload", response_model=OneExhExhortoArchivoOut)
-async def recibir_archivo_request(
+async def recibir_exhorto_archivo_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
     exhortoOrigenId: str,

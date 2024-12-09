@@ -19,7 +19,7 @@ exh_areas = APIRouter(prefix="/v4/exh_areas", tags=["exh areas"])
 
 
 @exh_areas.get("", response_model=CustomList[ExhAreaOut])
-async def listado_exh_areas(
+async def listado_areas(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
 ):
@@ -34,7 +34,7 @@ async def listado_exh_areas(
 
 
 @exh_areas.get("/{exh_area_clave}", response_model=OneExhAreaOut)
-async def detalle_exh_area(
+async def detalle_area(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
     exh_area_clave: str,
