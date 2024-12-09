@@ -66,7 +66,7 @@ T = TypeVar("T")
 
 class CustomList(AbstractPage[T], Generic[T]):
     """
-    Custom Page
+    Custom List
     """
 
     success: bool

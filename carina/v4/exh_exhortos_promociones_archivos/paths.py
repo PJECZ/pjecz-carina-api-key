@@ -34,7 +34,7 @@ exh_exhortos_promociones_archivos = APIRouter(prefix="/v4/exh_exhortos_promocion
 
 
 @exh_exhortos_promociones_archivos.post("/upload", response_model=OneExhExhortoPromocionArchivoOut)
-async def recibir_promocion_archivo_request(
+async def recibir_exhorto_promocion_archivo_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
     folioSeguimiento: str,
