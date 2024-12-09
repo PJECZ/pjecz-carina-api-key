@@ -56,6 +56,7 @@ def create_exh_exhorto_actualizacion(
     # Insertar
     database.add(exh_exhorto_actualizacion)
     database.commit()
+    database.refresh(exh_exhorto_actualizacion)
 
     # Entregar
     return exh_exhorto_actualizacion

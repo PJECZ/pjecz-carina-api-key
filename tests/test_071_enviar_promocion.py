@@ -2,7 +2,6 @@
 Unit test - Enviar Promoción
 
 Se pueden enviar o recibir promociones sobre exhortos radicados.
-
 """
 
 import random
@@ -14,7 +13,7 @@ import lorem
 import requests
 from faker import Faker
 
-from tests.database import ExhExhorto, get_database_session
+from tests.database import ExhExhorto, ExhExhortoPromocion, ExhExhortoPromocionArchivo, get_database_session
 from tests.load_env import config
 
 
@@ -57,9 +56,9 @@ class TestsEnviarPromocion(unittest.TestCase):
 
         # Definir los datos de los archivos
         archivos = []
-        for numero in range(random.randint(1, 3)):
+        for numero in range(1, random.randint(1, 4) + 1):  # Hasta 4 archivos
             archivo = {
-                "nombreArchivo": f"archivo-{numero}.pdf",
+                "nombreArchivo": f"promocion-{numero}.pdf",
                 "hashSha1": "3a9a09bbb22a6da576b2868c4b861cae6b096050",
                 "hashSha256": "df3d983d24a5002e7dcbff1629e25f45bb3def406682642643efc4c1c8950a77",
                 "tipoDocumento": random.randint(1, 3),
@@ -76,7 +75,7 @@ class TestsEnviarPromocion(unittest.TestCase):
             "folioOrigenPromocion": folio_origen_promocion,
             "promoventes": promoventes,
             "fojas": random.randint(2, 9),
-            "fechaOrigen": datetime.now(),
+            "fechaOrigen": datetime.now().isoformat(),
             "observaciones": lorem.sentence(),
             "archivos": archivos,
         }
@@ -100,16 +99,48 @@ class TestsEnviarPromocion(unittest.TestCase):
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
 
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
+
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)
         data = contenido["data"]
 
         # Validar el contenido de data
         self.assertEqual("folioOrigenPromocion" in data, True)
+        self.assertEqual("folioSeguimiento" in data, True)
         self.assertEqual("fechaHora" in data, True)
 
         # Validar que nos regrese el mismo folio_origen_promocion
         self.assertEqual(data["folioOrigenPromocion"], folio_origen_promocion)
+
+        # Cargar la sesión de SQLite para conservar los datos para las pruebas siguientes
+        session = get_database_session()
+
+        # Insertar la promoción en SQLite
+        exh_exhorto_promocion = ExhExhortoPromocion(
+            exh_exhorto=exh_exhorto,
+            exh_exhorto_id=exh_exhorto.id,
+            folio_origen_promocion=folio_origen_promocion,
+            folio_seguimiento=data["folioSeguimiento"],
+        )
+        session.add(exh_exhorto_promocion)
+        session.commit()
+
+        # Insertar los archivos de la promoción en SQLite
+        for archivo in archivos:
+            exh_exhorto_promocion_archivo = ExhExhortoPromocionArchivo(
+                exh_exhorto_promocion=exh_exhorto_promocion,
+                exh_exhorto_promocion_id=exh_exhorto_promocion.id,
+                nombre_archivo=archivo["nombreArchivo"],
+                hash_sha1=archivo["hashSha1"],
+                hash_sha256=archivo["hashSha256"],
+                tipo_documento=archivo["tipoDocumento"],
+            )
+            session.add(exh_exhorto_promocion_archivo)
+            session.commit()
 
 
 if __name__ == "__main__":

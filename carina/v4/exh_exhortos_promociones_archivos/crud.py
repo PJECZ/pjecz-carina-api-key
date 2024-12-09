@@ -31,7 +31,9 @@ def get_exh_exhorto_promocion_archivo(database: Session, exh_exhorto_promocion_a
 
 
 def update_exh_exhorto_promocion_archivo(
-    database: Session, exh_exhorto_promocion_archivo: ExhExhortoPromocionArchivo, **kwargs
+    database: Session,
+    exh_exhorto_promocion_archivo: ExhExhortoPromocionArchivo,
+    **kwargs,
 ) -> ExhExhortoPromocionArchivo:
     """Actualizar un archivo de una promoción de un exhorto"""
     for key, value in kwargs.items():

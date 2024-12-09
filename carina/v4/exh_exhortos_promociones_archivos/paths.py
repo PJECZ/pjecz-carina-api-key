@@ -154,7 +154,7 @@ async def recibir_promocion_archivo_request(
     # Cambiar el estado del archivo a RECIBIDO
     exh_exhorto_promocion_archivo = update_exh_exhorto_promocion_archivo(
         database=database,
-        exh_exhorto_promocion_archivo_id=exh_exhorto_promocion_archivo.id,
+        exh_exhorto_promocion_archivo=exh_exhorto_promocion_archivo,
         estado="RECIBIDO",
         fecha_hora_recepcion=fecha_hora_recepcion,
         tamano=archivo_pdf_tamanio,
@@ -181,8 +181,8 @@ async def recibir_promocion_archivo_request(
         # Entonces ES EL ÚLTIMO ARCHIVO, se cambia el estado de la promoción a RECIBIDO
         exh_exhorto_promocion_actualizado = update_exh_exhorto_promocion(
             database=database,
-            exh_exhorto_promocion_id=exh_exhorto_promocion.id,
-            estado="RECIBIDO",
+            exh_exhorto_promocion=exh_exhorto_promocion,
+            estado="ENVIADO",
         )
         # Y se va a elaborar el acuse
         acuse = ExhExhortoPromocionArchivoDataAcuse(

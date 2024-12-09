@@ -168,7 +168,7 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     # Texto simple que contenga información extra o relevante sobre el exhorto.
     exh_exhorto.observaciones = exh_exhorto_in.observaciones
 
-    # GUID/UUID... que sea único. Va a ser generado cuando se vaya a regresar el acuse con el ultimo archivo.
+    # GUID/UUID... que sea único. Va a ser generado cuando se vaya a regresar el acuse con el último archivo.
     exh_exhorto.folio_seguimiento = ""
 
     # Área de recepción, 1 = NO DEFINIDO
@@ -186,8 +186,10 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     # Estado es PENDIENTE
     exh_exhorto.estado = "PENDIENTE"
 
-    # Iniciar la transacción, agregar el exhorto
+    # Insertar el exhorto
     database.add(exh_exhorto)
+    database.commit()
+    database.refresh(exh_exhorto)
 
     # Insertar las partes
     for parte in exh_exhorto_in.partes:
@@ -245,6 +247,7 @@ def receive_response_exh_exhorto(database: Session, exh_exhorto_respuesta: ExhEx
     # El estado del exhorto cambia a RESPONDIDO
     exh_exhorto.estado = "RESPONDIDO"
     database.add(exh_exhorto)
+    database.commit()
 
     # Insertar los archivos
     for archivo in exh_exhorto_respuesta.archivos:

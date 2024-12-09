@@ -48,6 +48,8 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
         self.assertEqual("data" in contenido, True)
 
         # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
         self.assertEqual(contenido["success"], True)
 
         # Validar el data
@@ -112,6 +114,8 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
                 self.assertEqual("data" in contenido, True)
 
                 # Validar que se haya tenido éxito
+                if contenido["success"] is False:
+                    print(f"Errors: {str(contenido['errors'])}")
                 self.assertEqual(contenido["success"], True)
 
                 # Validar el data

@@ -42,7 +42,7 @@ class TestsEnviarActualizacion(unittest.TestCase):
             "exhortoId": exh_exhorto.exhorto_origen_id,
             "actualizacionOrigenId": actualizacion_origen_id,
             "tipoActualizacion": random.choice(["AreaTurnado", "NumeroExhorto"]),
-            "fechaHora": datetime.now(),
+            "fechaHora": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "descripcion": lorem.sentence(),
         }
 
@@ -64,6 +64,11 @@ class TestsEnviarActualizacion(unittest.TestCase):
         self.assertEqual("message" in contenido, True)
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
+
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
 
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)

@@ -12,7 +12,7 @@ from carina.core.permisos.models import Permiso
 from carina.v4.exh_exhortos.crud import get_exh_exhorto_by_exhorto_origen_id, update_exh_exhorto
 from carina.v4.exh_exhortos_archivos.crud import get_exh_exhortos_archivos, update_exh_exhorto_archivo
 from carina.v4.exh_exhortos_archivos.schemas import (
-    ExhExhortoArchivoFileDataAcuseOut,
+    ExhExhortoArchivoFileDataAcuse,
     ExhExhortoArchivoFileDataArchivo,
     ExhExhortoArchivoOut,
     ExhExhortoArchivoRespuestaDataAcuse,
@@ -323,7 +323,7 @@ async def recibir_archivo_request(
             folio_seguimiento=generar_identificador(),
         )
         # Y se va a elaborar el acuse
-        acuse = ExhExhortoArchivoFileDataAcuseOut(
+        acuse = ExhExhortoArchivoFileDataAcuse(
             exhortoOrigenId=exh_exhorto_actualizado.exhorto_origen_id,
             folioSeguimiento=exh_exhorto_actualizado.folio_seguimiento,
             fechaHoraRecepcion=exh_exhorto_actualizado.respuesta_fecha_hora_recepcion,
@@ -334,7 +334,7 @@ async def recibir_archivo_request(
         )
     else:
         # Aún faltan archivos, entonces el acuse no lleva contenido
-        acuse = ExhExhortoArchivoFileDataAcuseOut(
+        acuse = ExhExhortoArchivoFileDataAcuse(
             exhortoOrigenId=exh_exhorto.exhorto_origen_id,
             folioSeguimiento="",
             fechaHoraRecepcion=None,

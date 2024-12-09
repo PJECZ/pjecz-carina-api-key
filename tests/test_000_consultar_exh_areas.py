@@ -33,6 +33,11 @@ class TestsConsultarExhAreas(unittest.TestCase):
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
 
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
+
         # Validar que se listen las exh_areas
         self.assertEqual(type(contenido["data"]), list)
         for item in contenido["data"]:
@@ -59,6 +64,11 @@ class TestsConsultarExhAreas(unittest.TestCase):
         self.assertEqual("message" in contenido, True)
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
+
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
 
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)
@@ -91,6 +101,11 @@ class TestsConsultarExhAreas(unittest.TestCase):
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
 
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
+
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)
         data = contenido["data"]
@@ -122,6 +137,11 @@ class TestsConsultarExhAreas(unittest.TestCase):
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
 
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
+
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)
         data = contenido["data"]
@@ -131,3 +151,7 @@ class TestsConsultarExhAreas(unittest.TestCase):
         # Validar que sea la clave TRC-OCP y el nombre TRAMITE DE OCUPACION
         self.assertEqual(data["clave"], "TRC-OCP")
         self.assertEqual(data["nombre"], "OFICIALIA COMUN DE PARTES DE TORREON")
+
+
+if __name__ == "__main__":
+    unittest.main()

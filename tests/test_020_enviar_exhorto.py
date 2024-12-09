@@ -6,7 +6,6 @@ Se manda el esquema ExhExhortoIn.
 - POST /exh_exhortos
 
 Se recibe el esquema OneExhExhortoConfirmacionDatosExhortoRecibidoOut.
-
 """
 
 import random
@@ -156,6 +155,11 @@ class TestsEnviarExhorto(unittest.TestCase):
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
 
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
+
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)
         data = contenido["data"]
@@ -167,10 +171,10 @@ class TestsEnviarExhorto(unittest.TestCase):
         # Validar que nos regrese el mismo exhorto_origen_id
         self.assertEqual(data["exhortoOrigenId"], exhorto_origen_id)
 
-        # Cargar la sesión de la base de datos para conservar los datos para las pruebas siguientes
+        # Cargar la sesión de SQLite para conservar los datos para las pruebas siguientes
         session = get_database_session()
 
-        # Insertar el registro del exhorto en la base de datos SQLite
+        # Insertar el exhorto en SQLite
         exh_exhorto = ExhExhorto(
             exhorto_origen_id=exhorto_origen_id,
             folio_seguimiento=data["exhortoOrigenId"],
@@ -179,7 +183,7 @@ class TestsEnviarExhorto(unittest.TestCase):
         session.add(exh_exhorto)
         session.commit()
 
-        # Insertar los registros de los archivos en la base de datos SQLite
+        # Insertar los archivos del exhorto en SQLite
         for archivo in archivos:
             exh_exhorto_archivo = ExhExhortoArchivo(
                 exh_exhorto=exh_exhorto,

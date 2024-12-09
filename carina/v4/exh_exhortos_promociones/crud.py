@@ -59,9 +59,9 @@ def get_exh_exhorto_promocion_by_folio_origen_promocion(
     exh_exhorto_promocion = (
         database.query(ExhExhortoPromocion)
         .join(ExhExhorto)
-        .filter_by(ExhExhorto.folio_seguimiento == folio_seguimiento)
-        .filter_by(folio_origen_promocion=folio_origen_promocion)
-        .filter_by(estatus="A")
+        .filter(ExhExhorto.folio_seguimiento == folio_seguimiento)
+        .filter(ExhExhortoPromocion.folio_origen_promocion == folio_origen_promocion)
+        .filter(ExhExhortoPromocion.estatus == "A")
         .first()
     )
 
@@ -91,8 +91,10 @@ def create_exh_exhorto_promocion(database: Session, exh_exhorto_promocion_in: Ex
     exh_exhorto_promocion.remitente = "EXTERNO"
     exh_exhorto_promocion.estado = "ENVIADO"
 
-    # Insertar
+    # Insertar la promoción
     database.add(exh_exhorto_promocion)
+    database.commit()
+    database.refresh(exh_exhorto_promocion)
 
     # Insertar los promoventes
     for promovente in exh_exhorto_promocion_in.promoventes:

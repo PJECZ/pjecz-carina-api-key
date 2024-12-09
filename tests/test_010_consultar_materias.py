@@ -39,6 +39,11 @@ class TestsConsultarMaterias(unittest.TestCase):
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
 
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
+
         # Validar que se listen las materias
         self.assertEqual(type(contenido["data"]), list)
         for item in contenido["data"]:
@@ -66,6 +71,11 @@ class TestsConsultarMaterias(unittest.TestCase):
         self.assertEqual("message" in contenido, True)
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
+
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
 
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)
