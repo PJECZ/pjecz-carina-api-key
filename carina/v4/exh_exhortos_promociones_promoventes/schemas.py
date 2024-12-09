@@ -7,8 +7,8 @@ from pydantic import BaseModel, ConfigDict
 from lib.schemas_base import OneBaseOut
 
 
-class ExhExhortoPromocionPromoventeIn(BaseModel):
-    """Esquema para recibir promoventes de promociones"""
+class ExhExhortoPromocionPromovente(BaseModel):
+    """Esquema para estructurar el listado de promoventes de una promoción"""
 
     nombre: str | None = None
     apellidoPaterno: str | None = None
@@ -19,14 +19,13 @@ class ExhExhortoPromocionPromoventeIn(BaseModel):
     tipoParteNombre: str | None = None
 
 
-class ExhExhortoPromocionPromoventeOut(ExhExhortoPromocionPromoventeIn):
-    """Esquema para entregar promoventes de promociones"""
+class ExhExhortoPromocionPromoventeOut(ExhExhortoPromocionPromovente):
+    """Esquema para entregar promoventes de una promoción"""
 
-    id: int | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
 class OneExhExhortoPromocionPromoventeOut(OneBaseOut):
-    """Esquema para entregar un promovente de promoción"""
+    """Esquema para entregar un promovente de una promoción"""
 
     data: ExhExhortoPromocionPromoventeOut | None = None

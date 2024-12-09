@@ -16,7 +16,7 @@ from carina.core.exh_exhortos_partes.models import ExhExhortoParte
 from carina.core.exh_exhortos_videos.models import ExhExhortoVideo
 from carina.core.exh_externos.models import ExhExterno
 from carina.core.municipios.models import Municipio
-from carina.v4.exh_exhortos.schemas import ExhExhortoIn, ExhExhortoRecibirRespuestaIn
+from carina.v4.exh_exhortos.schemas import ExhExhortoIn, ExhExhortoRespuestaIn
 from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
 from lib.safe_string import safe_clave, safe_string
 
@@ -41,27 +41,39 @@ def get_exh_exhorto(database: Session, exh_exhorto_id: int) -> ExhExhorto:
 
 def get_exh_exhorto_by_exhorto_origen_id(database: Session, exhorto_origen_id: str) -> ExhExhorto:
     """Consultar un exhorto por su exhorto_origen_id"""
+
+    # Normalizar a 48 caracteres permitidos como máximo
     exhorto_origen_id = safe_string(exhorto_origen_id, max_len=48, do_unidecode=True, to_uppercase=False)
     if exhorto_origen_id == "":
         raise MyNotValidParamError("No es un identificador válido")
-    exh_exhorto = database.query(ExhExhorto).filter_by(exhorto_origen_id=exhorto_origen_id).first()
+
+    # Consultar
+    exh_exhorto = database.query(ExhExhorto).filter_by(exhorto_origen_id=exhorto_origen_id).filter_by(estatus="A").first()
+
+    # Verificar que exista
     if exh_exhorto is None:
         raise MyNotExistsError("No existe ese exhorto")
-    if exh_exhorto.estatus != "A":
-        raise MyIsDeletedError("No es activo ese exhorto, está eliminado")
+
+    # Entregar
     return exh_exhorto
 
 
 def get_exh_exhorto_by_folio_seguimiento(database: Session, folio_seguimiento: str) -> ExhExhorto:
     """Consultar un exhorto por su folio de seguimiento"""
+
+    # Normalizar a 48 caracteres permitidos como máximo
     folio_seguimiento = safe_string(folio_seguimiento, max_len=48, do_unidecode=True, to_uppercase=False)
     if folio_seguimiento == "":
-        raise MyNotValidParamError("No es un identificador válido")
-    exh_exhorto = database.query(ExhExhorto).filter_by(folio_seguimiento=folio_seguimiento).first()
+        raise MyNotValidParamError("No es un folio de seguimiento válido")
+
+    # Consultar
+    exh_exhorto = database.query(ExhExhorto).filter_by(folio_seguimiento=folio_seguimiento).filter_by(estatus="A").first()
+
+    # Verificar que exista
     if exh_exhorto is None:
         raise MyNotExistsError("No existe ese exhorto")
-    if exh_exhorto.estatus != "A":
-        raise MyIsDeletedError("No es activo ese exhorto, está eliminado")
+
+    # Entregar
     return exh_exhorto
 
 
@@ -156,7 +168,7 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     # Texto simple que contenga información extra o relevante sobre el exhorto.
     exh_exhorto.observaciones = exh_exhorto_in.observaciones
 
-    # GUID/UUID... que sea único. Va a ser generado cuando se vaya a regresar el acuse con el ultimo archivo.
+    # GUID/UUID... que sea único. Va a ser generado cuando se vaya a regresar el acuse con el último archivo.
     exh_exhorto.folio_seguimiento = ""
 
     # Área de recepción, 1 = NO DEFINIDO
@@ -174,11 +186,10 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     # Estado es PENDIENTE
     exh_exhorto.estado = "PENDIENTE"
 
-    # Estatus es A
-    exh_exhorto.estatus = "A"
-
-    # Iniciar la transaccion, agregar el exhorto
+    # Insertar el exhorto
     database.add(exh_exhorto)
+    database.commit()
+    database.refresh(exh_exhorto)
 
     # Insertar las partes
     for parte in exh_exhorto_in.partes:
@@ -187,7 +198,7 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
         exh_exhorto_parte.nombre = safe_string(parte.nombre, save_enie=True)
         exh_exhorto_parte.apellido_paterno = safe_string(parte.apellidoPaterno, save_enie=True)
         exh_exhorto_parte.apellido_materno = safe_string(parte.apellidoMaterno, save_enie=True)
-        exh_exhorto_parte.genero = parte.genero
+        exh_exhorto_parte.genero = safe_string(parte.genero)
         exh_exhorto_parte.es_persona_moral = parte.esPersonaMoral
         exh_exhorto_parte.tipo_parte = parte.tipoParte
         exh_exhorto_parte.tipo_parte_nombre = safe_string(parte.tipoParteNombre, save_enie=True)
@@ -214,7 +225,7 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     return exh_exhorto
 
 
-def receive_response_exh_exhorto(database: Session, exh_exhorto_respuesta: ExhExhortoRecibirRespuestaIn) -> ExhExhorto:
+def receive_response_exh_exhorto(database: Session, exh_exhorto_respuesta: ExhExhortoRespuestaIn) -> ExhExhorto:
     """Recibir la respuesta de un exhorto"""
 
     # Tomar de la respuesta el exhorto_origen_id
@@ -236,6 +247,7 @@ def receive_response_exh_exhorto(database: Session, exh_exhorto_respuesta: ExhEx
     # El estado del exhorto cambia a RESPONDIDO
     exh_exhorto.estado = "RESPONDIDO"
     database.add(exh_exhorto)
+    database.commit()
 
     # Insertar los archivos
     for archivo in exh_exhorto_respuesta.archivos:
@@ -269,7 +281,7 @@ def receive_response_exh_exhorto(database: Session, exh_exhorto_respuesta: ExhEx
     return exh_exhorto
 
 
-def update_set_exhorto(database: Session, exh_exhorto: ExhExhorto, **kwargs) -> ExhExhorto:
+def update_exh_exhorto(database: Session, exh_exhorto: ExhExhorto, **kwargs) -> ExhExhorto:
     """Actualizar un exhorto"""
     for key, value in kwargs.items():
         setattr(exh_exhorto, key, value)

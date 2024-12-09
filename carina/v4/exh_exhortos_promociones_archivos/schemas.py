@@ -2,13 +2,16 @@
 Exh Exhortos Promociones Archivos v4, esquemas de pydantic
 """
 
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict
 
+from carina.v4.exh_exhortos_archivos.schemas import ExhExhortoArchivo
 from lib.schemas_base import OneBaseOut
 
 
-class ExhExhortoPromocionArchivoIn(BaseModel):
-    """Esquema para recibir archivos de promociones"""
+class ExhExhortoPromocionArchivo(BaseModel):
+    """Esquema para estructurar el listado de archivos de una promoción"""
 
     nombreArchivo: str | None = None
     hashSha1: str | None = None
@@ -16,14 +19,29 @@ class ExhExhortoPromocionArchivoIn(BaseModel):
     tipoDocumento: int | None = None
 
 
-class ExhExhortoPromocionArchivoOut(ExhExhortoPromocionArchivoIn):
-    """Esquema para entregar archivos de promociones"""
+class ExhExhortoPromocionArchivoFileIn(BaseModel):
+    """Esquema para recibir archivos Content-Disposition, form-data, file"""
 
-    id: int | None = None
-    model_config = ConfigDict(from_attributes=True)
+    folioSeguimiento: str | None = None
+    folioOrigenPromocion: str | None = None
+
+
+class ExhExhortoPromocionArchivoDataAcuse(BaseModel):
+    """Esquema con la estructura para la data con el acuse"""
+
+    folioOrigenPromocion: str | None = None
+    folioPromocionRecibida: str | None = None
+    fechaHoraRecepcion: datetime | None = None
+
+
+class ExhExhortoPromocionArchivoOut(BaseModel):
+    """Esquema para entregar la confirmación de la recepción de un archivo de promoción"""
+
+    archivo: ExhExhortoArchivo | None = None
+    acuse: ExhExhortoPromocionArchivoDataAcuse | None = None
 
 
 class OneExhExhortoPromocionArchivoOut(OneBaseOut):
-    """Esquema para entregar un archivo de promoción"""
+    """Esquema para responder por un archivo recibido"""
 
     data: ExhExhortoPromocionArchivoOut | None = None

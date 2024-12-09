@@ -24,5 +24,7 @@ class ModuloOut(ModuloListOut):
     en_navegacion: bool | None = None
 
 
-class OneModuloOut(ModuloOut, OneBaseOut):
+class OneModuloOut(OneBaseOut):
     """Esquema para entregar un modulo"""
+
+    data: ModuloOut | None = None

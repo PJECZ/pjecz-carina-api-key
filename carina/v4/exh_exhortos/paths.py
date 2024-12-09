@@ -2,7 +2,6 @@
 Exh Exhortos v4, rutas (paths)
 """
 
-from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -10,17 +9,17 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from carina.core.permisos.models import Permiso
 from carina.v4.exh_exhortos.crud import create_exh_exhorto, get_exh_exhorto_by_folio_seguimiento, receive_response_exh_exhorto
 from carina.v4.exh_exhortos.schemas import (
-    ExhExhortoConfirmacionDatosExhortoRecibidoOut,
+    ExhExhortoConsultaOut,
     ExhExhortoIn,
     ExhExhortoOut,
-    ExhExhortoRecibirRespuestaIn,
-    ExhExhortoRecibirRespuestaOut,
-    OneExhExhortoConfirmacionDatosExhortoRecibidoOut,
+    ExhExhortoRespuestaIn,
+    ExhExhortoRespuestaOut,
+    OneExhExhortoConsultaOut,
     OneExhExhortoOut,
-    OneExhExhortoRecibirRespuestaOut,
+    OneExhExhortoRespuestaOut,
 )
-from carina.v4.exh_exhortos_archivos.schemas import ExhExhortoArchivoIn
-from carina.v4.exh_exhortos_partes.schemas import ExhExhortoParteIn
+from carina.v4.exh_exhortos_archivos.schemas import ExhExhortoArchivo
+from carina.v4.exh_exhortos_partes.schemas import ExhExhortoParte
 from carina.v4.municipios.crud import get_municipio
 from carina.v4.usuarios.authentications import UsuarioInDB, get_current_active_user
 from lib.database import Session, get_db
@@ -29,11 +28,11 @@ from lib.exceptions import MyAnyError
 exh_exhortos = APIRouter(prefix="/v4/exh_exhortos", tags=["exh exhortos"])
 
 
-@exh_exhortos.post("/responder", response_model=OneExhExhortoRecibirRespuestaOut)
+@exh_exhortos.post("/responder", response_model=OneExhExhortoRespuestaOut)
 async def recibir_exhorto_respuesta_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
-    exh_exhorto_recibir_respuesta: ExhExhortoRecibirRespuestaIn,
+    exh_exhorto_recibir_respuesta: ExhExhortoRespuestaIn,
 ):
     """Recepción de respuesta de un exhorto"""
     if current_user.permissions.get("EXH EXHORTOS", 0) < Permiso.CREAR:
@@ -41,20 +40,20 @@ async def recibir_exhorto_respuesta_request(
     try:
         exh_exhorto = receive_response_exh_exhorto(database, exh_exhorto_recibir_respuesta)
     except MyAnyError as error:
-        return OneExhExhortoRecibirRespuestaOut(
+        return OneExhExhortoRespuestaOut(
             success=False,
             message="Error al recibir un exhorto",
             errors=[str(error)],
         )
-    data = ExhExhortoRecibirRespuestaOut(
+    data = ExhExhortoRespuestaOut(
         exhortoId=exh_exhorto.exhorto_origen_id,
         respuestaOrigenId=exh_exhorto.respuesta_origen_id,
         fechaHora=exh_exhorto.respuesta_fecha_hora_recepcion,
     )
-    return OneExhExhortoRecibirRespuestaOut(success=True, data=data)
+    return OneExhExhortoRespuestaOut(success=True, data=data)
 
 
-@exh_exhortos.get("/{folio_seguimiento}", response_model=OneExhExhortoOut)
+@exh_exhortos.get("/{folio_seguimiento}", response_model=OneExhExhortoConsultaOut)
 async def consultar_exhorto_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
@@ -68,13 +67,13 @@ async def consultar_exhorto_request(
     try:
         exh_exhorto = get_exh_exhorto_by_folio_seguimiento(database, folio_seguimiento)
     except MyAnyError as error:
-        return OneExhExhortoOut(success=False, errors=[str(error)])
+        return OneExhExhortoConsultaOut(success=False, errors=[str(error)])
 
     # Copiar las partes del exhorto a instancias de ExhExhortoParteIn
     partes = []
     for exh_exhorto_parte in exh_exhorto.exh_exhortos_partes:
         partes.append(
-            ExhExhortoParteIn(
+            ExhExhortoParte(
                 nombre=exh_exhorto_parte.nombre,
                 apellidoPaterno=exh_exhorto_parte.apellido_paterno,
                 apellidoMaterno=exh_exhorto_parte.apellido_materno,
@@ -89,7 +88,7 @@ async def consultar_exhorto_request(
     archivos = []
     for exh_exhorto_archivo in exh_exhorto.exh_exhortos_archivos:
         archivos.append(
-            ExhExhortoArchivoIn(
+            ExhExhortoArchivo(
                 nombreArchivo=exh_exhorto_archivo.nombre_archivo,
                 hashSha1=exh_exhorto_archivo.hash_sha1,
                 hashSha256=exh_exhorto_archivo.hash_sha256,
@@ -104,7 +103,7 @@ async def consultar_exhorto_request(
     estado_destino = municipio_destino.estado
 
     # Definir datos del exhorto a entregar
-    ext_extorto_data = ExhExhortoOut(
+    ext_extorto_data = ExhExhortoConsultaOut(
         exhortoOrigenId=str(exh_exhorto.exhorto_origen_id),
         folioSeguimiento=str(exh_exhorto.folio_seguimiento),
         estadoDestinoId=estado_destino.clave,
@@ -141,10 +140,10 @@ async def consultar_exhorto_request(
     )
 
     # Entregar
-    return OneExhExhortoOut(success=True, data=ext_extorto_data)
+    return OneExhExhortoConsultaOut(success=True, data=ext_extorto_data)
 
 
-@exh_exhortos.post("", response_model=OneExhExhortoConfirmacionDatosExhortoRecibidoOut)
+@exh_exhortos.post("", response_model=OneExhExhortoOut)
 async def recibir_exhorto_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
@@ -156,13 +155,13 @@ async def recibir_exhorto_request(
     try:
         exh_exhorto = create_exh_exhorto(database, exh_exhorto)
     except MyAnyError as error:
-        return OneExhExhortoConfirmacionDatosExhortoRecibidoOut(
+        return OneExhExhortoOut(
             success=False,
             message="Error al recibir un exhorto",
             errors=[str(error)],
         )
-    data = ExhExhortoConfirmacionDatosExhortoRecibidoOut(
+    data = ExhExhortoOut(
         exhortoOrigenId=str(exh_exhorto.exhorto_origen_id),
         fechaHora=exh_exhorto.creado,
     )
-    return OneExhExhortoConfirmacionDatosExhortoRecibidoOut(success=True, data=data)
+    return OneExhExhortoOut(success=True, data=data)

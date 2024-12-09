@@ -20,5 +20,7 @@ class PermisoOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class OnePermisoOut(PermisoOut, OneBaseOut):
+class OnePermisoOut(OneBaseOut):
     """Esquema para entregar un permiso"""
+
+    data: PermisoOut | None = None

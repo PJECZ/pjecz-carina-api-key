@@ -1,14 +1,11 @@
 """
-Unit test - 03 Enviar Exhortos Archivos
-
-Se envían los documentos que conforman el exhorto.
+Unit test - Enviar los Archivos del Exhorto
 
 Se manda exhortoOrigenId y el archivo
 
 - POST /exh_exhortos_archivos/upload
 
 Se recibe el esquema OneExhExhortoArchivoFileOut.
-
 """
 
 import time
@@ -21,10 +18,10 @@ from tests.database import ExhExhorto, get_database_session
 from tests.load_env import config
 
 
-class Test03EnviarExhortosArchivos(unittest.TestCase):
-    """Test 03 Enviar Archivos"""
+class TestsEnviarExhortosArchivos(unittest.TestCase):
+    """Tests Enviar Exhorto Archivos"""
 
-    def test_03_post_exh_exhortos_archivos(self):
+    def test_post_exhorto_archivos(self):
         """Probar el POST para enviar los archivos de un exhorto"""
 
         # Cargar la sesión de la base de datos para recuperar los datos de la prueba anterior
@@ -69,24 +66,26 @@ class Test03EnviarExhortosArchivos(unittest.TestCase):
                 self.assertEqual("errors" in contenido, True)
                 self.assertEqual("data" in contenido, True)
 
+                # Validar que se haya tenido éxito
+                if contenido["success"] is False:
+                    print(f"Errors: {str(contenido['errors'])}")
+                self.assertEqual(contenido["success"], True)
+
                 # Validar el data
                 self.assertEqual(type(contenido["data"]), dict)
                 data = contenido["data"]
-
-                # Validar que dentro de data venga archivo
                 self.assertEqual("archivo" in data, True)
                 data_archivo = data["archivo"]
-                self.assertEqual(type(data_archivo), dict)
-
-                # Validar que dentro de archivo venga nombreArchivo y tamaño
-                self.assertEqual("nombreArchivo" in data_archivo, True)
-                self.assertEqual("tamaño" in data_archivo, True)
-
-                # Validar que dentro de data venga acuse
                 self.assertEqual("acuse" in data, True)
                 data_acuse = data["acuse"]
 
+                # Validar que dentro de archivo venga nombreArchivo y tamaño
+                self.assertEqual(type(data_archivo), dict)
+                self.assertEqual("nombreArchivo" in data_archivo, True)
+                self.assertEqual("tamaño" in data_archivo, True)
+
         # Validar el último acuse
+        self.assertEqual(type(data_acuse), dict)
         self.assertEqual("exhortoOrigenId" in data_acuse, True)
         self.assertEqual("folioSeguimiento" in data_acuse, True)
         self.assertEqual("fechaHoraRecepcion" in data_acuse, True)  # acuse_fecha_hora_recepcion

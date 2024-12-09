@@ -71,8 +71,8 @@ class CustomList(AbstractPage[T], Generic[T]):
 
     success: bool
     message: str
-    errors: list[str] = []
-    data: Sequence[T] = []
+    errors: list[str]
+    data: Sequence[T]
 
     __params_type__ = CustomListParams
 

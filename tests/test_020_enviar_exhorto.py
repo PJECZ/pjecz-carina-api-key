@@ -1,14 +1,11 @@
 """
-Unit test - 02 Enviar Exhorto
-
-Se recibe la materia, juicio, partes, juzgado origen, municipio destino, etc.
+Unit test - Enviar Exhorto
 
 Se manda el esquema ExhExhortoIn.
 
 - POST /exh_exhortos
 
 Se recibe el esquema OneExhExhortoConfirmacionDatosExhortoRecibidoOut.
-
 """
 
 import random
@@ -22,10 +19,10 @@ from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
 from tests.load_env import config
 
 
-class Test02EnviarExhorto(unittest.TestCase):
-    """Test 02 Enviar Exhorto"""
+class TestsEnviarExhorto(unittest.TestCase):
+    """Tests Enviar Exhorto"""
 
-    def test_post_exh_exhorto(self):
+    def test_post_exhorto(self):
         """Probar el POST para enviar un exhorto"""
 
         # Generar el exhorto_origen_id como el identificador del exhorto del PJ exhortante
@@ -158,6 +155,11 @@ class Test02EnviarExhorto(unittest.TestCase):
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
 
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
+
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)
         data = contenido["data"]
@@ -169,10 +171,10 @@ class Test02EnviarExhorto(unittest.TestCase):
         # Validar que nos regrese el mismo exhorto_origen_id
         self.assertEqual(data["exhortoOrigenId"], exhorto_origen_id)
 
-        # Cargar la sesión de la base de datos para conservar los datos para las pruebas siguientes
+        # Cargar la sesión de SQLite para conservar los datos para las pruebas siguientes
         session = get_database_session()
 
-        # Insertar el registro del exhorto en la base de datos SQLite
+        # Insertar el exhorto en SQLite
         exh_exhorto = ExhExhorto(
             exhorto_origen_id=exhorto_origen_id,
             folio_seguimiento=data["exhortoOrigenId"],
@@ -181,7 +183,7 @@ class Test02EnviarExhorto(unittest.TestCase):
         session.add(exh_exhorto)
         session.commit()
 
-        # Insertar los registros de los archivos en la base de datos SQLite
+        # Insertar los archivos del exhorto en SQLite
         for archivo in archivos:
             exh_exhorto_archivo = ExhExhortoArchivo(
                 exh_exhorto=exh_exhorto,

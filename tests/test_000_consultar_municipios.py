@@ -1,13 +1,5 @@
 """
-Unit test - 01 Consultar Materias
-
-Listado de materias del PJ exhortado.
-
-- GET /materias
-- GET /materias/{MATERIA_CLAVE}
-
-Se recibe el esquema OneMateriaOut.
-
+Unit test - Consultar Municipios
 """
 
 import unittest
@@ -17,16 +9,16 @@ import requests
 from tests.load_env import config
 
 
-class Test01ConsultarMaterias(unittest.TestCase):
-    """Tests for 01 consultar materias"""
+class TestsConsultarMunicipios(unittest.TestCase):
+    """Tests Consultar Municipios"""
 
-    def test_get_materias(self):
-        """GET method for materias"""
+    def test_get_municipios_estado_clave_05(self):
+        """GET method for municipios for estado with clave 05"""
 
-        # Consultar las materias
+        # Consultar los municipios
         try:
             response = requests.get(
-                url=f"{config['api_base_url']}/materias",
+                url=f"{config['api_base_url']}/municipios/05",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )
@@ -41,20 +33,24 @@ class Test01ConsultarMaterias(unittest.TestCase):
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
 
-        # Validar que se listen las materias
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
+
+        # Validar que se listen los municipios
         self.assertEqual(type(contenido["data"]), list)
         for item in contenido["data"]:
             self.assertEqual("clave" in item, True)
             self.assertEqual("nombre" in item, True)
-            self.assertEqual("descripcion" in item, True)
 
-    def test_get_materia_clave_civ(self):
-        """GET method for materia by clave CIV"""
+    def test_get_estado_clave_05_municipio_clave_30(self):
+        """GET method for estado with clave 05 and municipio with clave 30"""
 
-        # Consultar la materia civil
+        # Consultar el municipio
         try:
             response = requests.get(
-                url=f"{config['api_base_url']}/materias/CIV",
+                url=f"{config['api_base_url']}/municipios/05/30",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )
@@ -68,17 +64,23 @@ class Test01ConsultarMaterias(unittest.TestCase):
         self.assertEqual("message" in contenido, True)
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
+
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
 
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)
         data = contenido["data"]
         self.assertEqual("clave" in data, True)
         self.assertEqual("nombre" in data, True)
-        self.assertEqual("descripcion" in data, True)
 
-        # Validar la materia civil
-        self.assertEqual(data["clave"], "CIV")
-        self.assertEqual(data["nombre"], "CIVIL")
+        # Validar que el estado sea Coahuila de Zaragoza y el municipio sea Saltillo
+        self.assertEqual(data["clave"], "030")
+        self.assertEqual(data["nombre"], "SALTILLO")
+        self.assertEqual(data["estado_clave"], "05")
+        self.assertEqual(data["estado_nombre"], "COAHUILA DE ZARAGOZA")
 
 
 if __name__ == "__main__":

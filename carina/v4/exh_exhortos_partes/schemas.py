@@ -7,8 +7,8 @@ from pydantic import BaseModel, ConfigDict
 from lib.schemas_base import OneBaseOut
 
 
-class ExhExhortoParteIn(BaseModel):
-    """Esquema para recibir partes"""
+class ExhExhortoParte(BaseModel):
+    """Esquema para estructurar el listado de partes"""
 
     nombre: str | None = None
     apellidoPaterno: str | None = None
@@ -19,14 +19,13 @@ class ExhExhortoParteIn(BaseModel):
     tipoParteNombre: str | None = None
 
 
-class ExhExhortoParteOut(ExhExhortoParteIn):
+class ExhExhortoParteOut(ExhExhortoParte):
     """Esquema para entregar partes"""
 
-    id: int | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
 class OneExhExhortoParteOut(OneBaseOut):
-    """Esquema para entregar un parte"""
+    """Esquema para entregar una parte"""
 
     data: ExhExhortoParteOut | None = None

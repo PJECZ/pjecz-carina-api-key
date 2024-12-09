@@ -1,5 +1,5 @@
 """
-Unit test - 051 Enviar la Respuesta al Exhorto
+Unit test - Enviar Respuesta
 
 Se envían los datos que conforman la respuesta del exhorto.
 
@@ -22,10 +22,10 @@ from lib.pwgen import generar_identificador
 from tests.load_env import config
 
 
-class Test051EnviarRespuestaAlExhorto(unittest.TestCase):
-    """Test 05a Enviar Respuesta al Exhorto"""
+class TestsEnviarRespuesta(unittest.TestCase):
+    """Tests Enviar Respuesta"""
 
-    def test_05a_post_exh_exhorto_respuesta(self):
+    def test_post_respuesta(self):
         """Probar el POST para enviar una respuesta al exhorto"""
 
         # Validar que se haya configurado la variable de entorno FOLIO_SEGUIMIENTO
@@ -51,6 +51,8 @@ class Test051EnviarRespuestaAlExhorto(unittest.TestCase):
         self.assertEqual("data" in contenido, True)
 
         # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
         self.assertEqual(contenido["success"], True)
 
         # Validar el data
@@ -156,6 +158,11 @@ class Test051EnviarRespuestaAlExhorto(unittest.TestCase):
         self.assertEqual("message" in contenido, True)
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
+
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
 
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)

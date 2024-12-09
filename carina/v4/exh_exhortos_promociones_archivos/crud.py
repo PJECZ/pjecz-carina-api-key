@@ -11,15 +11,13 @@ from carina.v4.exh_exhortos_promociones.crud import get_exh_exhorto_promocion
 from lib.exceptions import MyIsDeletedError, MyNotExistsError
 
 
-def get_exh_exhortos_promociones_archivos(database: Session, exh_exhorto_promocion_id: int) -> Any:
+def get_exh_exhortos_promociones_archivos(database: Session, exh_exhorto_promocion_id: int, estado: str = None) -> Any:
     """Consultar los archivos de una promoción de un exhorto"""
     exh_exhorto_promocion = get_exh_exhorto_promocion(database, exh_exhorto_promocion_id)
-    return (
-        database.query(ExhExhortoPromocionArchivo)
-        .filter_by(exh_exhorto_promocion_id=exh_exhorto_promocion.id)
-        .filter_by(estatus="A")
-        .order_by(ExhExhortoPromocionArchivo.id)
-    )
+    consulta = database.query(ExhExhortoPromocionArchivo).filter_by(exh_exhorto_promocion_id=exh_exhorto_promocion.id)
+    if estado is not None:
+        consulta = consulta.filter_by(estado=estado)
+    return consulta.filter_by(estatus="A").order_by(ExhExhortoPromocionArchivo.id)
 
 
 def get_exh_exhorto_promocion_archivo(database: Session, exh_exhorto_promocion_archivo_id: int) -> ExhExhortoPromocionArchivo:
@@ -29,4 +27,18 @@ def get_exh_exhorto_promocion_archivo(database: Session, exh_exhorto_promocion_a
         raise MyNotExistsError("No existe ese archivo de promoción de exhorto")
     if exh_exhorto_promocion_archivo.estatus != "A":
         raise MyIsDeletedError("No es activo ese archivo de promoción de exhorto, está eliminado")
+    return exh_exhorto_promocion_archivo
+
+
+def update_exh_exhorto_promocion_archivo(
+    database: Session,
+    exh_exhorto_promocion_archivo: ExhExhortoPromocionArchivo,
+    **kwargs,
+) -> ExhExhortoPromocionArchivo:
+    """Actualizar un archivo de una promoción de un exhorto"""
+    for key, value in kwargs.items():
+        setattr(exh_exhorto_promocion_archivo, key, value)
+    database.add(exh_exhorto_promocion_archivo)
+    database.commit()
+    database.refresh(exh_exhorto_promocion_archivo)
     return exh_exhorto_promocion_archivo

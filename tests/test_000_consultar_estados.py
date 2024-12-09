@@ -1,5 +1,5 @@
 """
-Unit test - 00 Consultar Estados
+Unit test - Consultar Estados
 """
 
 import unittest
@@ -9,8 +9,8 @@ import requests
 from tests.load_env import config
 
 
-class Test00ConsultarEstados(unittest.TestCase):
-    """Tests for 01 consultar estados"""
+class TestsConsultarEstados(unittest.TestCase):
+    """Test Consultar Estados"""
 
     def test_get_estados(self):
         """GET method for estados"""
@@ -32,6 +32,11 @@ class Test00ConsultarEstados(unittest.TestCase):
         self.assertEqual("message" in contenido, True)
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
+
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
 
         # Validar que se listen los estados
         self.assertEqual(type(contenido["data"]), list)
@@ -59,6 +64,11 @@ class Test00ConsultarEstados(unittest.TestCase):
         self.assertEqual("message" in contenido, True)
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
+
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
 
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)
@@ -91,6 +101,11 @@ class Test00ConsultarEstados(unittest.TestCase):
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
 
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
+
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)
         data = contenido["data"]
@@ -121,6 +136,11 @@ class Test00ConsultarEstados(unittest.TestCase):
         self.assertEqual("message" in contenido, True)
         self.assertEqual("errors" in contenido, True)
         self.assertEqual("data" in contenido, True)
+
+        # Validar que se haya tenido éxito
+        if contenido["success"] is False:
+            print(f"Errors: {str(contenido['errors'])}")
+        self.assertEqual(contenido["success"], True)
 
         # Validar el data
         self.assertEqual(type(contenido["data"]), dict)

@@ -8,7 +8,7 @@ from lib.schemas_base import OneBaseOut
 
 
 class ExhExhortoVideoIn(BaseModel):
-    """Esquema para recibir videos"""
+    """Esquema para estructurar el listado de videos de una promoción"""
 
     titulo: str | None = None
     descripcion: str | None = None
@@ -17,13 +17,12 @@ class ExhExhortoVideoIn(BaseModel):
 
 
 class ExhExhortoVideoOut(ExhExhortoVideoIn):
-    """Esquema para entregar videos"""
+    """Esquema para entregar videos de una promoción"""
 
-    id: int | None = None
     model_config = ConfigDict(from_attributes=True)
 
 
 class OneExhExhortoVideoOut(OneBaseOut):
-    """Esquema para entregar un video"""
+    """Esquema para entregar un video de una promoción"""
 
     data: ExhExhortoVideoOut | None = None

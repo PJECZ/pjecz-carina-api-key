@@ -6,14 +6,14 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from carina.v4.exh_exhortos_archivos.schemas import ExhExhortoArchivoIn
-from carina.v4.exh_exhortos_partes.schemas import ExhExhortoParteIn
+from carina.v4.exh_exhortos_archivos.schemas import ExhExhortoArchivo
+from carina.v4.exh_exhortos_partes.schemas import ExhExhortoParte
 from carina.v4.exh_exhortos_videos.schemas import ExhExhortoVideoIn
 from lib.schemas_base import OneBaseOut
 
 
 class ExhExhortoIn(BaseModel):
-    """Esquema para recibir exhortos"""
+    """Esquema para recibir un exhorto"""
 
     exhortoOrigenId: str | None = None
     municipioDestinoId: int | None = None
@@ -26,17 +26,30 @@ class ExhExhortoIn(BaseModel):
     numeroOficioOrigen: str | None = None
     tipoJuicioAsuntoDelitos: str | None = None
     juezExhortante: str | None = None
-    partes: list[ExhExhortoParteIn] | None = None
+    partes: list[ExhExhortoParte] | None = None
     fojas: int | None = None
     diasResponder: int | None = None
     tipoDiligenciacionNombre: str | None = None
     fechaOrigen: datetime | None = None
     observaciones: str | None = None
-    archivos: list[ExhExhortoArchivoIn] | None = None
+    archivos: list[ExhExhortoArchivo] | None = None
 
 
-class ExhExhortoOut(ExhExhortoIn):
-    """Esquema para entregar exhortos"""
+class ExhExhortoOut(BaseModel):
+    """Esquema para confirmar la recepción de un exhorto"""
+
+    exhortoOrigenId: str | None = None
+    fechaHora: datetime | None = None
+
+
+class OneExhExhortoOut(OneBaseOut):
+    """Esquema para entregar una confirmación de la recepción de un exhorto"""
+
+    data: ExhExhortoOut | None = None
+
+
+class ExhExhortoConsultaOut(ExhExhortoIn):
+    """Esquema para consultar un exhorto"""
 
     folioSeguimiento: str | None = None
     estadoDestinoId: int | None = None
@@ -55,27 +68,14 @@ class ExhExhortoOut(ExhExhortoIn):
     respuestaOrigenId: str | None = None
 
 
-class OneExhExhortoOut(OneBaseOut):
-    """Esquema para entregar un exhorto"""
+class OneExhExhortoConsultaOut(OneBaseOut):
+    """Esquema para entregar la consulta de un exhorto"""
 
-    data: ExhExhortoOut | None = None
-
-
-class ExhExhortoConfirmacionDatosExhortoRecibidoOut(BaseModel):
-    """Esquema para confirmar la recepción de un exhorto"""
-
-    exhortoOrigenId: str | None = None
-    fechaHora: datetime | None = None
+    data: ExhExhortoConsultaOut | None = None
 
 
-class OneExhExhortoConfirmacionDatosExhortoRecibidoOut(OneBaseOut):
-    """Esquema para entregar una confirmación de la recepción de un exhorto"""
-
-    data: ExhExhortoConfirmacionDatosExhortoRecibidoOut | None = None
-
-
-class ExhExhortoRecibirRespuestaIn(BaseModel):
-    """Esquema para recibir la respuesta de un exhorto que el Juzgado envió previamente al PJ exhortante"""
+class ExhExhortoRespuestaIn(BaseModel):
+    """Esquema para recibir la respuesta"""
 
     exhortoId: str | None = None
     respuestaOrigenId: str | None = None
@@ -85,19 +85,19 @@ class ExhExhortoRecibirRespuestaIn(BaseModel):
     numeroExhorto: str | None = None
     tipoDiligenciado: int | None = None  # 0 = No Diligenciado, 1 = Parcialmente Dilgenciado, 2 = Diligenciado
     observaciones: str | None = None
-    archivos: list[ExhExhortoArchivoIn] | None = None
+    archivos: list[ExhExhortoArchivo] | None = None
     videos: list[ExhExhortoVideoIn] | None = None
 
 
-class ExhExhortoRecibirRespuestaOut(BaseModel):
-    """Respuesta de la operacion Recibir Respuesta Exhorto"""
+class ExhExhortoRespuestaOut(BaseModel):
+    """Esquema para confirmar la recepción de la respuesta"""
 
     exhortoId: str | None = None
     respuestaOrigenId: str | None = None
     fechaHora: datetime | None = None
 
 
-class OneExhExhortoRecibirRespuestaOut(OneBaseOut):
-    """Esquema para entregar la respuesta de la operacion Recibir Respuesta Exhorto"""
+class OneExhExhortoRespuestaOut(OneBaseOut):
+    """Esquema para entregar la confirmación de la recepción de la respuesta"""
 
-    data: ExhExhortoRecibirRespuestaOut | None = None
+    data: ExhExhortoRespuestaOut | None = None

@@ -294,7 +294,7 @@ def demo_02_recibir(estado_origen):
         "fojas": random.randint(1, 99),
         "diasResponder": 15,
         "tipoDiligenciacionNombre": "OFICIO",
-        "fechaOrigen": datetime.now(),
+        "fechaOrigen": datetime.now().date(),
         "observaciones": "PRUEBA DE EXHORTO EXTERNO",
     }
 
@@ -344,7 +344,7 @@ def demo_02_recibir(estado_origen):
     # Consultar la materia
     materia = session.execute(select(Materia).where(Materia.clave == datos["materiaClave"])).one()
 
-    # Insertar ExhExhorto
+    # Insertar el exhorto
     exh_exhorto = ExhExhorto()
     exh_exhorto.exhorto_origen_id = datos["exhortoOrigenId"]
     exh_exhorto.municipio_destino_id = municipo_destino.id  # Clave foránea

@@ -60,7 +60,7 @@ class ExhExhorto(Base, UniversalMixin):
     municipio_origen: Mapped["Municipio"] = relationship(back_populates="exh_exhortos_origenes")
 
     # GUID/UUID... que sea único. Pero es opcional para nosotros cuando el estado es PENDIENTE
-    folio_seguimiento: Mapped[Optional[str]] = mapped_column(String(48), unique=True)
+    folio_seguimiento: Mapped[Optional[str]] = mapped_column(String(48))
 
     # UUID identificador con el que el PJ exhortante identifica el exhorto que envía
     exhorto_origen_id: Mapped[str] = mapped_column(String(48))

@@ -9,8 +9,8 @@ from pydantic import BaseModel
 from lib.schemas_base import OneBaseOut
 
 
-class ExhExhortoArchivoIn(BaseModel):
-    """Esquema para recibir archivos"""
+class ExhExhortoArchivo(BaseModel):
+    """Esquema para estructurar el listado de archivos"""
 
     nombreArchivo: str | None = None
     hashSha1: str | None = None
@@ -18,33 +18,21 @@ class ExhExhortoArchivoIn(BaseModel):
     tipoDocumento: int | None = None
 
 
-class ExhExhortoArchivoDataOut(ExhExhortoArchivoIn):
-    """Esquema para entregar archivos"""
-
-    id: int | None = None
-
-
-class OneExhExhortoArchivoOut(OneBaseOut):
-    """Esquema para entregar un archivo"""
-
-    data: ExhExhortoArchivoDataOut | None = None
-
-
 class ExhExhortoArchivoFileIn(BaseModel):
-    """Exquema para recibir archivos Content-Disposition, form-data, file"""
+    """Esquema para recibir archivos Content-Disposition, form-data, file"""
 
     exhortoOrigenId: str | None = None
 
 
-class ExhExhortoArchivoFileDataArchivoOut(BaseModel):
-    """Esquema con datos adicionales del archivo"""
+class ExhExhortoArchivoFileDataArchivo(BaseModel):
+    """Esquema para estructurar los datos del archivo"""
 
     nombreArchivo: str | None = None
     tamaño: int | None = None
 
 
-class ExhExhortoArchivoFileDataAcuseOut(BaseModel):
-    """Esquema con el acuse"""
+class ExhExhortoArchivoFileDataAcuse(BaseModel):
+    """Esquema para estructurar los datos del acuse"""
 
     exhortoOrigenId: str | None = None
     folioSeguimiento: str | None = None
@@ -55,33 +43,27 @@ class ExhExhortoArchivoFileDataAcuseOut(BaseModel):
     urlInfo: str | None = None
 
 
-class ExhExhortoArchivoFileDataOut(BaseModel):
+class ExhExhortoArchivoOut(BaseModel):
     """Esquema con el data"""
 
-    archivo: ExhExhortoArchivoFileDataArchivoOut | None = None
-    acuse: ExhExhortoArchivoFileDataAcuseOut | None = None
+    archivo: ExhExhortoArchivoFileDataArchivo | None = None
+    acuse: ExhExhortoArchivoFileDataAcuse | None = None
 
 
-class OneExhExhortoArchivoFileDataOut(OneBaseOut):
+class OneExhExhortoArchivoOut(OneBaseOut):
     """Esquema para responder por un archivo recibido"""
 
-    data: ExhExhortoArchivoFileDataOut | None = None
+    data: ExhExhortoArchivoOut | None = None
 
 
-class ExhExhortoArchivoRecibirRespuestaExhortoIn(BaseModel):
-    """Petición que se va a hacer por cada archivo que se quiere enviar en la respuesta del Exhorto"""
+class ExhExhortoArchivoRespuestaFileIn(BaseModel):
+    """Esquema para recibir archivos Content-Disposition, form-data, file"""
 
     exhortoId: str | None = None
     respuestaOrigenId: str | None = None
 
 
-class ExhExhortoArchivoRecibirRespuestaExhortoOut(ExhExhortoArchivoRecibirRespuestaExhortoIn):
-    """Esquema para entregar archivos"""
-
-    id: int | None = None
-
-
-class ExhExhortoArchivoRecibirRespuestaExhortoDataAcuseOut(BaseModel):
+class ExhExhortoArchivoRespuestaDataAcuse(BaseModel):
     """Data Acuse"""
 
     exhortoId: str | None = None
@@ -89,14 +71,14 @@ class ExhExhortoArchivoRecibirRespuestaExhortoDataAcuseOut(BaseModel):
     fechaHoraRecepcion: datetime | None = None
 
 
-class ExhExhortoArchivoRecibirRespuestaExhortoDataOut(BaseModel):
+class ExhExhortoArchivoRespuestaOut(BaseModel):
     """Respuesta de la operación de Recibir Respuesta Exhorto Archivo"""
 
-    archivo: ExhExhortoArchivoFileDataArchivoOut | None = None
-    acuse: ExhExhortoArchivoRecibirRespuestaExhortoDataAcuseOut | None = None
+    archivo: ExhExhortoArchivoFileDataArchivo | None = None
+    acuse: ExhExhortoArchivoRespuestaDataAcuse | None = None
 
 
-class OneExhExhortoArchivoRecibirRespuestaExhortoOut(OneBaseOut):
+class OneExhExhortoArchivoRespuestaOut(OneBaseOut):
     """Respuesta de la operación de Recibir Respuesta Exhorto Archivo"""
 
-    data: ExhExhortoArchivoRecibirRespuestaExhortoDataOut | None = None
+    data: ExhExhortoArchivoRespuestaOut | None = None

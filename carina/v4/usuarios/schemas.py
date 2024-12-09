@@ -30,8 +30,10 @@ class UsuarioOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class OneUsuarioOut(UsuarioOut, OneBaseOut):
+class OneUsuarioOut(OneBaseOut):
     """Esquema para entregar un usuario"""
+
+    data: UsuarioOut | None = None
 
 
 class UsuarioInDB(UsuarioOut):

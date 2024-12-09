@@ -19,5 +19,7 @@ class TareaOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
-class OneTareaOut(TareaOut, OneBaseOut):
+class OneTareaOut(OneBaseOut):
     """Esquema para entregar un tarea"""
+
+    data: TareaOut | None = None

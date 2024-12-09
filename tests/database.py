@@ -43,6 +43,11 @@ class ExhExhorto(Base):
         back_populates="exh_exhorto",
         init=False,
     )
+    exh_exhortos_promociones: Mapped[List["ExhExhortoPromocion"]] = relationship(
+        "ExhExhortoPromocion",
+        back_populates="exh_exhorto",
+        init=False,
+    )
 
 
 class ExhExhortoArchivo(Base):
@@ -63,6 +68,50 @@ class ExhExhortoArchivo(Base):
     hash_sha256: Mapped[str]
     tipo_documento: Mapped[int]
     es_respuesta: Mapped[bool] = mapped_column(default=False)
+
+
+class ExhExhortoPromocion(Base):
+    """ExhExhortoPromocion"""
+
+    __tablename__ = "exh_exhortos_promociones"
+
+    # Clave primaria
+    id: Mapped[int] = mapped_column(primary_key=True, init=False)
+
+    # Clave foránea
+    exh_exhorto_id: Mapped[int] = mapped_column(ForeignKey("exh_exhortos.id"))
+    exh_exhorto: Mapped["ExhExhorto"] = relationship(back_populates="exh_exhortos_promociones")
+
+    # Columnas
+    folio_origen_promocion: Mapped[str]
+    folio_seguimiento: Mapped[str]
+
+    # Hijos
+    exh_exhortos_promociones_archivos: Mapped[List["ExhExhortoPromocionArchivo"]] = relationship(
+        "ExhExhortoPromocionArchivo",
+        back_populates="exh_exhorto_promocion",
+        init=False,
+    )
+
+
+class ExhExhortoPromocionArchivo(Base):
+    """ExhExhortoPromocionArchivo"""
+
+    __tablename__ = "exh_exhortos_promociones_archivos"
+
+    # Clave primaria
+    id: Mapped[int] = mapped_column(primary_key=True, init=False)
+
+    # Clave foránea
+    exh_exhorto_promocion_id: Mapped[int] = mapped_column(ForeignKey("exh_exhortos_promociones.id"))
+    exh_exhorto_promocion: Mapped["ExhExhortoPromocion"] = relationship(back_populates="exh_exhortos_promociones_archivos")
+
+    # Columnas
+    nombre_archivo: Mapped[str]
+    hash_sha1: Mapped[str]
+    hash_sha256: Mapped[str]
+    tipo_documento: Mapped[int]
+    estado: Mapped[str] = mapped_column(default="POR ENVIAR")
 
 
 def get_engine() -> Engine:
