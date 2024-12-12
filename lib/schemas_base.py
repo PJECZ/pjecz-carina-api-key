@@ -14,5 +14,5 @@ class OneBaseOut(BaseModel):
 
     success: bool = True
     message: str = "Success"
-    errors: list[str] = []
-    data: list[T] = []
+    errors: list[str]
+    data: list[T]

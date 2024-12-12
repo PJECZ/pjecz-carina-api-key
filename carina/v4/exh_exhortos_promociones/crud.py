@@ -103,7 +103,10 @@ def create_exh_exhorto_promocion(database: Session, exh_exhorto_promocion_in: Ex
         exh_exhorto_promocion_promovente.nombre = safe_string(promovente.nombre, save_enie=True)
         exh_exhorto_promocion_promovente.apellido_paterno = safe_string(promovente.apellidoPaterno, save_enie=True)
         exh_exhorto_promocion_promovente.apellido_materno = safe_string(promovente.apellidoMaterno, save_enie=True)
-        exh_exhorto_promocion_promovente.genero = safe_string(promovente.genero)
+        if promovente.genero in ExhExhortoPromocionPromovente.GENEROS:
+            exh_exhorto_promocion_promovente.genero = promovente.genero
+        else:
+            exh_exhorto_promocion_promovente.genero = "-"
         exh_exhorto_promocion_promovente.es_persona_moral = promovente.esPersonaMoral
         exh_exhorto_promocion_promovente.tipo_parte = promovente.tipoParte
         exh_exhorto_promocion_promovente.tipo_parte_nombre = safe_string(promovente.tipoParteNombre, save_enie=True)

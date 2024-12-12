@@ -17,7 +17,7 @@ def generar_api_key(id: int, email: str, random_length: int = 24) -> str:
     """Generar API key a partir de un ID, un e-mail y una cadena aleatoria"""
     aleatorio = "".join(random.sample(string.ascii_letters + string.digits, k=random_length))
     hash_email = Hashids(salt=email, min_length=8).encode(1)
-    hash_id = Hashids(salt=settings.SALT, min_length=8).encode(id)
+    hash_id = Hashids(salt=settings.salt, min_length=8).encode(id)
     return f"{hash_id}.{hash_email}.{aleatorio}"
 
 

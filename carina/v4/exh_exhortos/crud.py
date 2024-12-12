@@ -183,8 +183,8 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
     # Remitente es EXTERNO
     exh_exhorto.remitente = "EXTERNO"
 
-    # Estado es PENDIENTE
-    exh_exhorto.estado = "PENDIENTE"
+    # Estado es RECIBIDO
+    exh_exhorto.estado = "RECIBIDO"
 
     # Insertar el exhorto
     database.add(exh_exhorto)
@@ -198,7 +198,10 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
         exh_exhorto_parte.nombre = safe_string(parte.nombre, save_enie=True)
         exh_exhorto_parte.apellido_paterno = safe_string(parte.apellidoPaterno, save_enie=True)
         exh_exhorto_parte.apellido_materno = safe_string(parte.apellidoMaterno, save_enie=True)
-        exh_exhorto_parte.genero = safe_string(parte.genero)
+        if parte.genero in ExhExhortoParte.GENEROS:
+            exh_exhorto_parte.genero = parte.genero
+        else:
+            exh_exhorto_parte.genero = "-"
         exh_exhorto_parte.es_persona_moral = parte.esPersonaMoral
         exh_exhorto_parte.tipo_parte = parte.tipoParte
         exh_exhorto_parte.tipo_parte_nombre = safe_string(parte.tipoParteNombre, save_enie=True)
