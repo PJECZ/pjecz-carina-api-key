@@ -6,6 +6,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from carina.core.modulos.models import Modulo  # Es necesario para que se reconozca el modelo
 from carina.core.permisos.models import Permiso
 from carina.v4.usuarios.authentications import UsuarioInDB, get_current_active_user
 from lib.fastapi_not_implemented import NotImplement

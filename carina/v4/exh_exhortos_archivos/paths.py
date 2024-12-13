@@ -335,6 +335,7 @@ async def recibir_exhorto_archivo_request(
             exh_exhorto=exh_exhorto,
             estado="RECIBIDO",
             folio_seguimiento=generar_identificador(),
+            respuesta_fecha_hora_recepcion=fecha_hora_recepcion,
         )
         # Y se va a elaborar el acuse
         acuse = ExhExhortoArchivoFileDataAcuse(

@@ -32,7 +32,12 @@ async def detalle_municipio(
         municipio = get_municipio_with_clave(database, estado_clave, municipio_clave)
     except MyAnyError as error:
         return OneMunicipioOut(success=False, message="Error al consultar el municipio", errors=[str(error)], data=None)
-    return OneMunicipioOut(success=True, message="Consulta hecha con éxito", errors=[], data=OneMunicipioOut(**municipio))
+    return OneMunicipioOut(
+        success=True,
+        message="Consulta hecha con éxito",
+        errors=[],
+        data=MunicipioOut.model_validate(municipio),
+    )
 
 
 @municipios.get("/{estado_clave}", response_model=CustomList[MunicipioOut])

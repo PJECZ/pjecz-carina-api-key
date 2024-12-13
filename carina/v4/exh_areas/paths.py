@@ -31,7 +31,7 @@ async def detalle_area(
         exh_area = get_exh_area_with_clave(database, exh_area_clave)
     except MyAnyError as error:
         return OneExhAreaOut(success=False, message="Error al consultar el área", errors=[str(error)], data=None)
-    return OneExhAreaOut(success=True, message="Consulta hecha con éxito", errors=[], data=ExhAreaOut(**exh_area))
+    return OneExhAreaOut(success=True, message="Consulta hecha con éxito", errors=[], data=ExhAreaOut.model_validate(exh_area))
 
 
 @exh_areas.get("", response_model=CustomList[ExhAreaOut])

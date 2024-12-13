@@ -31,7 +31,7 @@ async def detalle_estado(
         estado = get_estado_with_clave(database, estado_clave)
     except MyAnyError as error:
         return OneEstadoOut(success=False, message="Error al consultar el estado", errors=[str(error)], data=None)
-    return OneEstadoOut(success=True, message="Consulta hecha con éxito", errors=[], data=EstadoOut(**estado))
+    return OneEstadoOut(success=True, message="Consulta hecha con éxito", errors=[], data=EstadoOut.model_validate(estado))
 
 
 @estados.get("", response_model=CustomList[EstadoOut])

@@ -31,7 +31,12 @@ async def detalle_autoridad(
         autoridad = get_autoridad_with_clave(database, autoridad_clave)
     except MyAnyError as error:
         return OneAutoridadOut(success=False, message="Error al consultar la autoridad", errors=[str(error)], data=None)
-    return OneAutoridadOut(success=True, message="Consulta hecha con éxito", errors=[], data=AutoridadOut(**autoridad))
+    return OneAutoridadOut(
+        success=True,
+        message="Consulta hecha con éxito",
+        errors=[],
+        data=AutoridadOut.model_validate(autoridad),
+    )
 
 
 @autoridades.get("", response_model=CustomList[AutoridadOut])

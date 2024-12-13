@@ -31,7 +31,12 @@ async def detalle_distrito(
         distrito = get_distrito_with_clave(database, distrito_clave)
     except MyAnyError as error:
         return OneDistritoOut(success=False, message="Error al consultar el distrito", errors=[str(error)], data=None)
-    return OneDistritoOut(success=True, message="Consulta hecha con éxito", errors=[], data=DistritoOut(**distrito))
+    return OneDistritoOut(
+        success=True,
+        message="Consulta hecha con éxito",
+        errors=[],
+        data=DistritoOut.model_validate(distrito),
+    )
 
 
 @distritos.get("", response_model=CustomList[DistritoOut])

@@ -31,7 +31,12 @@ async def detalle_domicilio(
         domicilio = get_domicilio(database, domicilio_id)
     except MyAnyError as error:
         return OneDomicilioOut(success=False, message="Error al consultar el domicilio", errors=[str(error)], data=None)
-    return OneDomicilioOut(success=True, message="Consulta hecha con éxito", errors=[], data=DomicilioOut(**domicilio))
+    return OneDomicilioOut(
+        success=True,
+        message="Consulta hecha con éxito",
+        errors=[],
+        data=DomicilioOut.model_validate(domicilio),
+    )
 
 
 @domicilios.get("", response_model=CustomPage[DomicilioOut])

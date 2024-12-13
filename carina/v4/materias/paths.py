@@ -31,7 +31,7 @@ async def detalle_materia(
         materia = get_materia_with_clave(database, materia_clave)
     except MyAnyError as error:
         return OneMateriaOut(success=False, message="Error al consultar la materia", errors=[str(error)], data=None)
-    return OneMateriaOut(success=True, message="Consulta hecha con éxito", errors=[], data=MateriaOut(**materia))
+    return OneMateriaOut(success=True, message="Consulta hecha con éxito", errors=[], data=MateriaOut.model_validate(materia))
 
 
 @materias.get("", response_model=CustomList[MateriaOut])

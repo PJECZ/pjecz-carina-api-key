@@ -13,11 +13,12 @@ FOLIO_SEGUIMIENTO=XXXXXXXXXXXXXXXX
 
 Se usa la base de datos SQLite para pasar datos entre las pruebas
 
-1. Pruebe `python3 -m unittest tests/test_020_enviar_exhorto.py`
-2. Pruebe `python3 -m unittest tests/test_030_enviar_exhorto_archivos.py`
-3. Pruebe `python3 -m unittest tests/test_060_enviar_actualizacion.py`
-4. Pruebe `python3 -m unittest tests/test_071_enviar_promocion.py`
-4. Pruebe `python3 -m unittest tests/test_072_enviar_promocion_archivos.py`
+1. Pruebe `python3 -m unittest tests/test_010_consultar_materias.py`
+2. Pruebe `python3 -m unittest tests/test_020_enviar_exhorto.py`
+3. Pruebe `python3 -m unittest tests/test_030_enviar_exhorto_archivos.py`
+4. Pruebe `python3 -m unittest tests/test_060_enviar_actualizacion.py`
+5. Pruebe `python3 -m unittest tests/test_071_enviar_promocion.py`
+6. Pruebe `python3 -m unittest tests/test_072_enviar_promocion_archivos.py`
 
 ## Probar cuando el remitente es INTERNO
 

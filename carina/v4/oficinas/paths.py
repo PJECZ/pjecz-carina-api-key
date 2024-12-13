@@ -31,7 +31,12 @@ async def detalle_oficina(
         oficina = get_oficina(database, oficina_id)
     except MyAnyError as error:
         return OneOficinaOut(success=False, message="Error al consultar la oficina", errors=[str(error)], data=None)
-    return OneOficinaOut(success=True, message="Consulta hecha con éxito", errors=[], data=OficinaOut(**oficina))
+    return OneOficinaOut(
+        success=True,
+        message="Consulta hecha con éxito",
+        errors=[],
+        data=OficinaOut.model_validate(oficina),
+    )
 
 
 @oficinas.get("", response_model=CustomPage[OficinaOut])
