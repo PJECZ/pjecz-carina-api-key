@@ -22,5 +22,5 @@ async def no_implementado(current_user: Annotated[UsuarioInDB, Depends(get_curre
         success=False,
         message="Esta ruta no está implementada",
         errors=["Not implemented"],
-        data=[],
+        data=None,
     )

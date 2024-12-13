@@ -72,7 +72,7 @@ class CustomList(AbstractPage[T], Generic[T]):
     success: bool
     message: str
     errors: list[str]
-    data: Sequence[T]
+    data: Sequence[T] | None
 
     __params_type__ = CustomListParams
 

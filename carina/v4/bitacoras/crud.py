@@ -1,5 +1,5 @@
 """
-Bitacoras v4, CRUD (create, read, update, and delete)
+Bitácoras v4, CRUD (create, read, update, and delete)
 """
 
 from typing import Any

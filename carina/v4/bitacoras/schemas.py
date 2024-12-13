@@ -1,5 +1,5 @@
 """
-Bitacoras v4, esquemas de pydantic
+Bitácoras v4, esquemas de pydantic
 """
 
 from pydantic import BaseModel, ConfigDict

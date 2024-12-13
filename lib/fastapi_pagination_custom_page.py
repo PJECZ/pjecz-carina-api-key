@@ -75,7 +75,7 @@ class CustomPage(AbstractPage[T], Generic[T], ABC):
     success: bool
     message: str
     errors: list[str]
-    data: Sequence[T]
+    data: Sequence[T] | None
 
     total: Optional[GreaterEqualZero] = None
     limit: Optional[GreaterEqualOne] = None
