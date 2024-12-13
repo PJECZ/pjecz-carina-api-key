@@ -44,7 +44,7 @@ async def recibir_exhorto_respuesta_request(
     data = ExhExhortoRespuestaOut(
         exhortoId=exh_exhorto.exhorto_origen_id,
         respuestaOrigenId=exh_exhorto.respuesta_origen_id,
-        fechaHora=exh_exhorto.respuesta_fecha_hora_recepcion,
+        fechaHora=exh_exhorto.respuesta_fecha_hora_recepcion.strftime("%Y-%m-%d %H:%M:%S"),
     )
     return OneExhExhortoRespuestaOut(success=True, message="Respuesta recibida con éxito", errors=[], data=data)
 
@@ -122,10 +122,10 @@ async def consultar_exhorto_request(
         fojas=exh_exhorto.fojas,
         diasResponder=exh_exhorto.dias_responder,
         tipoDiligenciacionNombre=exh_exhorto.tipo_diligenciacion_nombre,
-        fechaOrigen=exh_exhorto.fecha_origen,
+        fechaOrigen=exh_exhorto.fecha_origen.strftime("%Y-%m-%d %H:%M:%S"),
         observaciones=exh_exhorto.observaciones,
         archivos=archivos,
-        fechaHoraRecepcion=exh_exhorto.creado,
+        fechaHoraRecepcion=exh_exhorto.creado.strftime("%Y-%m-%d %H:%M:%S"),
         municipioTurnadoId=exh_exhorto.autoridad.municipio.clave,
         municipioTurnadoNombre=exh_exhorto.autoridad.municipio.nombre,
         areaTurnadoId=exh_exhorto.exh_area.clave,
@@ -154,6 +154,6 @@ async def recibir_exhorto_request(
         return OneExhExhortoOut(success=False, message="Error al recibir el exhorto", errors=[str(error)], data=None)
     data = ExhExhortoOut(
         exhortoOrigenId=str(exh_exhorto.exhorto_origen_id),
-        fechaHora=exh_exhorto.creado,
+        fechaHora=exh_exhorto.creado.strftime("%Y-%m-%d %H:%M:%S"),
     )
     return OneExhExhortoOut(success=True, message="Exhorto recibido con éxito", errors=[], data=data)

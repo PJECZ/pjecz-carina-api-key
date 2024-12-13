@@ -2,8 +2,6 @@
 Exh Exhortos Actualizaciones v4, esquemas de pydantic
 """
 
-from datetime import datetime
-
 from pydantic import BaseModel
 
 from lib.schemas_base import OneBaseOut
@@ -15,7 +13,7 @@ class ExhExhortoActualizacionIn(BaseModel):
     exhortoId: str | None = None
     actualizacionOrigenId: str | None = None
     tipoActualizacion: str | None = None
-    fechaHora: datetime | None = None
+    fechaHora: str | None = None  # YYYY-MM-DD HH:mm:ss
     descripcion: str | None = None
 
 
@@ -24,7 +22,7 @@ class ExhExhortoActualizacionOut(BaseModel):
 
     exhortoId: str | None = None
     actualizacionOrigenId: str | None = None
-    fechaHora: datetime | None = None
+    fechaHora: str | None = None  # YYYY-MM-DD HH:mm:ss
 
 
 class OneExhExhortoActualizacionOut(OneBaseOut):

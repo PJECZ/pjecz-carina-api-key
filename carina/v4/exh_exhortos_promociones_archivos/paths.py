@@ -195,14 +195,14 @@ async def recibir_exhorto_promocion_archivo_request(
         acuse = ExhExhortoPromocionArchivoDataAcuse(
             folioOrigenPromocion=exh_exhorto_promocion_actualizado.folio_origen_promocion,
             folioPromocionRecibida=generar_identificador(),  # TODO: Debe de conservarse en la base de datos
-            fechaHoraRecepcion=datetime.now(),  # TODO: Debe de conservarse en la base de datos
+            fechaHoraRecepcion=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  # TODO: Debe de conservarse en la base de datos
         )
     else:
         # Aún faltan archivos, entonces el acuse no lleva contenido
         acuse = ExhExhortoPromocionArchivoDataAcuse(
             folioOrigenPromocion="",
             folioPromocionRecibida="",
-            fechaHoraRecepcion=datetime.now(),
+            fechaHoraRecepcion=None,
         )
 
     # Juntar los datos para la respuesta

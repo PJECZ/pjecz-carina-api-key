@@ -2,6 +2,7 @@
 Exh Exhortos Actualizaciones v4, CRUD (create, read, update, and delete)
 """
 
+from datetime import datetime
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -9,7 +10,7 @@ from sqlalchemy.orm import Session
 from carina.core.exh_exhortos_actualizaciones.models import ExhExhortoActualizacion
 from carina.v4.exh_exhortos.crud import get_exh_exhorto, get_exh_exhorto_by_exhorto_origen_id
 from carina.v4.exh_exhortos_actualizaciones.schemas import ExhExhortoActualizacionIn
-from lib.exceptions import MyIsDeletedError, MyNotExistsError
+from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
 from lib.safe_string import safe_string
 
 
@@ -35,7 +36,8 @@ def get_exh_exhorto_actualizacion(database: Session, exh_exhorto_actualizacion_i
 
 
 def create_exh_exhorto_actualizacion(
-    database: Session, exh_exhorto_actualizacion_in: ExhExhortoActualizacionIn
+    database: Session,
+    exh_exhorto_actualizacion_in: ExhExhortoActualizacionIn,
 ) -> ExhExhortoActualizacion:
     """Crear una actualización de un exhorto"""
 
@@ -49,7 +51,10 @@ def create_exh_exhorto_actualizacion(
     exh_exhorto_actualizacion.exh_exhorto_id = exh_exhorto.id
     exh_exhorto_actualizacion.actualizacion_origen_id = exh_exhorto_actualizacion_in.actualizacionOrigenId
     exh_exhorto_actualizacion.tipo_actualizacion = exh_exhorto_actualizacion_in.tipoActualizacion
-    exh_exhorto_actualizacion.fecha_hora = exh_exhorto_actualizacion_in.fechaHora
+    try:
+        exh_exhorto_actualizacion.fecha_hora = datetime.strptime(exh_exhorto_actualizacion_in.fechaHora, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        raise MyNotValidParamError("La fecha y hora no tiene el formato correcto")
     exh_exhorto_actualizacion.descripcion = safe_string(exh_exhorto_actualizacion_in.descripcion, save_enie=True)
     exh_exhorto_actualizacion.remitente = "EXTERNO"
 

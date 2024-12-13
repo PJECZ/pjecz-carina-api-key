@@ -12,7 +12,7 @@ class ExhExhortoVideoIn(BaseModel):
 
     titulo: str | None = None
     descripcion: str | None = None
-    fecha: str | None = None
+    fecha: str | None = None  # YYYY-MM-DD
     urlAcceso: str | None = None
 
 

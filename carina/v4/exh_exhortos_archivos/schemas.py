@@ -2,8 +2,6 @@
 Exh Exhortos Archivos v4, esquemas de pydantic
 """
 
-from datetime import datetime
-
 from pydantic import BaseModel
 
 from lib.schemas_base import OneBaseOut
@@ -36,7 +34,7 @@ class ExhExhortoArchivoFileDataAcuse(BaseModel):
 
     exhortoOrigenId: str | None = None
     folioSeguimiento: str | None = None
-    fechaHoraRecepcion: datetime | None = None
+    fechaHoraRecepcion: str | None = None  # YYYY-MM-DD HH:mm:ss
     municipioAreaRecibeId: int | None = None
     areaRecibeId: str | None = None
     areaRecibeNombre: str | None = None
@@ -68,7 +66,7 @@ class ExhExhortoArchivoRespuestaDataAcuse(BaseModel):
 
     exhortoId: str | None = None
     respuestaOrigenId: str | None = None
-    fechaHoraRecepcion: datetime | None = None
+    fechaHoraRecepcion: str | None = None  # YYYY-MM-DD HH:mm:ss
 
 
 class ExhExhortoArchivoRespuestaOut(BaseModel):

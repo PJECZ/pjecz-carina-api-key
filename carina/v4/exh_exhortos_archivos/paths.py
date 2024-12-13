@@ -171,7 +171,7 @@ async def recibir_exhorto_respuesta_archivo_request(
     acuse = ExhExhortoArchivoRespuestaDataAcuse(
         exhortoId=exhortoOrigenId,
         respuestaOrigenId=respuestaOrigenId,
-        fechaHoraRecepcion=exh_exhorto.modificado,
+        fechaHoraRecepcion=exh_exhorto.modificado.strftime("%Y-%m-%d %H:%M:%S"),
     )
 
     # Definir el data
@@ -340,7 +340,7 @@ async def recibir_exhorto_archivo_request(
         acuse = ExhExhortoArchivoFileDataAcuse(
             exhortoOrigenId=exh_exhorto_actualizado.exhorto_origen_id,
             folioSeguimiento=exh_exhorto_actualizado.folio_seguimiento,
-            fechaHoraRecepcion=exh_exhorto_actualizado.respuesta_fecha_hora_recepcion,
+            fechaHoraRecepcion=exh_exhorto_actualizado.respuesta_fecha_hora_recepcion.strftime("%Y-%m-%d %H:%M:%S"),
             municipioAreaRecibeId=exh_exhorto_actualizado.respuesta_municipio_turnado_id,
             areaRecibeId=exh_exhorto_actualizado.respuesta_area_turnado_id,
             areaRecibeNombre=exh_exhorto_actualizado.respuesta_area_turnado_nombre,

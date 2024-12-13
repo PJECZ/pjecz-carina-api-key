@@ -41,6 +41,6 @@ async def recibir_exhorto_actualizacion_request(
     data = ExhExhortoActualizacionOut(
         exhortoId=exh_exhorto_actualizacion.exh_exhorto.exhorto_origen_id,
         actualizacionOrigenId=exh_exhorto_actualizacion.actualizacion_origen_id,
-        fechaHora=exh_exhorto_actualizacion.fecha_hora,
+        fechaHora=exh_exhorto_actualizacion.fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
     )
     return OneExhExhortoActualizacionOut(success=True, message="Actualización recibida con éxito", errors=[], data=data)
