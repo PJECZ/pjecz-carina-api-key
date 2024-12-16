@@ -51,6 +51,7 @@ async def recibir_exhorto_promocion_archivo_request(
             success=False,
             message="Tipo de archivo no permitido",
             errors=["El nombre del archivo no termina en PDF"],
+            data=None,
         )
 
     # Consultar y validar la promoción a partir de folioSeguimiento y folioOrigenPromocion
@@ -65,6 +66,7 @@ async def recibir_exhorto_promocion_archivo_request(
             success=False,
             message="No se encontró la promoción",
             errors=[str(error)],
+            data=None,
         )
 
     # Consultar los archivos de la promoción y buscar el archivo que se pretende subir
@@ -87,6 +89,7 @@ async def recibir_exhorto_promocion_archivo_request(
             success=False,
             message="No se encontró el archivo",
             errors=["Al parecer el archivo ya fue recibido o no se declaró en la promoción"],
+            data=None,
         )
 
     # Determinar el tamaño del archivo
@@ -98,6 +101,7 @@ async def recibir_exhorto_promocion_archivo_request(
             success=False,
             message="El archivo excede el tamaño máximo permitido",
             errors=["El archivo no debe exceder los 10MB"],
+            data=None,
         )
 
     # Cargar el archivo en memoria
@@ -112,6 +116,7 @@ async def recibir_exhorto_promocion_archivo_request(
                 success=False,
                 message="El archivo está corrupto",
                 errors=["El archivo no coincide con el hash SHA1"],
+                data=None,
             )
 
     # Validar la integridad del archivo con SHA256
@@ -123,6 +128,7 @@ async def recibir_exhorto_promocion_archivo_request(
                 success=False,
                 message="El archivo está corrupto",
                 errors=["El archivo no coincide con el hash SHA256"],
+                data=None,
             )
 
     # Definir el nombre del archivo a subir a Google Storage
@@ -149,6 +155,7 @@ async def recibir_exhorto_promocion_archivo_request(
             success=False,
             message="Hubo un error al subir el archivo al storage",
             errors=[str(error)],
+            data=None,
         )
 
     # Cambiar el estado del archivo a RECIBIDO
@@ -188,14 +195,14 @@ async def recibir_exhorto_promocion_archivo_request(
         acuse = ExhExhortoPromocionArchivoDataAcuse(
             folioOrigenPromocion=exh_exhorto_promocion_actualizado.folio_origen_promocion,
             folioPromocionRecibida=generar_identificador(),  # TODO: Debe de conservarse en la base de datos
-            fechaHoraRecepcion=datetime.now(),  # TODO: Debe de conservarse en la base de datos
+            fechaHoraRecepcion=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  # TODO: Debe de conservarse en la base de datos
         )
     else:
         # Aún faltan archivos, entonces el acuse no lleva contenido
         acuse = ExhExhortoPromocionArchivoDataAcuse(
             folioOrigenPromocion="",
             folioPromocionRecibida="",
-            fechaHoraRecepcion=datetime.now(),
+            fechaHoraRecepcion=None,
         )
 
     # Juntar los datos para la respuesta
@@ -205,4 +212,4 @@ async def recibir_exhorto_promocion_archivo_request(
     )
 
     # Entregar la respuesta
-    return OneExhExhortoPromocionArchivoOut(success=True, data=data)
+    return OneExhExhortoPromocionArchivoOut(success=True, message="Archivo recibido con éxito", errors=[], data=data)

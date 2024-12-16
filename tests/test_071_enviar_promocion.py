@@ -75,7 +75,7 @@ class TestsEnviarPromocion(unittest.TestCase):
             "folioOrigenPromocion": folio_origen_promocion,
             "promoventes": promoventes,
             "fojas": random.randint(2, 9),
-            "fechaOrigen": datetime.now().isoformat(),
+            "fechaOrigen": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "observaciones": lorem.sentence(),
             "archivos": archivos,
         }

@@ -163,7 +163,11 @@ def create_exh_exhorto(database: Session, exh_exhorto_in: ExhExhortoIn) -> ExhEx
 
     # Fecha y hora en que el Poder Judicial exhortante registró que se envió el exhorto en su hora local.
     # En caso de no enviar este dato, el Poder Judicial exhortado puede tomar su fecha hora local.
-    exh_exhorto.fecha_origen = exh_exhorto_in.fechaOrigen
+    # Validar que el string sea de la forma YYYY-MM-DD HH:mm:ss
+    try:
+        exh_exhorto.fecha_origen = datetime.strptime(exh_exhorto_in.fechaOrigen, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        raise MyNotValidParamError("La fecha de origen no tiene el formato correcto")
 
     # Texto simple que contenga información extra o relevante sobre el exhorto.
     exh_exhorto.observaciones = exh_exhorto_in.observaciones
@@ -284,7 +288,11 @@ def receive_response_exh_exhorto(database: Session, exh_exhorto_respuesta: ExhEx
     return exh_exhorto
 
 
-def update_exh_exhorto(database: Session, exh_exhorto: ExhExhorto, **kwargs) -> ExhExhorto:
+def update_exh_exhorto(
+    database: Session,
+    exh_exhorto: ExhExhorto,
+    **kwargs,
+) -> ExhExhorto:
     """Actualizar un exhorto"""
     for key, value in kwargs.items():
         setattr(exh_exhorto, key, value)

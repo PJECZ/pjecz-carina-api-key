@@ -7,14 +7,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
 
+from carina.core.permisos.models import Permiso
+from carina.v4.municipios.crud import get_municipio_with_clave, get_municipios
+from carina.v4.municipios.schemas import MunicipioOut, OneMunicipioOut
+from carina.v4.usuarios.authentications import UsuarioInDB, get_current_active_user
 from lib.database import Session, get_db
 from lib.exceptions import MyAnyError
 from lib.fastapi_pagination_custom_list import CustomList
-
-from ...core.permisos.models import Permiso
-from ..usuarios.authentications import UsuarioInDB, get_current_active_user
-from .crud import get_municipio_with_clave, get_municipios
-from .schemas import MunicipioOut, OneMunicipioOut
 
 municipios = APIRouter(prefix="/v4/municipios", tags=["municipios"])
 
@@ -32,8 +31,13 @@ async def detalle_municipio(
     try:
         municipio = get_municipio_with_clave(database, estado_clave, municipio_clave)
     except MyAnyError as error:
-        return OneMunicipioOut(success=False, errors=[str(error)])
-    return OneMunicipioOut(success=True, data=municipio)
+        return OneMunicipioOut(success=False, message="Error al consultar el municipio", errors=[str(error)], data=None)
+    return OneMunicipioOut(
+        success=True,
+        message="Consulta hecha con éxito",
+        errors=[],
+        data=MunicipioOut.model_validate(municipio),
+    )
 
 
 @municipios.get("/{estado_clave}", response_model=CustomList[MunicipioOut])
@@ -48,5 +52,5 @@ async def listado_municipios(
     try:
         resultados = get_municipios(database, estado_clave)
     except MyAnyError as error:
-        return CustomList(success=False, errors=[str(error)])
+        return CustomList(success=False, message="Error al consultar los municipios", errors=[str(error)], data=None)
     return paginate(resultados)

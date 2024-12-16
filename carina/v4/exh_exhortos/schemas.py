@@ -2,8 +2,6 @@
 Exh Exhortos v4, esquemas de pydantic
 """
 
-from datetime import datetime
-
 from pydantic import BaseModel
 
 from carina.v4.exh_exhortos_archivos.schemas import ExhExhortoArchivo
@@ -30,7 +28,7 @@ class ExhExhortoIn(BaseModel):
     fojas: int | None = None
     diasResponder: int | None = None
     tipoDiligenciacionNombre: str | None = None
-    fechaOrigen: datetime | None = None
+    fechaOrigen: str | None = None  # YYYY-MM-DD HH:mm:ss
     observaciones: str | None = None
     archivos: list[ExhExhortoArchivo] | None = None
 
@@ -39,7 +37,7 @@ class ExhExhortoOut(BaseModel):
     """Esquema para confirmar la recepción de un exhorto"""
 
     exhortoOrigenId: str | None = None
-    fechaHora: datetime | None = None
+    fechaHora: str | None = None  # YYYY-MM-DD HH:mm:ss
 
 
 class OneExhExhortoOut(OneBaseOut):
@@ -58,7 +56,7 @@ class ExhExhortoConsultaOut(ExhExhortoIn):
     materiaNombre: str | None = None
     estadoOrigenNombre: str | None = None
     municipioOrigenNombre: str | None = None
-    fechaHoraRecepcion: datetime | None = None
+    fechaHoraRecepcion: str | None = None  # YYYY-MM-DD HH:mm:ss
     municipioTurnadoId: int | None = None
     municipioTurnadoNombre: str | None = None
     areaTurnadoId: str | None = None
@@ -94,7 +92,7 @@ class ExhExhortoRespuestaOut(BaseModel):
 
     exhortoId: str | None = None
     respuestaOrigenId: str | None = None
-    fechaHora: datetime | None = None
+    fechaHora: str | None = None  # YYYY-MM-DD HH:mm:ss
 
 
 class OneExhExhortoRespuestaOut(OneBaseOut):

@@ -2,9 +2,7 @@
 Exh Exhortos Promociones v4, esquemas de pydantic
 """
 
-from datetime import datetime
-
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 
 from carina.v4.exh_exhortos_promociones_archivos.schemas import ExhExhortoPromocionArchivo
 from carina.v4.exh_exhortos_promociones_promoventes.schemas import ExhExhortoPromocionPromovente
@@ -18,7 +16,7 @@ class ExhExhortoPromocionIn(BaseModel):
     folioOrigenPromocion: str | None = None
     promoventes: list[ExhExhortoPromocionPromovente] | None = None
     fojas: int | None = None
-    fechaOrigen: datetime | None = None
+    fechaOrigen: str | None = None  # YYYY-MM-DD HH:mm:ss
     observaciones: str | None = None
     archivos: list[ExhExhortoPromocionArchivo] | None = None
 
@@ -28,7 +26,7 @@ class ExhExhortoPromocionOut(BaseModel):
 
     folioSeguimiento: str | None = None
     folioOrigenPromocion: str | None = None
-    fechaHora: datetime | None = None
+    fechaHora: str | None = None  # YYYY-MM-DD HH:mm:ss
 
 
 class OneExhExhortoPromocionOut(OneBaseOut):

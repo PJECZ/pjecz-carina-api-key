@@ -9,4 +9,4 @@ class NotImplement(BaseModel):
     success: bool = False
     message: str = "Esta ruta no está implementada"
     errors: list[str]
-    data: list
+    data: list | None

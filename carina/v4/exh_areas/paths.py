@@ -18,21 +18,6 @@ from lib.fastapi_pagination_custom_list import CustomList
 exh_areas = APIRouter(prefix="/v4/exh_areas", tags=["exh areas"])
 
 
-@exh_areas.get("", response_model=CustomList[ExhAreaOut])
-async def listado_areas(
-    current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
-    database: Annotated[Session, Depends(get_db)],
-):
-    """Paginado de areas"""
-    if current_user.permissions.get("EXH AREAS", 0) < Permiso.VER:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
-    try:
-        resultados = get_exh_areas(database)
-    except MyAnyError as error:
-        return CustomList(success=False, errors=[str(error)])
-    return paginate(resultados)
-
-
 @exh_areas.get("/{exh_area_clave}", response_model=OneExhAreaOut)
 async def detalle_area(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
@@ -45,5 +30,20 @@ async def detalle_area(
     try:
         exh_area = get_exh_area_with_clave(database, exh_area_clave)
     except MyAnyError as error:
-        return OneExhAreaOut(success=False, errors=[str(error)])
-    return OneExhAreaOut(success=True, data=exh_area)
+        return OneExhAreaOut(success=False, message="Error al consultar el área", errors=[str(error)], data=None)
+    return OneExhAreaOut(success=True, message="Consulta hecha con éxito", errors=[], data=ExhAreaOut.model_validate(exh_area))
+
+
+@exh_areas.get("", response_model=CustomList[ExhAreaOut])
+async def listado_areas(
+    current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
+    database: Annotated[Session, Depends(get_db)],
+):
+    """Paginado de areas"""
+    if current_user.permissions.get("EXH AREAS", 0) < Permiso.VER:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+    try:
+        resultados = get_exh_areas(database)
+    except MyAnyError as error:
+        return CustomList(success=False, message="Error al consultar las áreas", errors=[str(error)], data=None)
+    return paginate(resultados)

@@ -10,11 +10,12 @@ from starlette.responses import JSONResponse
 
 def validation_exception_handler(request: Request, exc: RequestValidationError):
     """Manejador de excepciones de validación"""
+    errors = list()
     payload = {
         "success": False,
         "message": "Error de validación",
-        "errors": list(exc.errors()),
-        "data": [],
+        "errors": errors,
+        "data": None,
     }
     return JSONResponse(
         content=jsonable_encoder(payload),

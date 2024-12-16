@@ -88,11 +88,11 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
         self.assertEqual(type(data_acuse), dict)
         self.assertEqual("exhortoOrigenId" in data_acuse, True)
         self.assertEqual("folioSeguimiento" in data_acuse, True)
-        self.assertEqual("fechaHoraRecepcion" in data_acuse, True)  # acuse_fecha_hora_recepcion
-        self.assertEqual("municipioAreaRecibeId" in data_acuse, True)  # acuse_municipio_area_recibe_id
-        self.assertEqual("areaRecibeId" in data_acuse, True)  # acuse_area_recibe_id
-        self.assertEqual("areaRecibeNombre" in data_acuse, True)  # acuse_area_recibe_nombre
-        self.assertEqual("urlInfo" in data_acuse, True)  # acuse_url_info
+        self.assertEqual("fechaHoraRecepcion" in data_acuse, True)
+        self.assertEqual("municipioAreaRecibeId" in data_acuse, True)
+        self.assertEqual("areaRecibeId" in data_acuse, True)
+        self.assertEqual("areaRecibeNombre" in data_acuse, True)
+        self.assertEqual("urlInfo" in data_acuse, True)
 
         # Validar que se recibe el mismo exhortoOrigenId
         self.assertEqual(type(data_acuse["exhortoOrigenId"]), str)

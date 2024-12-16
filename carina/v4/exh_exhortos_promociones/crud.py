@@ -86,7 +86,10 @@ def create_exh_exhorto_promocion(database: Session, exh_exhorto_promocion_in: Ex
     exh_exhorto_promocion.exh_exhorto_id = exh_exhorto.id
     exh_exhorto_promocion.folio_origen_promocion = exh_exhorto_promocion_in.folioOrigenPromocion
     exh_exhorto_promocion.fojas = exh_exhorto_promocion_in.fojas
-    exh_exhorto_promocion.fecha_origen = exh_exhorto_promocion_in.fechaOrigen
+    try:
+        exh_exhorto_promocion.fecha_recepcion = datetime.strptime(exh_exhorto_promocion_in.fechaOrigen, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        raise MyNotValidParamError("La fecha no tiene el formato correcto")
     exh_exhorto_promocion.observaciones = safe_string(exh_exhorto_promocion_in.observaciones, save_enie=True, max_len=1000)
     exh_exhorto_promocion.remitente = "EXTERNO"
     exh_exhorto_promocion.estado = "ENVIADO"
@@ -134,7 +137,9 @@ def create_exh_exhorto_promocion(database: Session, exh_exhorto_promocion_in: Ex
 
 
 def update_exh_exhorto_promocion(
-    database: Session, exh_exhorto_promocion: ExhExhortoPromocion, **kwargs
+    database: Session,
+    exh_exhorto_promocion: ExhExhortoPromocion,
+    **kwargs,
 ) -> ExhExhortoPromocion:
     """Actualizar una promoción de un exhorto"""
     for key, value in kwargs.items():

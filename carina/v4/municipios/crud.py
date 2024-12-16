@@ -7,12 +7,11 @@ from typing import Any
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Session
 
+from carina.core.estados.models import Estado
+from carina.core.municipios.models import Municipio
+from carina.v4.estados.crud import get_estado_with_clave
 from lib.exceptions import MyIsDeletedError, MyNotExistsError, MyNotValidParamError
 from lib.safe_string import safe_clave
-
-from ...core.estados.models import Estado
-from ...core.municipios.models import Municipio
-from ..estados.crud import get_estado_with_clave
 
 
 def get_municipios(database: Session, estado_clave: str = None) -> Any:

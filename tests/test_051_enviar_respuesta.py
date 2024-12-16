@@ -121,7 +121,7 @@ class TestsEnviarRespuesta(unittest.TestCase):
                 {
                     "titulo": f"Video {numero}",
                     "descripcion": lorem.sentence(),
-                    "fecha": datetime.now().isoformat(),
+                    "fecha": datetime.now().strftime("%Y-%m-%d"),
                     "urlAcceso": f"https://www.youtube.com/watch?v={random_video_id}",
                 }
             )

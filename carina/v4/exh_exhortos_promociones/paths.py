@@ -32,10 +32,11 @@ async def recibir_exhorto_promocion_request(
             success=False,
             message="Error al recibir la promoción del exhorto",
             errors=[str(error)],
+            data=None,
         )
     data = ExhExhortoPromocionOut(
         folioSeguimiento=exh_exhorto_promocion.exh_exhorto.folio_seguimiento,
         folioOrigenPromocion=exh_exhorto_promocion.folio_origen_promocion,
-        fechaHora=exh_exhorto_promocion.creado,
+        fechaHora=exh_exhorto_promocion.creado.strftime("%Y-%m-%d %H:%M:%S"),
     )
-    return OneExhExhortoPromocionOut(success=True, data=data)
+    return OneExhExhortoPromocionOut(success=True, message="Promoción recibida con éxito", errors=[], data=data)

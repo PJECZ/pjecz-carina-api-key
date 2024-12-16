@@ -32,7 +32,11 @@ def get_exh_exhorto_archivo(database: Session, exh_exhorto_archivo_id: int) -> E
     return exh_exhorto_archivo
 
 
-def update_exh_exhorto_archivo(database: Session, exh_exhorto_archivo: ExhExhortoArchivo, **kwargs) -> ExhExhortoArchivo:
+def update_exh_exhorto_archivo(
+    database: Session,
+    exh_exhorto_archivo: ExhExhortoArchivo,
+    **kwargs,
+) -> ExhExhortoArchivo:
     """Actualizar un archivo"""
     for key, value in kwargs.items():
         setattr(exh_exhorto_archivo, key, value)

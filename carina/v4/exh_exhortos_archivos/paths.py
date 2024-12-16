@@ -48,6 +48,7 @@ async def recibir_exhorto_respuesta_archivo_request(
             success=False,
             message="Tipo de archivo no permitido",
             errors=["El nombre del archivo no termina en PDF"],
+            data=None,
         )
 
     # Consultar y validar el exhorto a partir del exhortoOrigenId
@@ -58,6 +59,7 @@ async def recibir_exhorto_respuesta_archivo_request(
             success=False,
             message="No se encontró el exhorto",
             errors=[str(error)],
+            data=None,
         )
 
     # Consultar los archivos del exhorto y buscar el archivo a partir del nombre del archivo
@@ -80,6 +82,7 @@ async def recibir_exhorto_respuesta_archivo_request(
             success=False,
             message="No se encontró el archivo",
             errors=["Al parecer el archivo ya fue recibido o no se declaró en el exhorto"],
+            data=None,
         )
 
     # Determinar el tamaño del archivo
@@ -91,6 +94,7 @@ async def recibir_exhorto_respuesta_archivo_request(
             success=False,
             message="El archivo excede el tamaño máximo permitido",
             errors=["El archivo no debe exceder los 10MB"],
+            data=None,
         )
 
     # Cargar el archivo en memoria
@@ -105,6 +109,7 @@ async def recibir_exhorto_respuesta_archivo_request(
                 success=False,
                 message="El archivo está corrupto",
                 errors=["El archivo no coincide con el hash SHA1"],
+                data=None,
             )
 
     # Validar la integridad del archivo con SHA256
@@ -116,6 +121,7 @@ async def recibir_exhorto_respuesta_archivo_request(
                 success=False,
                 message="El archivo está corrupto",
                 errors=["El archivo no coincide con el hash SHA256"],
+                data=None,
             )
 
     # Definir el nombre del archivo a subir a Google Storage
@@ -140,8 +146,9 @@ async def recibir_exhorto_respuesta_archivo_request(
     except MyAnyError as error:
         return OneExhExhortoArchivoOut(
             success=False,
-            message="Hubo un error nuestro al subir el archivo a Google Storage",
+            message="Hubo un error nuestro al subir el archivo al storage",
             errors=[str(error)],
+            data=None,
         )
 
     # Cambiar el estado a RECIBIDO
@@ -164,7 +171,7 @@ async def recibir_exhorto_respuesta_archivo_request(
     acuse = ExhExhortoArchivoRespuestaDataAcuse(
         exhortoId=exhortoOrigenId,
         respuestaOrigenId=respuestaOrigenId,
-        fechaHoraRecepcion=exh_exhorto.modificado,
+        fechaHoraRecepcion=exh_exhorto.modificado.strftime("%Y-%m-%d %H:%M:%S"),
     )
 
     # Definir el data
@@ -174,7 +181,7 @@ async def recibir_exhorto_respuesta_archivo_request(
     )
 
     # Entregar la respuesta
-    return OneExhExhortoArchivoRespuestaOut(data=data)
+    return OneExhExhortoArchivoRespuestaOut(success=True, message="Archivo recibido con éxito", errors=[], data=data)
 
 
 @exh_exhortos_archivos.post("/upload", response_model=OneExhExhortoArchivoOut)
@@ -194,6 +201,7 @@ async def recibir_exhorto_archivo_request(
             success=False,
             message="Tipo de archivo no permitido",
             errors=["El nombre del archivo no termina en PDF"],
+            data=None,
         )
 
     # Consultar y validar el exhorto a partir del exhortoOrigenId
@@ -204,6 +212,7 @@ async def recibir_exhorto_archivo_request(
             success=False,
             message="No se encontró el exhorto",
             errors=[str(error)],
+            data=None,
         )
 
     # Consultar los archivos del exhorto y buscar el archivo a partir del nombre del archivo
@@ -226,6 +235,7 @@ async def recibir_exhorto_archivo_request(
             success=False,
             message="No se encontró el archivo",
             errors=["Al parecer el archivo ya fue recibido o no se declaró en el exhorto"],
+            data=None,
         )
 
     # Determinar el tamaño del archivo
@@ -237,6 +247,7 @@ async def recibir_exhorto_archivo_request(
             success=False,
             message="El archivo excede el tamaño máximo permitido",
             errors=["El archivo no debe exceder los 10MB"],
+            data=None,
         )
 
     # Cargar el archivo en memoria
@@ -251,6 +262,7 @@ async def recibir_exhorto_archivo_request(
                 success=False,
                 message="El archivo está corrupto",
                 errors=["El archivo no coincide con el hash SHA1"],
+                data=None,
             )
 
     # Validar la integridad del archivo con SHA256
@@ -262,6 +274,7 @@ async def recibir_exhorto_archivo_request(
                 success=False,
                 message="El archivo está corrupto",
                 errors=["El archivo no coincide con el hash SHA256"],
+                data=None,
             )
 
     # Definir el nombre del archivo a subir a Google Storage
@@ -288,6 +301,7 @@ async def recibir_exhorto_archivo_request(
             success=False,
             message="Hubo un error al subir el archivo al storage",
             errors=[str(error)],
+            data=None,
         )
 
     # Cambiar el estado del archivo a RECIBIDO
@@ -321,12 +335,13 @@ async def recibir_exhorto_archivo_request(
             exh_exhorto=exh_exhorto,
             estado="RECIBIDO",
             folio_seguimiento=generar_identificador(),
+            respuesta_fecha_hora_recepcion=fecha_hora_recepcion,
         )
         # Y se va a elaborar el acuse
         acuse = ExhExhortoArchivoFileDataAcuse(
             exhortoOrigenId=exh_exhorto_actualizado.exhorto_origen_id,
             folioSeguimiento=exh_exhorto_actualizado.folio_seguimiento,
-            fechaHoraRecepcion=exh_exhorto_actualizado.respuesta_fecha_hora_recepcion,
+            fechaHoraRecepcion=exh_exhorto_actualizado.respuesta_fecha_hora_recepcion.strftime("%Y-%m-%d %H:%M:%S"),
             municipioAreaRecibeId=exh_exhorto_actualizado.respuesta_municipio_turnado_id,
             areaRecibeId=exh_exhorto_actualizado.respuesta_area_turnado_id,
             areaRecibeNombre=exh_exhorto_actualizado.respuesta_area_turnado_nombre,
@@ -351,4 +366,4 @@ async def recibir_exhorto_archivo_request(
     )
 
     # Entregar la respuesta
-    return OneExhExhortoArchivoOut(success=True, data=data)
+    return OneExhExhortoArchivoOut(success=True, message="Archivo recibido con éxito", errors=[], data=data)

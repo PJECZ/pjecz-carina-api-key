@@ -29,10 +29,9 @@ async def detalle_materia(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     try:
         materia = get_materia_with_clave(database, materia_clave)
-        data = MateriaOut.model_validate(materia)
     except MyAnyError as error:
-        return OneMateriaOut(success=False, errors=[str(error)])
-    return OneMateriaOut(success=True, data=data)
+        return OneMateriaOut(success=False, message="Error al consultar la materia", errors=[str(error)], data=None)
+    return OneMateriaOut(success=True, message="Consulta hecha con éxito", errors=[], data=MateriaOut.model_validate(materia))
 
 
 @materias.get("", response_model=CustomList[MateriaOut])
@@ -46,5 +45,5 @@ async def listado_materias(
     try:
         resultados = get_materias(database)
     except MyAnyError as error:
-        return CustomList(success=False, errors=[str(error)])
+        return CustomList(success=False, message="Error al consultar las materias", errors=[str(error)], data=None)
     return paginate(resultados)

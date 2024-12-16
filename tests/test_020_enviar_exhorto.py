@@ -10,6 +10,7 @@ Se recibe el esquema OneExhExhortoConfirmacionDatosExhortoRecibidoOut.
 
 import random
 import unittest
+from datetime import datetime
 
 import requests
 from faker import Faker
@@ -131,7 +132,7 @@ class TestsEnviarExhorto(unittest.TestCase):
             "fojas": 41,
             "diasResponder": 15,
             "tipoDiligenciacionNombre": "OFICIO",
-            "fechaOrigen": "2024-05-03T21:58:45.258Z",
+            "fechaOrigen": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "observaciones": "CELEBRIDADES QUE SE VAN A DIVORCIAR",
             "archivos": archivos,
         }
