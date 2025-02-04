@@ -1,16 +1,16 @@
 """
-Exh Exhortos Archivos v4, rutas (paths)
+Exh Exhortos Archivos
 """
 
 import hashlib
 from datetime import datetime
-from typing import Annotated, Any
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
-from ..dependencies.exceptions import MyAnyError, MyIsDeletedError, MyNotExistsError
+from ..dependencies.exceptions import MyAnyError, MyNotExistsError, MyNotValidParamError
 from ..dependencies.google_cloud_storage import upload_file_to_gcs
 from ..dependencies.pwgen import generar_identificador
 from ..models.exh_exhortos_archivos import ExhExhortoArchivo
@@ -25,44 +25,9 @@ from ..schemas.exh_exhortos_archivos import (
     OneExhExhortoArchivoRespuestaOut,
 )
 from ..settings import get_settings
-from .exh_exhortos import get_exh_exhorto, get_exh_exhorto_by_exhorto_origen_id, update_exh_exhorto
+from .exh_exhortos import get_exhorto_with_exhorto_origen_id
 
 exh_exhortos_archivos = APIRouter(prefix="/v4/exh_exhortos_archivos", tags=["exh exhortos"])
-
-
-def get_exh_exhortos_archivos(database: Session, exh_exhorto_id: int, estado: str = None, es_respuesta: bool = None) -> Any:
-    """Consultar los archivos de un exhorto"""
-    exh_exhorto = get_exh_exhorto(database, exh_exhorto_id)
-    consulta = database.query(ExhExhortoArchivo).filter_by(exh_exhorto_id=exh_exhorto.id)
-    if estado is not None:
-        consulta = consulta.filter_by(estado=estado)
-    if es_respuesta is not None:
-        consulta = consulta.filter_by(es_respuesta=es_respuesta)
-    return consulta.filter_by(estatus="A").order_by(ExhExhortoArchivo.id)
-
-
-def get_exh_exhorto_archivo(database: Session, exh_exhorto_archivo_id: int) -> ExhExhortoArchivo:
-    """Consultar un archivo por su id"""
-    exh_exhorto_archivo = database.query(ExhExhortoArchivo).get(exh_exhorto_archivo_id)
-    if exh_exhorto_archivo is None:
-        raise MyNotExistsError("No existe ese archivo")
-    if exh_exhorto_archivo.estatus != "A":
-        raise MyIsDeletedError("No es activo ese archivo, está eliminado")
-    return exh_exhorto_archivo
-
-
-def update_exh_exhorto_archivo(
-    database: Session,
-    exh_exhorto_archivo: ExhExhortoArchivo,
-    **kwargs,
-) -> ExhExhortoArchivo:
-    """Actualizar un archivo"""
-    for key, value in kwargs.items():
-        setattr(exh_exhorto_archivo, key, value)
-    database.add(exh_exhorto_archivo)
-    database.commit()
-    database.refresh(exh_exhorto_archivo)
-    return exh_exhorto_archivo
 
 
 @exh_exhortos_archivos.post("/responder_upload", response_model=OneExhExhortoArchivoRespuestaOut)
@@ -86,23 +51,27 @@ async def recibir_exhorto_respuesta_archivo_request(
             data=None,
         )
 
-    # Consultar y validar el exhorto a partir del exhortoOrigenId
+    # Consultar el exhorto
     try:
-        exh_exhorto = get_exh_exhorto_by_exhorto_origen_id(database, exhortoOrigenId)
-    except MyAnyError as error:
-        return OneExhExhortoArchivoRespuestaOut(
-            success=False,
-            message="No se encontró el exhorto",
-            errors=[str(error)],
-            data=None,
-        )
+        exh_exhorto = get_exhorto_with_exhorto_origen_id(database, exhortoOrigenId)
+    except (MyNotValidParamError, MyNotExistsError) as error:
+        return OneExhExhortoArchivoRespuestaOut(success=False, message=str(error), errors=[str(error)], data=None)
 
-    # Consultar los archivos del exhorto y buscar el archivo a partir del nombre del archivo
+    # Consultar los archivos del exhorto
+    exh_exhortos_archivos_consulta = (
+        database.query(ExhExhortoArchivo)
+        .filter_by(exh_exhorto_id=exh_exhorto.id)
+        .filter_by(estatus="A")
+        .order_by(ExhExhortoArchivo.id)
+        .all()
+    )
+
+    # Buscar el archivo a partir del nombre del archivo
     total_contador = 0
     pendientes_contador = 0
     recibidos_contador = 0
     exh_exhorto_archivo = None
-    for item in get_exh_exhortos_archivos(database=database, exh_exhorto_id=exh_exhorto.id, es_respuesta=True).all():
+    for item in exh_exhortos_archivos_consulta:
         total_contador += 1
         if item.nombre_archivo == archivo.filename and item.estado == "PENDIENTE":
             exh_exhorto_archivo = item
@@ -186,15 +155,13 @@ async def recibir_exhorto_respuesta_archivo_request(
             data=None,
         )
 
-    # Cambiar el estado a RECIBIDO
-    exh_exhorto_archivo = update_exh_exhorto_archivo(
-        database=database,
-        exh_exhorto_archivo=exh_exhorto_archivo,
-        estado="RECIBIDO",
-        fecha_hora_recepcion=fecha_hora_recepcion,
-        tamano=archivo_pdf_tamanio,
-        url=archivo_pdf_url,
-    )
+    # Actualizar el archivo en la base de datos
+    exh_exhorto_archivo.estado = "RECIBIDO"
+    exh_exhorto_archivo.fecha_hora_recepcion = fecha_hora_recepcion
+    exh_exhorto_archivo.tamano = archivo_pdf_tamanio
+    exh_exhorto_archivo.url = archivo_pdf_url
+    database.commit()
+    database.refresh(exh_exhorto_archivo)
 
     # Definir los datos del archivo para la respuesta
     archivo = ExhExhortoArchivoFileDataArchivo(
@@ -239,23 +206,27 @@ async def recibir_exhorto_archivo_request(
             data=None,
         )
 
-    # Consultar y validar el exhorto a partir del exhortoOrigenId
+    # Consultar el exhorto
     try:
-        exh_exhorto = get_exh_exhorto_by_exhorto_origen_id(database, exhortoOrigenId)
-    except MyAnyError as error:
-        return OneExhExhortoArchivoOut(
-            success=False,
-            message="No se encontró el exhorto",
-            errors=[str(error)],
-            data=None,
-        )
+        exh_exhorto = get_exhorto_with_exhorto_origen_id(database, exhortoOrigenId)
+    except (MyNotValidParamError, MyNotExistsError) as error:
+        return OneExhExhortoArchivoOut(success=False, message=str(error), errors=[str(error)], data=None)
 
-    # Consultar los archivos del exhorto y buscar el archivo a partir del nombre del archivo
+    # Consultar los archivos del exhorto
+    exh_exhortos_archivos_consulta = (
+        database.query(ExhExhortoArchivo)
+        .filter_by(exh_exhorto_id=exh_exhorto.id)
+        .filter_by(estatus="A")
+        .order_by(ExhExhortoArchivo.id)
+        .all()
+    )
+
+    # Buscar el archivo a partir del nombre del archivo
     total_contador = 0
     pendientes_contador = 0
     recibidos_contador = 0
     exh_exhorto_archivo = None
-    for item in get_exh_exhortos_archivos(database=database, exh_exhorto_id=exh_exhorto.id, es_respuesta=False).all():
+    for item in exh_exhortos_archivos_consulta:
         total_contador += 1
         if item.nombre_archivo == archivo.filename and item.estado == "PENDIENTE":
             exh_exhorto_archivo = item
@@ -339,15 +310,13 @@ async def recibir_exhorto_archivo_request(
             data=None,
         )
 
-    # Cambiar el estado del archivo a RECIBIDO
-    exh_exhorto_archivo = update_exh_exhorto_archivo(
-        database=database,
-        exh_exhorto_archivo=exh_exhorto_archivo,
-        estado="RECIBIDO",
-        fecha_hora_recepcion=fecha_hora_recepcion,
-        tamano=archivo_pdf_tamanio,
-        url=archivo_pdf_url,
-    )
+    # Actualizar el archivo en la base de datos
+    exh_exhorto_archivo.estado = "RECIBIDO"
+    exh_exhorto_archivo.fecha_hora_recepcion = fecha_hora_recepcion
+    exh_exhorto_archivo.tamano = archivo_pdf_tamanio
+    exh_exhorto_archivo.url = archivo_pdf_url
+    database.add(exh_exhorto_archivo)
+    database.commit()
 
     # Definir los datos del archivo para la respuesta
     archivo = ExhExhortoArchivoFileDataArchivo(
@@ -355,31 +324,32 @@ async def recibir_exhorto_archivo_request(
         tamaño=archivo_pdf_tamanio,
     )
 
-    # Consultar los archivos PENDIENTES del exhorto
-    exh_exhorto_archivos_pendientes = get_exh_exhortos_archivos(
-        database=database,
-        exh_exhorto_id=exh_exhorto.id,
-        estado="PENDIENTE",
+    # Consultar la cantidad de archivos PENDIENTES
+    exh_exhortos_archivos_pendientes_cantidad = (
+        database.query(ExhExhortoArchivo)
+        .filter_by(exh_exhorto_id=exh_exhorto.id)
+        .filter_by(estado="PENDIENTE")
+        .filter_by(estatus="A")
+        .order_by(ExhExhortoArchivo.id)
+        .count()
     )
 
-    # Si YA NO HAY pendientes, entonces se manda contenido en el acuse
-    if exh_exhorto_archivos_pendientes.count() == 0:
-        # Entonces ES EL ULTIMO ARCHIVO, se cambia el estado de exh_exhorto a RECIBIDO y se define el folio de seguimiento
-        exh_exhorto_actualizado = update_exh_exhorto(
-            database=database,
-            exh_exhorto=exh_exhorto,
-            estado="RECIBIDO",
-            folio_seguimiento=generar_identificador(),
-            respuesta_fecha_hora_recepcion=fecha_hora_recepcion,
-        )
+    # Si YA NO HAY PENDIENTES entonces ES EL ULTIMO ARCHIVO
+    if exh_exhortos_archivos_pendientes_cantidad == 0:
+        # Cambiar el estado de exh_exhorto a RECIBIDO y se define el folio de seguimiento
+        exh_exhorto.estado = "RECIBIDO"
+        exh_exhorto.folio_seguimiento = generar_identificador()
+        exh_exhorto.respuesta_fecha_hora_recepcion = fecha_hora_recepcion
+        database.add(exh_exhorto)
+        database.commit()
         # Y se va a elaborar el acuse
         acuse = ExhExhortoArchivoFileDataAcuse(
-            exhortoOrigenId=exh_exhorto_actualizado.exhorto_origen_id,
-            folioSeguimiento=exh_exhorto_actualizado.folio_seguimiento,
-            fechaHoraRecepcion=exh_exhorto_actualizado.respuesta_fecha_hora_recepcion.strftime("%Y-%m-%d %H:%M:%S"),
-            municipioAreaRecibeId=exh_exhorto_actualizado.respuesta_municipio_turnado_id,
-            areaRecibeId=exh_exhorto_actualizado.respuesta_area_turnado_id,
-            areaRecibeNombre=exh_exhorto_actualizado.respuesta_area_turnado_nombre,
+            exhortoOrigenId=exh_exhorto.exhorto_origen_id,
+            folioSeguimiento=exh_exhorto.folio_seguimiento,
+            fechaHoraRecepcion=exh_exhorto.respuesta_fecha_hora_recepcion.strftime("%Y-%m-%d %H:%M:%S"),
+            municipioAreaRecibeId=exh_exhorto.respuesta_municipio_turnado_id,
+            areaRecibeId=exh_exhorto.respuesta_area_turnado_id,
+            areaRecibeNombre=exh_exhorto.respuesta_area_turnado_nombre,
             urlInfo="https://www.google.com.mx",
         )
     else:

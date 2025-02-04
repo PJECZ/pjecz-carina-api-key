@@ -1,5 +1,5 @@
 """
-Exh Exhortos Promociones v4, rutas (paths)
+Exh Exhortos Promociones
 """
 
 from datetime import datetime
@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
-from ..dependencies.exceptions import MyAnyError, MyIsDeletedError, MyNotExistsError, MyNotValidParamError
+from ..dependencies.exceptions import MyNotExistsError, MyNotValidParamError
 from ..dependencies.safe_string import safe_string
 from ..models.exh_exhortos import ExhExhorto
 from ..models.exh_exhortos_promociones import ExhExhortoPromocion
@@ -17,48 +17,27 @@ from ..models.exh_exhortos_promociones_archivos import ExhExhortoPromocionArchiv
 from ..models.exh_exhortos_promociones_promoventes import ExhExhortoPromocionPromovente
 from ..models.permisos import Permiso
 from ..schemas.exh_exhortos_promociones import ExhExhortoPromocionIn, ExhExhortoPromocionOut, OneExhExhortoPromocionOut
-from .exh_exhortos import get_exh_exhorto, get_exh_exhorto_by_folio_seguimiento
+from .exh_exhortos import get_exhorto_with_folio_seguimiento
 
 exh_exhortos_promociones = APIRouter(prefix="/v4/exh_exhortos_promociones", tags=["exh exhortos promociones"])
 
 
-def get_exh_exhortos_promociones(database: Session, exh_exhorto_id: int) -> Any:
-    """Consultar las promociones de un exhorto"""
-    exh_exhorto = get_exh_exhorto(database, exh_exhorto_id)
-    return (
-        database.query(ExhExhortoPromocion)
-        .filter_by(exh_exhorto_id=exh_exhorto.id)
-        .filter_by(estatus="A")
-        .order_by(ExhExhortoPromocion.id)
-    )
-
-
-def get_exh_exhorto_promocion(database: Session, exh_exhorto_promocion_id: int) -> ExhExhortoPromocion:
-    """Consultar una promoción de un exhorto por su id"""
-    exh_exhorto_promocion = database.query(ExhExhortoPromocion).get(exh_exhorto_promocion_id)
-    if exh_exhorto_promocion is None:
-        raise MyNotExistsError("No existe esa promoción de exhorto")
-    if exh_exhorto_promocion.estatus != "A":
-        raise MyIsDeletedError("No es activa esa promoción de exhorto, está eliminada")
-    return exh_exhorto_promocion
-
-
-def get_exh_exhorto_promocion_by_folio_origen_promocion(
-    database: Session,
+def get_exhorto_promocion_with_folio_seguimiento(
+    database: Annotated[Session, Depends(get_db)],
     folio_seguimiento: str,
     folio_origen_promocion: str,
-):
-    """Consultar una promoción de un exhorto por su folio de origen de promoción"""
+) -> ExhExhortoPromocion:
+    """Consultar una promoción con el folio de seguimiento del exhorto y el folio origen de la promoción"""
 
-    # Normalizar a 48 caracteres permitidos como máximo
+    # Normalizar folio_seguimiento a 48 caracteres como máximo
     folio_seguimiento = safe_string(folio_seguimiento, max_len=48, do_unidecode=True, to_uppercase=False)
     if folio_seguimiento == "":
-        raise MyNotValidParamError("No es un folio de seguimiento válido")
+        raise MyNotValidParamError("No es un folio de seguimiento de exhorto válido")
 
-    # Normalizar a 48 caracteres permitidos como máximo
+    # Normalizar folio_seguimiento a 48 caracteres como máximo
     folio_origen_promocion = safe_string(folio_origen_promocion, max_len=48, do_unidecode=True, to_uppercase=False)
     if folio_origen_promocion == "":
-        raise MyNotValidParamError("No es un folio de origen de promoción válido")
+        raise MyNotValidParamError("No es un folio de origen de la promoción válido")
 
     # Consultar la promoción
     exh_exhorto_promocion = (
@@ -78,14 +57,24 @@ def get_exh_exhorto_promocion_by_folio_origen_promocion(
     return exh_exhorto_promocion
 
 
-def create_exh_exhorto_promocion(database: Session, exh_exhorto_promocion_in: ExhExhortoPromocionIn) -> ExhExhortoPromocion:
-    """Crear una promoción de un exhorto"""
+@exh_exhortos_promociones.post("", response_model=OneExhExhortoPromocionOut)
+async def recibir_exhorto_promocion_request(
+    current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
+    database: Annotated[Session, Depends(get_db)],
+    exh_exhorto_promocion_in: ExhExhortoPromocionIn,
+):
+    """Recibir una promoción de un exhorto"""
+    if current_user.permissions.get("EXH EXHORTOS PROMOCIONES", 0) < Permiso.CREAR:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
-    # Inicializar
+    # Inicializar la promoción
     exh_exhorto_promocion = ExhExhortoPromocion()
 
     # Consultar el exhorto
-    exh_exhorto = get_exh_exhorto_by_folio_seguimiento(database, exh_exhorto_promocion_in.folioSeguimiento)
+    try:
+        exh_exhorto = get_exhorto_with_folio_seguimiento(database, exh_exhorto_promocion_in.folioSeguimiento)
+    except (MyNotValidParamError, MyNotExistsError) as error:
+        return OneExhExhortoPromocionOut(success=False, message=str(error), errors=[str(error)], data=None)
 
     # Definir las propiedades
     exh_exhorto_promocion.exh_exhorto_id = exh_exhorto.id
@@ -138,41 +127,6 @@ def create_exh_exhorto_promocion(database: Session, exh_exhorto_promocion_in: Ex
     database.refresh(exh_exhorto_promocion)
 
     # Entregar
-    return exh_exhorto_promocion
-
-
-def update_exh_exhorto_promocion(
-    database: Session,
-    exh_exhorto_promocion: ExhExhortoPromocion,
-    **kwargs,
-) -> ExhExhortoPromocion:
-    """Actualizar una promoción de un exhorto"""
-    for key, value in kwargs.items():
-        setattr(exh_exhorto_promocion, key, value)
-    database.add(exh_exhorto_promocion)
-    database.commit()
-    database.refresh(exh_exhorto_promocion)
-    return exh_exhorto_promocion
-
-
-@exh_exhortos_promociones.post("", response_model=OneExhExhortoPromocionOut)
-async def recibir_exhorto_promocion_request(
-    current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
-    database: Annotated[Session, Depends(get_db)],
-    exh_exhorto_promocion_in: ExhExhortoPromocionIn,
-):
-    """Recibir una promoción de un exhorto"""
-    if current_user.permissions.get("EXH EXHORTOS PROMOCIONES", 0) < Permiso.CREAR:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
-    try:
-        exh_exhorto_promocion = create_exh_exhorto_promocion(database, exh_exhorto_promocion_in)
-    except MyAnyError as error:
-        return OneExhExhortoPromocionOut(
-            success=False,
-            message="Error al recibir la promoción del exhorto",
-            errors=[str(error)],
-            data=None,
-        )
     data = ExhExhortoPromocionOut(
         folioSeguimiento=exh_exhorto_promocion.exh_exhorto.folio_seguimiento,
         folioOrigenPromocion=exh_exhorto_promocion.folio_origen_promocion,

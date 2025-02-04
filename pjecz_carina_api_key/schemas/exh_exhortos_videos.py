@@ -10,10 +10,10 @@ from ..dependencies.schemas_base import OneBaseOut
 class ExhExhortoVideoIn(BaseModel):
     """Esquema para estructurar el listado de videos de una promoción"""
 
-    titulo: str | None = None
-    descripcion: str | None = None
-    fecha: str | None = None  # YYYY-MM-DD
-    urlAcceso: str | None = None
+    titulo: str
+    descripcion: str
+    fecha: str  # YYYY-MM-DD
+    urlAcceso: str
 
 
 class ExhExhortoVideoOut(ExhExhortoVideoIn):

@@ -10,10 +10,10 @@ from ..dependencies.schemas_base import OneBaseOut
 class MunicipioOut(BaseModel):
     """Esquema para entregar municipios"""
 
-    clave: str | None = None
-    nombre: str | None = None
-    estado_clave: str | None = None
-    estado_nombre: str | None = None
+    clave: str
+    nombre: str
+    estado_clave: str
+    estado_nombre: str
     model_config = ConfigDict(from_attributes=True)
 
 

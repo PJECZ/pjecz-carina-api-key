@@ -10,8 +10,8 @@ from ..dependencies.schemas_base import OneBaseOut
 class DomicilioOut(BaseModel):
     """Esquema para entregar domicilios"""
 
-    id: int | None = None
-    edificio: str | None = None
+    id: int
+    edificio: str
     model_config = ConfigDict(from_attributes=True)
 
 

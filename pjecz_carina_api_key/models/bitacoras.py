@@ -1,5 +1,5 @@
 """
-Bitacoras, modelos
+Bitácoras, modelos
 """
 
 from sqlalchemy import ForeignKey, String
@@ -10,7 +10,7 @@ from ..dependencies.universal_mixin import UniversalMixin
 
 
 class Bitacora(Base, UniversalMixin):
-    """Bitacora"""
+    """Bitácora"""
 
     # Nombre de la tabla
     __tablename__ = "bitacoras"

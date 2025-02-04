@@ -13,31 +13,31 @@ from .exh_exhortos_videos import ExhExhortoVideoIn
 class ExhExhortoIn(BaseModel):
     """Esquema para recibir un exhorto"""
 
-    exhortoOrigenId: str | None = None
-    municipioDestinoId: int | None = None
-    materiaClave: str | None = None
-    estadoOrigenId: int | None = None
-    municipioOrigenId: int | None = None
-    juzgadoOrigenId: str | None = None
-    juzgadoOrigenNombre: str | None = None
-    numeroExpedienteOrigen: str | None = None
-    numeroOficioOrigen: str | None = None
-    tipoJuicioAsuntoDelitos: str | None = None
-    juezExhortante: str | None = None
-    partes: list[ExhExhortoParte] | None = None
-    fojas: int | None = None
-    diasResponder: int | None = None
-    tipoDiligenciacionNombre: str | None = None
-    fechaOrigen: str | None = None  # YYYY-MM-DD HH:mm:ss
-    observaciones: str | None = None
-    archivos: list[ExhExhortoArchivo] | None = None
+    exhortoOrigenId: str
+    municipioDestinoId: int
+    materiaClave: str
+    estadoOrigenId: int
+    municipioOrigenId: int
+    juzgadoOrigenId: str
+    juzgadoOrigenNombre: str
+    numeroExpedienteOrigen: str
+    numeroOficioOrigen: str
+    tipoJuicioAsuntoDelitos: str
+    juezExhortante: str
+    partes: list[ExhExhortoParte]
+    fojas: int
+    diasResponder: int
+    tipoDiligenciacionNombre: str
+    fechaOrigen: str  # YYYY-MM-DD HH:mm:ss
+    observaciones: str
+    archivos: list[ExhExhortoArchivo]
 
 
 class ExhExhortoOut(BaseModel):
     """Esquema para confirmar la recepción de un exhorto"""
 
-    exhortoOrigenId: str | None = None
-    fechaHora: str | None = None  # YYYY-MM-DD HH:mm:ss
+    exhortoOrigenId: str
+    fechaHora: str  # YYYY-MM-DD HH:mm:ss
 
 
 class OneExhExhortoOut(OneBaseOut):
@@ -49,21 +49,21 @@ class OneExhExhortoOut(OneBaseOut):
 class ExhExhortoConsultaOut(ExhExhortoIn):
     """Esquema para consultar un exhorto"""
 
-    folioSeguimiento: str | None = None
-    estadoDestinoId: int | None = None
-    estadoDestinoNombre: str | None = None
-    municipioDestinoNombre: str | None = None
-    materiaNombre: str | None = None
-    estadoOrigenNombre: str | None = None
-    municipioOrigenNombre: str | None = None
-    fechaHoraRecepcion: str | None = None  # YYYY-MM-DD HH:mm:ss
-    municipioTurnadoId: int | None = None
-    municipioTurnadoNombre: str | None = None
-    areaTurnadoId: str | None = None
-    areaTurnadoNombre: str | None = None
-    numeroExhorto: str | None = None
-    urlInfo: str | None = None
-    respuestaOrigenId: str | None = None
+    folioSeguimiento: str
+    estadoDestinoId: int
+    estadoDestinoNombre: str
+    municipioDestinoNombre: str
+    materiaNombre: str
+    estadoOrigenNombre: str
+    municipioOrigenNombre: str
+    fechaHoraRecepcion: str  # YYYY-MM-DD HH:mm:ss
+    municipioTurnadoId: int
+    municipioTurnadoNombre: str
+    areaTurnadoId: str
+    areaTurnadoNombre: str
+    numeroExhorto: str
+    urlInfo: str
+    respuestaOrigenId: str
 
 
 class OneExhExhortoConsultaOut(OneBaseOut):
@@ -75,24 +75,24 @@ class OneExhExhortoConsultaOut(OneBaseOut):
 class ExhExhortoRespuestaIn(BaseModel):
     """Esquema para recibir la respuesta"""
 
-    exhortoId: str | None = None
-    respuestaOrigenId: str | None = None
-    municipioTurnadoId: int | None = None
-    areaTurnadoId: str | None = None
-    areaTurnadoNombre: str | None = None
-    numeroExhorto: str | None = None
-    tipoDiligenciado: int | None = None  # 0 = No Diligenciado, 1 = Parcialmente Dilgenciado, 2 = Diligenciado
-    observaciones: str | None = None
-    archivos: list[ExhExhortoArchivo] | None = None
-    videos: list[ExhExhortoVideoIn] | None = None
+    exhortoId: str
+    respuestaOrigenId: str
+    municipioTurnadoId: int
+    areaTurnadoId: str
+    areaTurnadoNombre: str
+    numeroExhorto: str
+    tipoDiligenciado: int  # 0 = No Diligenciado, 1 = Parcialmente Dilgenciado, 2 = Diligenciado
+    observaciones: str
+    archivos: list[ExhExhortoArchivo]
+    videos: list[ExhExhortoVideoIn]
 
 
 class ExhExhortoRespuestaOut(BaseModel):
     """Esquema para confirmar la recepción de la respuesta"""
 
-    exhortoId: str | None = None
-    respuestaOrigenId: str | None = None
-    fechaHora: str | None = None  # YYYY-MM-DD HH:mm:ss
+    exhortoId: str
+    respuestaOrigenId: str
+    fechaHora: str  # YYYY-MM-DD HH:mm:ss
 
 
 class OneExhExhortoRespuestaOut(OneBaseOut):

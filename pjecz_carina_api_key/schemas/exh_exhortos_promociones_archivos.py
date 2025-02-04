@@ -11,32 +11,32 @@ from .exh_exhortos_archivos import ExhExhortoArchivo
 class ExhExhortoPromocionArchivo(BaseModel):
     """Esquema para estructurar el listado de archivos de una promoción"""
 
-    nombreArchivo: str | None = None
-    hashSha1: str | None = None
-    hashSha256: str | None = None
-    tipoDocumento: int | None = None
+    nombreArchivo: str
+    hashSha1: str
+    hashSha256: str
+    tipoDocumento: int
 
 
 class ExhExhortoPromocionArchivoFileIn(BaseModel):
     """Esquema para recibir archivos Content-Disposition, form-data, file"""
 
-    folioSeguimiento: str | None = None
-    folioOrigenPromocion: str | None = None
+    folioSeguimiento: str
+    folioOrigenPromocion: str
 
 
 class ExhExhortoPromocionArchivoDataAcuse(BaseModel):
     """Esquema con la estructura para la data con el acuse"""
 
-    folioOrigenPromocion: str | None = None
-    folioPromocionRecibida: str | None = None
-    fechaHoraRecepcion: str | None = None  # YYYY-MM-DD HH:mm:ss
+    folioOrigenPromocion: str
+    folioPromocionRecibida: str
+    fechaHoraRecepcion: str  # YYYY-MM-DD HH:mm:ss
 
 
 class ExhExhortoPromocionArchivoOut(BaseModel):
     """Esquema para entregar la confirmación de la recepción de un archivo de promoción"""
 
-    archivo: ExhExhortoArchivo | None = None
-    acuse: ExhExhortoPromocionArchivoDataAcuse | None = None
+    archivo: ExhExhortoArchivo
+    acuse: ExhExhortoPromocionArchivoDataAcuse
 
 
 class OneExhExhortoPromocionArchivoOut(OneBaseOut):

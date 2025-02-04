@@ -10,13 +10,17 @@ from ..dependencies.schemas_base import OneBaseOut
 class AutoridadOut(BaseModel):
     """Esquema para entregar autoridades"""
 
-    id: int | None = None
-    clave: str | None = None
-    descripcion_corta: str | None = None
-    distrito_id: int | None = None
-    distrito_clave: str | None = None
-    descripcion: str | None = None
-    es_extinto: bool | None = None
+    clave: str
+    descripcion_corta: str
+    distrito_id: int
+    distrito_clave: str
+    descripcion: str
+    es_extinto: bool
+    es_cemasc: bool
+    es_defensoria: bool
+    es_jurisdiccional: bool
+    es_notaria: bool
+    es_organo_especializado: bool
     model_config = ConfigDict(from_attributes=True)
 
 

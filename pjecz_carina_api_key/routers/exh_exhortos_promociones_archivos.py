@@ -1,5 +1,5 @@
 """
-Exh Exhortos Promociones Archivos v4, rutas (paths)
+Exh Exhortos Promociones Archivos
 """
 
 import hashlib
@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
-from ..dependencies.exceptions import MyAnyError, MyIsDeletedError, MyNotExistsError
+from ..dependencies.exceptions import MyAnyError, MyNotExistsError, MyNotValidParamError
 from ..dependencies.google_cloud_storage import upload_file_to_gcs
 from ..dependencies.pwgen import generar_identificador
 from ..models.exh_exhortos_promociones_archivos import ExhExhortoPromocionArchivo
@@ -22,46 +22,9 @@ from ..schemas.exh_exhortos_promociones_archivos import (
     OneExhExhortoPromocionArchivoOut,
 )
 from ..settings import get_settings
-from .exh_exhortos_promociones import (
-    get_exh_exhorto_promocion,
-    get_exh_exhorto_promocion_by_folio_origen_promocion,
-    update_exh_exhorto_promocion,
-)
+from .exh_exhortos_promociones import get_exhorto_promocion_with_folio_seguimiento
 
 exh_exhortos_promociones_archivos = APIRouter(prefix="/v4/exh_exhortos_promociones_archivos", tags=["exh exhortos promociones"])
-
-
-def get_exh_exhortos_promociones_archivos(database: Session, exh_exhorto_promocion_id: int, estado: str = None) -> Any:
-    """Consultar los archivos de una promoción de un exhorto"""
-    exh_exhorto_promocion = get_exh_exhorto_promocion(database, exh_exhorto_promocion_id)
-    consulta = database.query(ExhExhortoPromocionArchivo).filter_by(exh_exhorto_promocion_id=exh_exhorto_promocion.id)
-    if estado is not None:
-        consulta = consulta.filter_by(estado=estado)
-    return consulta.filter_by(estatus="A").order_by(ExhExhortoPromocionArchivo.id)
-
-
-def get_exh_exhorto_promocion_archivo(database: Session, exh_exhorto_promocion_archivo_id: int) -> ExhExhortoPromocionArchivo:
-    """Consultar un archivo de una promoción de un exhorto por su id"""
-    exh_exhorto_promocion_archivo = database.query(ExhExhortoPromocionArchivo).get(exh_exhorto_promocion_archivo_id)
-    if exh_exhorto_promocion_archivo is None:
-        raise MyNotExistsError("No existe ese archivo de promoción de exhorto")
-    if exh_exhorto_promocion_archivo.estatus != "A":
-        raise MyIsDeletedError("No es activo ese archivo de promoción de exhorto, está eliminado")
-    return exh_exhorto_promocion_archivo
-
-
-def update_exh_exhorto_promocion_archivo(
-    database: Session,
-    exh_exhorto_promocion_archivo: ExhExhortoPromocionArchivo,
-    **kwargs,
-) -> ExhExhortoPromocionArchivo:
-    """Actualizar un archivo de una promoción de un exhorto"""
-    for key, value in kwargs.items():
-        setattr(exh_exhorto_promocion_archivo, key, value)
-    database.add(exh_exhorto_promocion_archivo)
-    database.commit()
-    database.refresh(exh_exhorto_promocion_archivo)
-    return exh_exhorto_promocion_archivo
 
 
 @exh_exhortos_promociones_archivos.post("/upload", response_model=OneExhExhortoPromocionArchivoOut)
@@ -85,27 +48,31 @@ async def recibir_exhorto_promocion_archivo_request(
             data=None,
         )
 
-    # Consultar y validar la promoción a partir de folioSeguimiento y folioOrigenPromocion
+    # Consultar la promoción
     try:
-        exh_exhorto_promocion = get_exh_exhorto_promocion_by_folio_origen_promocion(
+        exh_exhorto_promocion = get_exhorto_promocion_with_folio_seguimiento(
             database=database,
             folio_seguimiento=folioSeguimiento,
             folio_origen_promocion=folioOrigenPromocion,
         )
-    except MyAnyError as error:
-        return OneExhExhortoPromocionArchivoOut(
-            success=False,
-            message="No se encontró la promoción",
-            errors=[str(error)],
-            data=None,
-        )
+    except (MyNotValidParamError, MyNotExistsError) as error:
+        return OneExhExhortoPromocionArchivoOut(success=False, message=str(error), errors=[str(error)], data=None)
 
-    # Consultar los archivos de la promoción y buscar el archivo que se pretende subir
+    # Consultar los archivos de la promoción
+    exh_exhortos_promociones_archivos_consulta = (
+        database.query(ExhExhortoPromocionArchivo)
+        .filter_by(exh_exhorto_promocion_id=exh_exhorto_promocion.id)
+        .filter_by(estatus="A")
+        .order_by(ExhExhortoPromocionArchivo.id)
+        .all()
+    )
+
+    # Buscar el archivo que se pretende subir
     total_contador = 0
     pendientes_contador = 0
     recibidos_contador = 0
     exh_exhorto_promocion_archivo = None
-    for item in get_exh_exhortos_promociones_archivos(database, exh_exhorto_promocion.id):
+    for item in exh_exhortos_promociones_archivos_consulta:
         total_contador += 1
         if item.nombre_archivo == archivo.filename and item.estado == "PENDIENTE":
             exh_exhorto_promocion_archivo = item
@@ -189,15 +156,13 @@ async def recibir_exhorto_promocion_archivo_request(
             data=None,
         )
 
-    # Cambiar el estado del archivo a RECIBIDO
-    exh_exhorto_promocion_archivo = update_exh_exhorto_promocion_archivo(
-        database=database,
-        exh_exhorto_promocion_archivo=exh_exhorto_promocion_archivo,
-        estado="RECIBIDO",
-        fecha_hora_recepcion=fecha_hora_recepcion,
-        tamano=archivo_pdf_tamanio,
-        url=archivo_pdf_url,
-    )
+    # Actualizar el archivo en la base de datos
+    exh_exhorto_promocion_archivo.estado = "RECIBIDO"
+    exh_exhorto_promocion_archivo.fecha_hora_recepcion = fecha_hora_recepcion
+    exh_exhorto_promocion_archivo.tamano = archivo_pdf_tamanio
+    exh_exhorto_promocion_archivo.url = archivo_pdf_url
+    database.add(exh_exhorto_promocion_archivo)
+    database.commit()
 
     # Definir los datos del archivo para la respuesta
     archivo = ExhExhortoArchivo(
@@ -207,26 +172,27 @@ async def recibir_exhorto_promocion_archivo_request(
         tipoDocumento=exh_exhorto_promocion_archivo.tipo_documento,
     )
 
-    # Consultar los archivos PENDIENTES del exhorto
-    exh_exhortos_promociones_archivos_pendientes = get_exh_exhortos_promociones_archivos(
-        database=database,
-        exh_exhorto_promocion_id=exh_exhorto_promocion.id,
-        estado="PENDIENTE",
+    # Consultar la cantidad de archivos PENDIENTES de la promoción
+    exh_exhortos_promociones_archivos_pendientes_cantidad = (
+        database.query(ExhExhortoPromocionArchivo)
+        .filter_by(exh_exhorto_promocion_id=exh_exhorto_promocion.id)
+        .filter_by(estado="PENDIENTE")
+        .filter_by(estatus="A")
+        .order_by(ExhExhortoPromocionArchivo.id)
+        .count()
     )
 
-    # Si YA NO HAY pendientes, entonces se manda contenido en el acuse
-    if exh_exhortos_promociones_archivos_pendientes.count() == 0:
-        # Entonces ES EL ÚLTIMO ARCHIVO, se cambia el estado de la promoción a RECIBIDO
-        exh_exhorto_promocion_actualizado = update_exh_exhorto_promocion(
-            database=database,
-            exh_exhorto_promocion=exh_exhorto_promocion,
-            estado="ENVIADO",
-        )
-        # Y se va a elaborar el acuse
+    # Si YA NO HAY PENDIENTES entonces ES EL ÚLTIMO ARCHIVO
+    if exh_exhortos_promociones_archivos_pendientes_cantidad == 0:
+        # Cambiar el estado de la promoción a ENVIADO
+        exh_exhorto_promocion.estado = "ENVIADO"
+        database.add(exh_exhorto_promocion)
+        database.commit()
+        # Elaborar el acuse
         acuse = ExhExhortoPromocionArchivoDataAcuse(
-            folioOrigenPromocion=exh_exhorto_promocion_actualizado.folio_origen_promocion,
+            folioOrigenPromocion=exh_exhorto_promocion.folio_origen_promocion,
             folioPromocionRecibida=generar_identificador(),  # TODO: Debe de conservarse en la base de datos
-            fechaHoraRecepcion=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),  # TODO: Debe de conservarse en la base de datos
+            fechaHoraRecepcion=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         )
     else:
         # Aún faltan archivos, entonces el acuse no lleva contenido

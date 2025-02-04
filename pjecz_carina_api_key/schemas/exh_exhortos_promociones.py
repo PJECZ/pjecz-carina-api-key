@@ -12,21 +12,21 @@ from .exh_exhortos_promociones_promoventes import ExhExhortoPromocionPromovente
 class ExhExhortoPromocionIn(BaseModel):
     """Esquema para recibir una promoción"""
 
-    folioSeguimiento: str | None = None
-    folioOrigenPromocion: str | None = None
-    promoventes: list[ExhExhortoPromocionPromovente] | None = None
-    fojas: int | None = None
-    fechaOrigen: str | None = None  # YYYY-MM-DD HH:mm:ss
-    observaciones: str | None = None
-    archivos: list[ExhExhortoPromocionArchivo] | None = None
+    folioSeguimiento: str
+    folioOrigenPromocion: str
+    promoventes: list[ExhExhortoPromocionPromovente]
+    fojas: int
+    fechaOrigen: str  # YYYY-MM-DD HH:mm:ss
+    observaciones: str
+    archivos: list[ExhExhortoPromocionArchivo]
 
 
 class ExhExhortoPromocionOut(BaseModel):
     """Esquema para confirmar la recepción de una promoción"""
 
-    folioSeguimiento: str | None = None
-    folioOrigenPromocion: str | None = None
-    fechaHora: str | None = None  # YYYY-MM-DD HH:mm:ss
+    folioSeguimiento: str
+    folioOrigenPromocion: str
+    fechaHora: str  # YYYY-MM-DD HH:mm:ss
 
 
 class OneExhExhortoPromocionOut(OneBaseOut):

@@ -10,13 +10,13 @@ from ..dependencies.schemas_base import OneBaseOut
 class ExhExhortoPromocionPromovente(BaseModel):
     """Esquema para estructurar el listado de promoventes de una promoción"""
 
-    nombre: str | None = None
-    apellidoPaterno: str | None = None
-    apellidoMaterno: str | None = None
-    genero: str | None = None
-    esPersonaMoral: bool | None = None
-    tipoParte: int | None = None
-    tipoParteNombre: str | None = None
+    nombre: str
+    apellidoPaterno: str
+    apellidoMaterno: str
+    genero: str
+    esPersonaMoral: bool
+    tipoParte: int
+    tipoParteNombre: str
 
 
 class ExhExhortoPromocionPromoventeOut(ExhExhortoPromocionPromovente):

@@ -33,6 +33,11 @@ class Autoridad(Base, UniversalMixin):
     descripcion: Mapped[str] = mapped_column(String(256))
     descripcion_corta: Mapped[str] = mapped_column(String(64))
     es_extinto: Mapped[bool] = mapped_column(default=False)
+    es_cemasc: Mapped[bool] = mapped_column(default=False)
+    es_defensoria: Mapped[bool] = mapped_column(default=False)
+    es_jurisdiccional: Mapped[bool] = mapped_column(default=False)
+    es_notaria: Mapped[bool] = mapped_column(default=False)
+    es_organo_especializado: Mapped[bool] = mapped_column(default=False)
 
     # Hijos
     exh_exhortos: Mapped[List["ExhExhorto"]] = relationship("ExhExhorto", back_populates="autoridad")

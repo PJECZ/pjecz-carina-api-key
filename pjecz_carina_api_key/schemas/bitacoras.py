@@ -10,13 +10,13 @@ from ..dependencies.schemas_base import OneBaseOut
 class BitacoraOut(BaseModel):
     """Esquema para entregar bitacoras"""
 
-    id: int | None = None
-    modulo_id: int | None = None
-    modulo_nombre: str | None = None
-    usuario_id: int | None = None
-    usuario_email: str | None = None
-    descripcion: str | None = None
-    url: str | None = None
+    id: int
+    modulo_id: int
+    modulo_nombre: str
+    usuario_id: int
+    usuario_email: str
+    descripcion: str
+    url: str
     model_config = ConfigDict(from_attributes=True)
 
 

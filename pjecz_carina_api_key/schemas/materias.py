@@ -10,9 +10,9 @@ from ..dependencies.schemas_base import OneBaseOut
 class MateriaOut(BaseModel):
     """Esquema para entregar materias"""
 
-    clave: str | None = None
-    nombre: str | None = None
-    descripcion: str | None = None
+    clave: str
+    nombre: str
+    descripcion: str
     model_config = ConfigDict(from_attributes=True)
 
 

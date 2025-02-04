@@ -9,12 +9,12 @@ from typing import Optional
 from fastapi import Depends, HTTPException
 from fastapi.security.api_key import APIKeyHeader
 from hashids import Hashids
-from models.usuarios import Usuario
-from schemas.usuarios import UsuarioInDB
 from sqlalchemy.orm import Session
 from starlette.status import HTTP_403_FORBIDDEN
 from unidecode import unidecode
 
+from ..models.usuarios import Usuario
+from ..schemas.usuarios import UsuarioInDB
 from .database import get_db
 from .exceptions import MyAuthenticationError
 

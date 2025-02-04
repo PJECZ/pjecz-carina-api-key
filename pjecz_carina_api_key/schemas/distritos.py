@@ -10,12 +10,11 @@ from ..dependencies.schemas_base import OneBaseOut
 class DistritoOut(BaseModel):
     """Esquema para entregar distritos"""
 
-    id: int | None = None
-    clave: str | None = None
-    nombre_corto: str | None = None
-    nombre: str | None = None
-    es_distrito: bool | None = None
-    es_jurisdiccional: bool | None = None
+    clave: str
+    nombre_corto: str
+    nombre: str
+    es_distrito: bool
+    es_jurisdiccional: bool
     model_config = ConfigDict(from_attributes=True)
 
 

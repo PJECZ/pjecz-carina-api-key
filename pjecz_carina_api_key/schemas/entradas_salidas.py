@@ -10,13 +10,15 @@ from ..dependencies.schemas_base import OneBaseOut
 class EntradaSalidaOut(BaseModel):
     """Esquema para entregar entradas-salidas"""
 
-    id: int | None = None
-    usuario_id: int | None = None
-    usuario_email: str | None = None
-    tipo: str | None = None
-    direccion_ip: str | None = None
+    id: int
+    usuario_id: int
+    usuario_email: str
+    tipo: str
+    direccion_ip: str
     model_config = ConfigDict(from_attributes=True)
 
 
-class OneEntradaSalidaOut(EntradaSalidaOut, OneBaseOut):
+class OneEntradaSalidaOut(OneBaseOut):
     """Esquema para entregar un entrada-salida"""
+
+    data: EntradaSalidaOut | None = None
