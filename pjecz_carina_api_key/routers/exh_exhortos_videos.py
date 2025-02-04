@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.fastapi_not_implemented import NotImplement
+from ..models.exh_exhortos_videos import ExhExhortoVideo  # Necesario para cargar este modelo
 from ..models.permisos import Permiso
 
 exh_exhortos_videos = APIRouter(prefix="/v4/exh_exhortos_videos", tags=["exh exhortos"])

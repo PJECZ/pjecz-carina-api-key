@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.fastapi_not_implemented import NotImplement
 from ..models.permisos import Permiso
+from ..models.tareas import Tarea  # Necesario para cargar este modelo
 
 tareas = APIRouter(prefix="/v4/tareas", tags=["usuarios"])
 

@@ -8,6 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.fastapi_not_implemented import NotImplement
+from ..models.entradas_salidas import EntradaSalida  # Necesario para cargar este modelo
 from ..models.permisos import Permiso
 
 entradas_salidas = APIRouter(prefix="/v4/entradas_salidas", tags=["usuarios"])
