@@ -5,7 +5,7 @@ Exh Exhortos Promociones Archivos v4, esquemas de pydantic
 from pydantic import BaseModel
 
 from ..dependencies.schemas_base import OneBaseOut
-from .exh_exhortos_archivos import ExhExhortoArchivoOut
+from .exh_exhortos_archivos import ExhExhortoArchivoItem
 
 
 class ExhExhortoPromocionArchivo(BaseModel):
@@ -35,7 +35,7 @@ class ExhExhortoPromocionArchivoDataAcuse(BaseModel):
 class ExhExhortoPromocionArchivoOut(BaseModel):
     """Esquema para entregar la confirmación de la recepción de un archivo de promoción"""
 
-    archivo: ExhExhortoArchivoOut
+    archivo: ExhExhortoArchivoItem
     acuse: ExhExhortoPromocionArchivoDataAcuse
 
 
