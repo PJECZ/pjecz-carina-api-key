@@ -2,13 +2,11 @@
 Exh Exhortos Partes v4, esquemas de pydantic
 """
 
-from pydantic import BaseModel, ConfigDict
-
-from ..dependencies.schemas_base import OneBaseOut
+from pydantic import BaseModel
 
 
-class ExhExhortoParte(BaseModel):
-    """Esquema para estructurar el listado de partes"""
+class ExhExhortoParteOut(BaseModel):
+    """Esquema para entregar partes"""
 
     nombre: str
     apellidoPaterno: str
@@ -17,15 +15,3 @@ class ExhExhortoParte(BaseModel):
     esPersonaMoral: bool
     tipoParte: int
     tipoParteNombre: str
-
-
-class ExhExhortoParteOut(ExhExhortoParte):
-    """Esquema para entregar partes"""
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class OneExhExhortoParteOut(OneBaseOut):
-    """Esquema para entregar una parte"""
-
-    data: ExhExhortoParteOut | None = None

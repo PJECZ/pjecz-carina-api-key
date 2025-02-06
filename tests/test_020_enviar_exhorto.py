@@ -17,8 +17,8 @@ from datetime import datetime
 import requests
 from faker import Faker
 
+from tests import config
 from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
-from tests.load_env import config
 
 
 def generar_identificador(largo: int = 16) -> str:

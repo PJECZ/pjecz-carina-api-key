@@ -14,7 +14,7 @@ from ..models.oficinas import Oficina
 from ..models.permisos import Permiso
 from ..schemas.oficinas import OficinaOut, OneOficinaOut
 
-oficinas = APIRouter(prefix="/v4/oficinas", tags=["categoria"])
+oficinas = APIRouter(prefix="/v5/oficinas", tags=["categoria"])
 
 
 @oficinas.get("/{oficina_id}", response_model=OneOficinaOut)

@@ -17,7 +17,7 @@ from ..models.municipios import Municipio
 from ..models.permisos import Permiso
 from ..schemas.municipios import MunicipioOut, OneMunicipioOut
 
-municipios = APIRouter(prefix="/v4/municipios", tags=["municipios"])
+municipios = APIRouter(prefix="/v5/municipios", tags=["municipios"])
 
 
 @municipios.get("/{estado_clave}/{municipio_clave}", response_model=OneMunicipioOut)

@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from ..dependencies.schemas_base import OneBaseOut
 
 
-class ExhExhortoArchivo(BaseModel):
+class ExhExhortoArchivoIn(BaseModel):
     """Esquema para estructurar el listado de archivos"""
 
     nombreArchivo: str

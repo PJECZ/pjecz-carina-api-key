@@ -4,7 +4,7 @@ Crear un archivo .env con las siguientes variables
 
 ```ini
 API_KEY=XXXXXXXX.XXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXX
-API_BASE_URL=http://127.0.0.1:8000/v4
+API_BASE_URL=http://127.0.0.1:8000/v5
 TIMEOUT=10
 FOLIO_SEGUIMIENTO=XXXXXXXXXXXXXXXX
 ```
@@ -18,9 +18,9 @@ Se usa la base de datos SQLite para pasar datos entre las pruebas
 3. Pruebe `python3 -m unittest tests/test_030_enviar_exhorto_archivos.py`
 4. Vaya a Plataforma Web cambie a TRANSFERIDO y luego a PROCESANDO
 5. Simule que se manda la respuesta `cli exh_exhortos demo-05-enviar-respuesta XXXXXXXXXXX`
-4. Pruebe `python3 -m unittest tests/test_060_enviar_actualizacion.py`
-5. Pruebe `python3 -m unittest tests/test_071_enviar_promocion.py`
-6. Pruebe `python3 -m unittest tests/test_072_enviar_promocion_archivos.py`
+6. Pruebe `python3 -m unittest tests/test_060_enviar_actualizacion.py`
+7. Pruebe `python3 -m unittest tests/test_071_enviar_promocion.py`
+8. Pruebe `python3 -m unittest tests/test_072_enviar_promocion_archivos.py`
 
 ## Probar cuando el remitente es INTERNO
 

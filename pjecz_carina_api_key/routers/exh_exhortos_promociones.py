@@ -5,6 +5,7 @@ Exh Exhortos Promociones
 from datetime import datetime
 from typing import Annotated, Any
 
+from dependencies.exceptions import MyAnyError
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
@@ -19,7 +20,7 @@ from ..models.permisos import Permiso
 from ..schemas.exh_exhortos_promociones import ExhExhortoPromocionIn, ExhExhortoPromocionOut, OneExhExhortoPromocionOut
 from .exh_exhortos import get_exhorto_with_folio_seguimiento
 
-exh_exhortos_promociones = APIRouter(prefix="/v4/exh_exhortos_promociones", tags=["exh exhortos promociones"])
+exh_exhortos_promociones = APIRouter(prefix="/v5/exh_exhortos_promociones", tags=["exh exhortos promociones"])
 
 
 def get_exhorto_promocion_with_folio_seguimiento(
@@ -67,59 +68,65 @@ async def recibir_exhorto_promocion_request(
     if current_user.permissions.get("EXH EXHORTOS PROMOCIONES", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
-    # Inicializar la promoción
-    exh_exhorto_promocion = ExhExhortoPromocion()
+    # Inicializar listado de errores
+    errores = []
 
     # Consultar el exhorto
     try:
         exh_exhorto = get_exhorto_with_folio_seguimiento(database, exh_exhorto_promocion_in.folioSeguimiento)
-    except (MyNotValidParamError, MyNotExistsError) as error:
+    except MyAnyError as error:
         return OneExhExhortoPromocionOut(success=False, message=str(error), errors=[str(error)], data=None)
 
-    # Definir las propiedades
-    exh_exhorto_promocion.exh_exhorto_id = exh_exhorto.id
-    exh_exhorto_promocion.folio_origen_promocion = exh_exhorto_promocion_in.folioOrigenPromocion
-    exh_exhorto_promocion.fojas = exh_exhorto_promocion_in.fojas
+    # Validar la fecha
     try:
-        exh_exhorto_promocion.fecha_recepcion = datetime.strptime(exh_exhorto_promocion_in.fechaOrigen, "%Y-%m-%d %H:%M:%S")
+        fecha_recepcion = datetime.strptime(exh_exhorto_promocion_in.fechaOrigen, "%Y-%m-%d %H:%M:%S")
     except ValueError:
-        raise MyNotValidParamError("La fecha no tiene el formato correcto")
-    exh_exhorto_promocion.observaciones = safe_string(exh_exhorto_promocion_in.observaciones, save_enie=True, max_len=1000)
-    exh_exhorto_promocion.remitente = "EXTERNO"
-    exh_exhorto_promocion.estado = "ENVIADO"
+        errores.append("La fecha no tiene el formato correcto")
+
+    # Si hubo errores, se termina de forma fallida
+    if len(errores) > 0:
+        return OneExhExhortoPromocionOut(success=False, message="Falló la recepción del exhorto", errors=errores, data=None)
 
     # Insertar la promoción
+    exh_exhorto_promocion = ExhExhortoPromocion(
+        exh_exhorto_id=exh_exhorto.id,
+        folio_origen_promocion=exh_exhorto_promocion_in.folioOrigenPromocion,
+        fojas=exh_exhorto_promocion_in.fojas,
+        fecha_recepcion=fecha_recepcion,
+        observaciones=safe_string(exh_exhorto_promocion_in.observaciones, save_enie=True, max_len=1000),
+        remitente="EXTERNO",
+        estado="ENVIADO",
+    )
     database.add(exh_exhorto_promocion)
     database.commit()
     database.refresh(exh_exhorto_promocion)
 
     # Insertar los promoventes
     for promovente in exh_exhorto_promocion_in.promoventes:
-        exh_exhorto_promocion_promovente = ExhExhortoPromocionPromovente()
-        exh_exhorto_promocion_promovente.exh_exhorto_promocion_id = exh_exhorto_promocion.id
-        exh_exhorto_promocion_promovente.nombre = safe_string(promovente.nombre, save_enie=True)
-        exh_exhorto_promocion_promovente.apellido_paterno = safe_string(promovente.apellidoPaterno, save_enie=True)
-        exh_exhorto_promocion_promovente.apellido_materno = safe_string(promovente.apellidoMaterno, save_enie=True)
-        if promovente.genero in ExhExhortoPromocionPromovente.GENEROS:
-            exh_exhorto_promocion_promovente.genero = promovente.genero
-        else:
-            exh_exhorto_promocion_promovente.genero = "-"
-        exh_exhorto_promocion_promovente.es_persona_moral = promovente.esPersonaMoral
-        exh_exhorto_promocion_promovente.tipo_parte = promovente.tipoParte
-        exh_exhorto_promocion_promovente.tipo_parte_nombre = safe_string(promovente.tipoParteNombre, save_enie=True)
+        exh_exhorto_promocion_promovente = ExhExhortoPromocionPromovente(
+            exh_exhorto_promocion_id=exh_exhorto_promocion.id,
+            nombre=safe_string(promovente.nombre, save_enie=True),
+            apellido_paterno=safe_string(promovente.apellidoPaterno, save_enie=True),
+            apellido_materno=safe_string(promovente.apellidoMaterno, save_enie=True),
+            genero=promovente.genero if promovente.genero in ExhExhortoPromocionPromovente.GENEROS else "-",
+            es_persona_moral=promovente.esPersonaMoral,
+            tipo_parte=promovente.tipoParte,
+            tipo_parte_nombre=safe_string(promovente.tipoParteNombre, save_enie=True),
+        )
         database.add(exh_exhorto_promocion_promovente)
 
     # Insertar los archivos
     for archivo in exh_exhorto_promocion_in.archivos:
-        exh_exhorto_promocion_archivo = ExhExhortoPromocionArchivo()
-        exh_exhorto_promocion_archivo.exh_exhorto_promocion_id = exh_exhorto_promocion.id
-        exh_exhorto_promocion_archivo.nombre_archivo = archivo.nombreArchivo
-        exh_exhorto_promocion_archivo.hash_sha1 = archivo.hashSha1
-        exh_exhorto_promocion_archivo.hash_sha256 = archivo.hashSha256
-        exh_exhorto_promocion_archivo.tipo_documento = archivo.tipoDocumento
-        exh_exhorto_promocion_archivo.estado = "PENDIENTE"
-        exh_exhorto_promocion_archivo.tamano = 0
-        exh_exhorto_promocion_archivo.fecha_hora_recepcion = datetime.now()
+        exh_exhorto_promocion_archivo = ExhExhortoPromocionArchivo(
+            exh_exhorto_promocion_id=exh_exhorto_promocion.id,
+            nombre_archivo=archivo.nombreArchivo,
+            hash_sha1=archivo.hashSha1,
+            hash_sha256=archivo.hashSha256,
+            tipo_documento=archivo.tipoDocumento,
+            estado="PENDIENTE",
+            tamano=0,
+            fecha_hora_recepcion=datetime.now(),
+        )
         database.add(exh_exhorto_promocion_archivo)
 
     # Terminar la transacción

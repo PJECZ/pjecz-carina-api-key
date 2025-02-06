@@ -11,7 +11,7 @@ from ..dependencies.fastapi_not_implemented import NotImplement
 from ..models.exh_exhortos_partes import ExhExhortoParte  # Necesario para cargar este modelo
 from ..models.permisos import Permiso
 
-exh_exhortos_partes = APIRouter(prefix="/v4/exh_exhortos_partes", tags=["exh exhortos"])
+exh_exhortos_partes = APIRouter(prefix="/v5/exh_exhortos_partes", tags=["exh exhortos"])
 
 
 @exh_exhortos_partes.get("", response_model=NotImplement)

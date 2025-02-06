@@ -5,11 +5,11 @@ Exh Exhortos Actualizaciones
 from datetime import datetime
 from typing import Annotated
 
+from dependencies.exceptions import MyAnyError
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
-from ..dependencies.exceptions import MyNotExistsError, MyNotValidParamError
 from ..dependencies.safe_string import safe_string
 from ..models.exh_exhortos_actualizaciones import ExhExhortoActualizacion
 from ..models.permisos import Permiso
@@ -20,7 +20,7 @@ from ..schemas.exh_exhortos_actualizaciones import (
 )
 from .exh_exhortos import get_exhorto_with_exhorto_origen_id
 
-exh_exhortos_actualizaciones = APIRouter(prefix="/v4/exh_exhortos_actualizaciones", tags=["exh exhortos actualizaciones"])
+exh_exhortos_actualizaciones = APIRouter(prefix="/v5/exh_exhortos_actualizaciones", tags=["exh exhortos actualizaciones"])
 
 
 @exh_exhortos_actualizaciones.post("", response_model=OneExhExhortoActualizacionOut)
@@ -33,27 +33,39 @@ async def recibir_exhorto_actualizacion_request(
     if current_user.permissions.get("EXH EXHORTOS ACTUALIZACIONES", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
-    # Inicializar
-    exh_exhorto_actualizacion = ExhExhortoActualizacion()
-
     # Consultar el exhorto
     try:
         exh_exhorto = get_exhorto_with_exhorto_origen_id(database, exh_exhorto_actualizacion_in.exhortoId)
-    except (MyNotExistsError, MyNotValidParamError) as error:
+    except MyAnyError as error:
         return OneExhExhortoActualizacionOut(success=False, message=str(error), errors=[str(error)], data=None)
 
-    # Definir las propiedades
-    exh_exhorto_actualizacion.exh_exhorto_id = exh_exhorto.id
-    exh_exhorto_actualizacion.actualizacion_origen_id = exh_exhorto_actualizacion_in.actualizacionOrigenId
-    exh_exhorto_actualizacion.tipo_actualizacion = exh_exhorto_actualizacion_in.tipoActualizacion
-    try:
-        exh_exhorto_actualizacion.fecha_hora = datetime.strptime(exh_exhorto_actualizacion_in.fechaHora, "%Y-%m-%d %H:%M:%S")
-    except ValueError:
-        raise MyNotValidParamError("La fecha y hora no tiene el formato correcto")
-    exh_exhorto_actualizacion.descripcion = safe_string(exh_exhorto_actualizacion_in.descripcion, save_enie=True)
-    exh_exhorto_actualizacion.remitente = "EXTERNO"
+    # Validar actualizacionOrigenId
+    actualizacion_origen_id = safe_string(
+        exh_exhorto_actualizacion_in.actualizacionOrigenId,
+        max_len=48,
+        do_unidecode=True,
+        to_uppercase=False,
+    )
+    if actualizacion_origen_id == "":
+        error = "No es un actualizacionOrigenId válido"
+        return OneExhExhortoActualizacionOut(success=False, message=str(error), errors=[str(error)], data=None)
 
-    # Insertar
+    # Validar la fecha_hora
+    try:
+        fecha_hora = datetime.strptime(exh_exhorto_actualizacion_in.fechaHora, "%Y-%m-%d %H:%M:%S")
+    except ValueError:
+        error = "La fecha y hora no tiene el formato correcto"
+        return OneExhExhortoActualizacionOut(success=False, message=str(error), errors=[str(error)], data=None)
+
+    # Insertar la actualización
+    exh_exhorto_actualizacion = ExhExhortoActualizacion(
+        exh_exhorto_id=exh_exhorto.id,
+        actualizacion_origen_id=actualizacion_origen_id,
+        tipo_actualizacion=safe_string(exh_exhorto_actualizacion_in.tipoActualizacion, max_len=48),
+        fecha_hora=fecha_hora,
+        descripcion=safe_string(exh_exhorto_actualizacion_in.descripcion, save_enie=True),
+        remitente="EXTERNO",
+    )
     database.add(exh_exhorto_actualizacion)
     database.commit()
     database.refresh(exh_exhorto_actualizacion)

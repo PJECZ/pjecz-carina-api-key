@@ -10,7 +10,7 @@ from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.fastapi_not_implemented import NotImplement
 from ..models.permisos import Permiso
 
-permisos = APIRouter(prefix="/v4/permisos", tags=["usuarios"])
+permisos = APIRouter(prefix="/v5/permisos", tags=["usuarios"])
 
 
 @permisos.get("", response_model=NotImplement)

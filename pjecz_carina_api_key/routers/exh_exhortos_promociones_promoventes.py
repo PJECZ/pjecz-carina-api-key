@@ -12,7 +12,7 @@ from ..models.exh_exhortos_promociones_promoventes import ExhExhortoPromocionPro
 from ..models.permisos import Permiso
 
 exh_exhortos_promociones_promoventes = APIRouter(
-    prefix="/v4/exh_exhortos_promociones_promoventes",
+    prefix="/v5/exh_exhortos_promociones_promoventes",
     tags=["exh exhortos promociones"],
 )
 

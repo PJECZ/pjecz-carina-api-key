@@ -11,7 +11,7 @@ from ..dependencies.fastapi_not_implemented import NotImplement
 from ..models.permisos import Permiso
 from ..models.tareas import Tarea  # Necesario para cargar este modelo
 
-tareas = APIRouter(prefix="/v4/tareas", tags=["usuarios"])
+tareas = APIRouter(prefix="/v5/tareas", tags=["usuarios"])
 
 
 @tareas.get("", response_model=NotImplement)

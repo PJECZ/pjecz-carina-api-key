@@ -5,7 +5,9 @@ Exh Exhortos
 from datetime import datetime
 from typing import Annotated
 
+from dependencies.exceptions import MyAnyError
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
@@ -15,6 +17,8 @@ from ..models.autoridades import Autoridad
 from ..models.estados import Estado
 from ..models.exh_areas import ExhArea
 from ..models.exh_exhortos import ExhExhorto
+from ..models.exh_exhortos_archivos import ExhExhortoArchivo
+from ..models.exh_exhortos_partes import ExhExhortoParte
 from ..models.exh_exhortos_videos import ExhExhortoVideo
 from ..models.exh_externos import ExhExterno
 from ..models.municipios import Municipio
@@ -29,10 +33,10 @@ from ..schemas.exh_exhortos import (
     OneExhExhortoOut,
     OneExhExhortoRespuestaOut,
 )
-from ..schemas.exh_exhortos_archivos import ExhExhortoArchivo
-from ..schemas.exh_exhortos_partes import ExhExhortoParte
+from ..schemas.exh_exhortos_archivos import ExhExhortoArchivoOut
+from ..schemas.exh_exhortos_partes import ExhExhortoParteOut
 
-exh_exhortos = APIRouter(prefix="/v4/exh_exhortos", tags=["exh exhortos"])
+exh_exhortos = APIRouter(prefix="/v5/exh_exhortos", tags=["exh exhortos"])
 
 ESTADO_DESTINO_NOMBRE = "COAHUILA DE ZARAGOZA"
 ESTADO_DESTINO_ID = 5
@@ -44,7 +48,7 @@ def get_exhorto_with_exhorto_origen_id(database: Annotated[Session, Depends(get_
     # Normalizar exhorto_origen_id a 48 caracteres como máximo
     exhorto_origen_id = safe_string(exhorto_origen_id, max_len=48, do_unidecode=True, to_uppercase=False)
     if exhorto_origen_id == "":
-        raise MyNotValidParamError("No es un exhorto_origen_id válido")
+        raise MyNotValidParamError("No es un exhortoId válido")
 
     # Consultar el exhorto
     exh_exhorto = database.query(ExhExhorto).filter_by(exhorto_origen_id=exhorto_origen_id).filter_by(estatus="A").first()
@@ -74,6 +78,35 @@ def get_exhorto_with_folio_seguimiento(database: Annotated[Session, Depends(get_
     return exh_exhorto
 
 
+def get_municipio_destino(database: Annotated[Session, Depends(get_db)], municipio_num: int) -> Municipio:
+    """Obtener el municipio de destino a partir de la clave INEGI"""
+    municipio_destino_clave = str(municipio_num).zfill(3)
+    try:
+        municipio_destino = (
+            database.query(Municipio).filter_by(estado_id=ESTADO_DESTINO_ID).filter_by(clave=municipio_destino_clave).one()
+        )
+    except (MultipleResultsFound, NoResultFound) as error:
+        raise MyNotExistsError(f"No existe el municipio {municipio_destino_clave} en {ESTADO_DESTINO_NOMBRE}") from error
+    return municipio_destino
+
+
+def get_municipio_origen(database: Annotated[Session, Depends(get_db)], estado_num: int, municipio_num: int) -> Municipio:
+    """Obtener el municipio de destino a partir de la clave INEGI"""
+    estado_origen_clave = str(estado_num).zfill(2)
+    try:
+        estado_origen = database.query(Estado).filter_by(clave=estado_origen_clave).one()
+    except (MultipleResultsFound, NoResultFound) as error:
+        raise MyNotExistsError(f"No existe el estado {estado_origen_clave}") from error
+    municipio_origen_clave = str(municipio_num).zfill(3)
+    try:
+        municipio_origen = (
+            database.query(Municipio).filter_by(estado_id=estado_origen.id).filter_by(clave=municipio_origen_clave).one()
+        )
+    except (MultipleResultsFound, NoResultFound) as error:
+        raise MyNotExistsError(f"No existe el municipio {municipio_origen_clave} en {ESTADO_DESTINO_NOMBRE}") from error
+    return municipio_origen
+
+
 @exh_exhortos.post("/responder", response_model=OneExhExhortoRespuestaOut)
 async def recibir_exhorto_respuesta_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
@@ -87,7 +120,7 @@ async def recibir_exhorto_respuesta_request(
     # Consultar el exhorto con el exhorto_origen_id
     try:
         exh_exhorto = get_exhorto_with_exhorto_origen_id(database, exh_exhorto_recibir_respuesta.exhortoId)
-    except (MyNotExistsError, MyNotExistsError) as error:
+    except MyAnyError as error:
         return OneExhExhortoRespuestaOut(success=False, message=str(error), errors=[str(error)], data=None)
 
     # Actualizar el exhorto con los datos de la respuesta
@@ -107,26 +140,32 @@ async def recibir_exhorto_respuesta_request(
 
     # Insertar los archivos
     for archivo in exh_exhorto_recibir_respuesta.archivos:
-        exh_exhorto_archivo = ExhExhortoArchivo()
-        exh_exhorto_archivo.exh_exhorto = exh_exhorto
-        exh_exhorto_archivo.nombre_archivo = archivo.nombreArchivo
-        exh_exhorto_archivo.hash_sha1 = archivo.hashSha1
-        exh_exhorto_archivo.hash_sha256 = archivo.hashSha256
-        exh_exhorto_archivo.tipo_documento = archivo.tipoDocumento
-        exh_exhorto_archivo.estado = "PENDIENTE"
-        exh_exhorto_archivo.tamano = 0
-        exh_exhorto_archivo.fecha_hora_recepcion = datetime.now()
-        exh_exhorto_archivo.es_respuesta = True  # Es un archivo que viene de una respuesta
+        exh_exhorto_archivo = ExhExhortoArchivo(
+            exh_exhorto=exh_exhorto,
+            nombre_archivo=archivo.nombreArchivo,
+            hash_sha1=archivo.hashSha1,
+            hash_sha256=archivo.hashSha256,
+            tipo_documento=archivo.tipoDocumento,
+            estado="PENDIENTE",
+            tamano=0,
+            fecha_hora_recepcion=datetime.now(),
+            es_respuesta=True,  # Es un archivo que viene de una respuesta
+        )
         database.add(exh_exhorto_archivo)
 
     # Insertar los videos
     for video in exh_exhorto_recibir_respuesta.videos:
-        exh_exhorto_video = ExhExhortoVideo()
-        exh_exhorto_video.exh_exhorto = exh_exhorto
-        exh_exhorto_video.titulo = safe_string(video.titulo, save_enie=True)
-        exh_exhorto_video.descripcion = safe_string(video.descripcion, save_enie=True)
-        exh_exhorto_video.fecha = video.fecha
-        exh_exhorto_video.url_acceso = video.urlAcceso
+        try:
+            fecha = datetime.strptime(video.fecha, "%Y-%m-%d")
+        except ValueError:
+            fecha = None
+        exh_exhorto_video = ExhExhortoVideo(
+            exh_exhorto=exh_exhorto,
+            titulo=safe_string(video.titulo, save_enie=True),
+            descripcion=safe_string(video.descripcion, save_enie=True),
+            fecha=fecha,
+            url_acceso=video.urlAcceso,
+        )
         database.add(exh_exhorto_video)
 
     # Terminar la transacción
@@ -161,10 +200,10 @@ async def consultar_exhorto_request(
     # Inicializar listado de partes
     partes = []
 
-    # Copiar las partes del exhorto a instancias de ExhExhortoParteIn
+    # Pasar las partes del exhorto a instancias de ExhExhortoParteIn
     for exh_exhorto_parte in exh_exhorto.exh_exhortos_partes:
         partes.append(
-            ExhExhortoParte(
+            ExhExhortoParteOut(
                 nombre=exh_exhorto_parte.nombre,
                 apellidoPaterno=exh_exhorto_parte.apellido_paterno,
                 apellidoMaterno=exh_exhorto_parte.apellido_materno,
@@ -178,7 +217,7 @@ async def consultar_exhorto_request(
     # Inicializar listado de archivos
     archivos = []
 
-    # Copiar los archivos del exhorto a instancias de ExhExhortoArchivoOut
+    # Pasar los archivos del exhorto a instancias de ExhExhortoArchivoOut
     for exh_exhorto_archivo in exh_exhorto.exh_exhortos_archivos:
         archivos.append(
             ExhExhortoArchivo(
@@ -229,7 +268,7 @@ async def consultar_exhorto_request(
         areaTurnadoNombre=exh_exhorto.exh_area.nombre,
         numeroExhorto=exh_exhorto.numero_exhorto,
         urlInfo="https://carina.justiciadigital.gob.mx/",
-        respuestaOrigenId=exh_exhorto.respuesta_origen_id,
+        respuestaOrigenId=str(exh_exhorto.respuesta_origen_id),
     )
 
     # Entregar
@@ -246,148 +285,155 @@ async def recibir_exhorto_request(
     if current_user.permissions.get("EXH EXHORTOS", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
-    # Inicializar la instancia ExhExhorto
-    exh_exhorto = ExhExhorto()
+    # Inicializar listado de errores
+    errores = []
 
     # Definir exhorto_origen_id
-    exh_exhorto.exhorto_origen_id = exh_exhorto_in.exhortoOrigenId
+    exhorto_origen_id = exh_exhorto_in.exhortoOrigenId
 
     # Consultar nuestro estado
     estado_destino = database.query(Estado).get(ESTADO_DESTINO_ID)
     if estado_destino is None:
-        raise MyNotExistsError(f"No existe el estado de destino {ESTADO_DESTINO_NOMBRE}")
+        errores.append(f"No existe el estado de destino {ESTADO_DESTINO_NOMBRE}")
 
     # Consultar y validar el municipio destino, que es Identificador INEGI
-    municipio_destino_clave = str(exh_exhorto_in.municipioDestinoId).zfill(3)
-    municipio_destino = (
-        database.query(Municipio).filter_by(estado_id=ESTADO_DESTINO_ID).filter_by(clave=municipio_destino_clave).first()
-    )
-    if municipio_destino is None:
-        raise MyNotExistsError(f"No existe el municipio {municipio_destino_clave} en {ESTADO_DESTINO_NOMBRE}")
-    exh_exhorto.municipio_destino_id = municipio_destino.id
+    try:
+        municipio_destino = get_municipio_destino(database, exh_exhorto_in.municipioDestinoId)
+    except MyAnyError as error:
+        errores.append(str(error))
 
     # Consultar ExhExterno de nuestro estado
     estado_destino_exh_externo = database.query(ExhExterno).filter_by(estado_id=estado_destino.id).first()
     if estado_destino_exh_externo is None:
-        raise MyNotExistsError(f"No existe el registro de {ESTADO_DESTINO_NOMBRE} en exh_externos")
+        errores.append(f"No existe el registro de {ESTADO_DESTINO_NOMBRE} en exh_externos")
 
     # Tomar las materias de nuestro estado
     materias = estado_destino_exh_externo.materias
     if materias is None:
-        raise MyNotExistsError(f"No hay materias para {ESTADO_DESTINO_NOMBRE}")
+        errores.append(f"No hay materias para {ESTADO_DESTINO_NOMBRE}")
 
     # Validar que materia la tenga nuestro estado
     materia_clave = safe_clave(exh_exhorto_in.materiaClave)
     materia = next((materia for materia in materias if materia["clave"] == materia_clave), None)
     if materia is None:
-        raise MyNotExistsError(f"No tiene la materia {materia_clave} en {ESTADO_DESTINO_NOMBRE}")
-    exh_exhorto.materia_clave = materia_clave
-    exh_exhorto.materia_nombre = materia["nombre"]
-
-    # Consultar y validar el estado de origen, se espera un identificador de INEGI de dos dígitos
-    estado_clave = str(exh_exhorto_in.estadoOrigenId).zfill(2)
-    estado = database.query(Estado).filter_by(clave=estado_clave).first()
-    if estado is None:
-        raise MyNotExistsError("No existe ese estado de origen")
+        errores.append(f"No tiene la materia {materia_clave} en {ESTADO_DESTINO_NOMBRE}")
+    materia_nombre = materia["nombre"]
 
     # Consultar y validar el municipio de origen, se espera un identificador de INEGI de tres dígitos
-    municipio_clave = str(exh_exhorto_in.municipioOrigenId).zfill(3)
-    municipio = database.query(Municipio).filter_by(estado_id=estado.id).filter_by(clave=municipio_clave).first()
-    if municipio is None:
-        raise MyNotExistsError("No existe ese municipio de origen")
-    exh_exhorto.municipio_origen = municipio
+    try:
+        municipio_origen = get_municipio_origen(database, exh_exhorto_in.estadoOrigenId, exh_exhorto_in.municipioOrigenId)
+    except MyAnyError as error:
+        errores.append(str(error))
 
     # Identificador propio del Juzgado/Área que envía el Exhorto
-    exh_exhorto.juzgado_origen_id = exh_exhorto_in.juzgadoOrigenId
+    juzgado_origen_id = safe_string(exh_exhorto_in.juzgadoOrigenId, max_len=64)
 
     # Nombre del Juzgado/Área que envía el Exhorto
-    exh_exhorto.juzgado_origen_nombre = exh_exhorto_in.juzgadoOrigenNombre
+    juzgado_origen_nombre = safe_string(exh_exhorto_in.juzgadoOrigenNombre, save_enie=True)
 
     # El número de expediente (o carpeta procesal, carpeta...) que tiene el asunto en el Juzgado de Origen
-    exh_exhorto.numero_expediente_origen = exh_exhorto_in.numeroExpedienteOrigen
+    numero_expediente_origen = safe_string(exh_exhorto_in.numeroExpedienteOrigen)
 
     # El número del oficio con el que se envía el exhorto, el que corresponde al control interno del Juzgado de origen
-    exh_exhorto.numero_oficio_origen = exh_exhorto_in.numeroOficioOrigen
+    numero_oficio_origen = safe_string(exh_exhorto_in.numeroOficioOrigen)
 
     # Nombre del tipo de Juicio, o asunto, listado de los delitos (para materia Penal)
     # que corresponde al Expediente del cual el Juzgado envía el Exhorto
-    exh_exhorto.tipo_juicio_asunto_delitos = exh_exhorto_in.tipoJuicioAsuntoDelitos
+    tipo_juicio_asunto_delitos = safe_string(exh_exhorto_in.tipoJuicioAsuntoDelitos, save_enie=True)
 
     # Nombre completo del Juez del Juzgado o titular del Área que envía el Exhorto
-    exh_exhorto.juez_exhortante = exh_exhorto_in.juezExhortante
+    juez_exhortante = safe_string(exh_exhorto_in.juezExhortante, save_enie=True)
 
     # Número de fojas que contiene el exhorto. El valor 0 significa "No Especificado"
-    exh_exhorto.fojas = exh_exhorto_in.fojas
+    fojas = exh_exhorto_in.fojas  # entero
 
-    # Cantidad de dias a partir del día que se recibió en el Poder Judicial exhortado
+    # Cantidad de días a partir del día que se recibió en el Poder Judicial exhortado
     # que se tiene para responder el Exhorto. El valor de 0 significa "No Especificado"
-    exh_exhorto.dias_responder = exh_exhorto_in.diasResponder
+    dias_responder = exh_exhorto_in.diasResponder  # entero
 
     # Nombre del tipo de diligenciación que le corresponde al exhorto enviado.
     # Este puede contener valores como "Oficio", "Petición de Parte"
-    exh_exhorto.tipo_diligenciacion_nombre = exh_exhorto_in.tipoDiligenciacionNombre
+    tipo_diligenciacion_nombre = safe_string(exh_exhorto_in.tipoDiligenciacionNombre, save_enie=True)
 
     # Fecha y hora en que el Poder Judicial exhortante registró que se envió el exhorto en su hora local.
     # En caso de no enviar este dato, el Poder Judicial exhortado puede tomar su fecha hora local.
     # Validar que el string sea de la forma YYYY-MM-DD HH:mm:ss
     try:
-        exh_exhorto.fecha_origen = datetime.strptime(exh_exhorto_in.fechaOrigen, "%Y-%m-%d %H:%M:%S")
+        fecha_origen = datetime.strptime(exh_exhorto_in.fechaOrigen, "%Y-%m-%d %H:%M:%S")
     except ValueError:
-        raise MyNotValidParamError("La fecha de origen no tiene el formato correcto")
+        errores.append("La fecha de origen no tiene el formato correcto")
 
     # Texto simple que contenga información extra o relevante sobre el exhorto.
-    exh_exhorto.observaciones = exh_exhorto_in.observaciones
+    observaciones = safe_string(exh_exhorto_in.observaciones, save_enie=True, max_len=1000)
 
     # GUID/UUID... que sea único. Va a ser generado cuando se vaya a regresar el acuse con el último archivo.
-    exh_exhorto.folio_seguimiento = ""
+    folio_seguimiento = ""
 
     # Área de recepción, 1 = NO DEFINIDO
-    exh_exhorto.exh_area = database.query(ExhArea).filter_by(clave="ND").first()
+    exh_area = database.query(ExhArea).filter_by(clave="ND").first()
 
     # Juzgado/Área al que se turna el Exhorto, por defecto ND
-    exh_exhorto.autoridad = database.query(Autoridad).filter_by(clave="ND").first()
+    autoridad = database.query(Autoridad).filter_by(clave="ND").first()
 
-    # Número de Exhorto con el que se radica en el Juzgado/Área que se turnó el exhorto, por defecto ''
-    exh_exhorto.numero_exhorto = ""
-
-    # Remitente es EXTERNO
-    exh_exhorto.remitente = "EXTERNO"
-
-    # Estado es RECIBIDO
-    exh_exhorto.estado = "RECIBIDO"
+    # Si hubo errores, se termina de forma fallida
+    if len(errores) > 0:
+        return OneExhExhortoOut(success=False, message="Falló la recepción del exhorto", errors=errores, data=None)
 
     # Insertar el exhorto
+    exh_exhorto = ExhExhorto(
+        exhorto_origen_id=exhorto_origen_id,
+        municipio_destino_id=municipio_destino.id,
+        materia_clave=materia_clave,
+        materia_nombre=materia_nombre,
+        municipio_origen=municipio_origen,
+        juzgado_origen_id=juzgado_origen_id,
+        juzgado_origen_nombre=juzgado_origen_nombre,
+        numero_expediente_origen=numero_expediente_origen,
+        numero_oficio_origen=numero_oficio_origen,
+        tipo_juicio_asunto_delitos=tipo_juicio_asunto_delitos,
+        juez_exhortante=juez_exhortante,
+        fojas=fojas,
+        dias_responder=dias_responder,
+        tipo_diligenciacion_nombre=tipo_diligenciacion_nombre,
+        fecha_origen=fecha_origen,
+        observaciones=observaciones,
+        folio_seguimiento=folio_seguimiento,
+        exh_area_id=exh_area.id,
+        autoridad_id=autoridad.id,
+        numero_exhorto="",
+        remitente="EXTERNO",
+        estado="RECIBIDO",
+    )
     database.add(exh_exhorto)
     database.commit()
     database.refresh(exh_exhorto)
 
     # Insertar las partes
     for parte in exh_exhorto_in.partes:
-        exh_exhorto_parte = ExhExhortoParte()
-        exh_exhorto_parte.exh_exhorto_id = exh_exhorto.id
-        exh_exhorto_parte.nombre = safe_string(parte.nombre, save_enie=True)
-        exh_exhorto_parte.apellido_paterno = safe_string(parte.apellidoPaterno, save_enie=True)
-        exh_exhorto_parte.apellido_materno = safe_string(parte.apellidoMaterno, save_enie=True)
-        if parte.genero in ExhExhortoParte.GENEROS:
-            exh_exhorto_parte.genero = parte.genero
-        else:
-            exh_exhorto_parte.genero = "-"
-        exh_exhorto_parte.es_persona_moral = parte.esPersonaMoral
-        exh_exhorto_parte.tipo_parte = parte.tipoParte
-        exh_exhorto_parte.tipo_parte_nombre = safe_string(parte.tipoParteNombre, save_enie=True)
+        exh_exhorto_parte = ExhExhortoParte(
+            exh_exhorto_id=exh_exhorto.id,
+            nombre=safe_string(parte.nombre, save_enie=True),
+            apellido_paterno=safe_string(parte.apellidoPaterno, save_enie=True),
+            apellido_materno=safe_string(parte.apellidoMaterno, save_enie=True),
+            genero=parte.genero if parte.genero in ExhExhortoParte.GENEROS else "-",
+            es_persona_moral=parte.esPersonaMoral,
+            tipo_parte=parte.tipoParte,
+            tipo_parte_nombre=safe_string(parte.tipoParteNombre, save_enie=True),
+        )
         database.add(exh_exhorto_parte)
 
     # Insertar los archivos
     for archivo in exh_exhorto_in.archivos:
-        exh_exhorto_archivo = ExhExhortoArchivo()
-        exh_exhorto_archivo.exh_exhorto_id = exh_exhorto.id
-        exh_exhorto_archivo.nombre_archivo = archivo.nombreArchivo
-        exh_exhorto_archivo.hash_sha1 = archivo.hashSha1
-        exh_exhorto_archivo.hash_sha256 = archivo.hashSha256
-        exh_exhorto_archivo.tipo_documento = archivo.tipoDocumento
-        exh_exhorto_archivo.estado = "PENDIENTE"
-        exh_exhorto_archivo.tamano = 0
-        exh_exhorto_archivo.fecha_hora_recepcion = datetime.now()
+        exh_exhorto_archivo = ExhExhortoArchivo(
+            exh_exhorto_id=exh_exhorto.id,
+            nombre_archivo=archivo.nombreArchivo,
+            hash_sha1=archivo.hashSha1,
+            hash_sha256=archivo.hashSha256,
+            tipo_documento=archivo.tipoDocumento,
+            estado="PENDIENTE",
+            tamano=0,
+            fecha_hora_recepcion=datetime.now(),
+        )
         database.add(exh_exhorto_archivo)
 
     # Terminar la transacción

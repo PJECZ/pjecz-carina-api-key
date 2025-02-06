@@ -19,7 +19,7 @@ from datetime import datetime
 import lorem
 import requests
 
-from tests.load_env import config
+from tests import config
 
 
 def generar_identificador(largo: int = 16) -> str:
