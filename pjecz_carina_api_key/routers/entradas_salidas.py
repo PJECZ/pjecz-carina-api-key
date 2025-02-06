@@ -11,7 +11,7 @@ from ..dependencies.fastapi_not_implemented import NotImplement
 from ..models.entradas_salidas import EntradaSalida  # Necesario para cargar este modelo
 from ..models.permisos import Permiso
 
-entradas_salidas = APIRouter(prefix="/v5/entradas_salidas", tags=["usuarios"])
+entradas_salidas = APIRouter(prefix="/api/v5/entradas_salidas")
 
 
 @entradas_salidas.get("", response_model=NotImplement)

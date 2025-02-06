@@ -16,7 +16,7 @@ from ..models.estados import Estado
 from ..models.permisos import Permiso
 from ..schemas.estados import EstadoOut, OneEstadoOut
 
-estados = APIRouter(prefix="/v5/estados", tags=["estados"])
+estados = APIRouter(prefix="/api/v5/estados")
 
 
 @estados.get("/{clave}", response_model=OneEstadoOut)

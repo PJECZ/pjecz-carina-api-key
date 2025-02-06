@@ -35,7 +35,7 @@ from ..schemas.exh_exhortos import (
 from ..schemas.exh_exhortos_archivos import ExhExhortoArchivoItem
 from ..schemas.exh_exhortos_partes import ExhExhortoParteItem
 
-exh_exhortos = APIRouter(prefix="/v5/exh_exhortos", tags=["exh exhortos"])
+exh_exhortos = APIRouter(prefix="/api/v5/exh_exhortos")
 
 ESTADO_DESTINO_NOMBRE = "COAHUILA DE ZARAGOZA"
 ESTADO_DESTINO_ID = 5

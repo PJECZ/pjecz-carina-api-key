@@ -18,7 +18,7 @@ from ..models.materias import Materia
 from ..models.permisos import Permiso
 from ..schemas.autoridades import AutoridadOut, OneAutoridadOut
 
-autoridades = APIRouter(prefix="/v5/autoridades", tags=["autoridades"])
+autoridades = APIRouter(prefix="/api/v5/autoridades")
 
 
 @autoridades.get("/{clave}", response_model=OneAutoridadOut)

@@ -11,10 +11,7 @@ from ..dependencies.fastapi_not_implemented import NotImplement
 from ..models.exh_exhortos_promociones_promoventes import ExhExhortoPromocionPromovente  # Necesario para cargar este modelo
 from ..models.permisos import Permiso
 
-exh_exhortos_promociones_promoventes = APIRouter(
-    prefix="/v5/exh_exhortos_promociones_promoventes",
-    tags=["exh exhortos promociones"],
-)
+exh_exhortos_promociones_promoventes = APIRouter(prefix="/api/v5/exh_exhortos_promociones_promoventes")
 
 
 @exh_exhortos_promociones_promoventes.get("", response_model=NotImplement)

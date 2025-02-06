@@ -11,7 +11,7 @@ from ..dependencies.fastapi_not_implemented import NotImplement
 from ..models.permisos import Permiso
 from ..models.usuarios_roles import UsuarioRol  # Necesario para cargar este modelo
 
-usuarios_roles = APIRouter(prefix="/v5/usuarios_roles", tags=["usuarios"])
+usuarios_roles = APIRouter(prefix="/api/v5/usuarios_roles")
 
 
 @usuarios_roles.get("", response_model=NotImplement)

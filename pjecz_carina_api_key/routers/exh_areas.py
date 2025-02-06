@@ -16,7 +16,7 @@ from ..models.exh_areas import ExhArea
 from ..models.permisos import Permiso
 from ..schemas.exh_areas import ExhAreaOut, OneExhAreaOut
 
-exh_areas = APIRouter(prefix="/v5/exh_areas", tags=["exh areas"])
+exh_areas = APIRouter(prefix="/api/v5/exh_areas")
 
 
 @exh_areas.get("/{clave}", response_model=OneExhAreaOut)

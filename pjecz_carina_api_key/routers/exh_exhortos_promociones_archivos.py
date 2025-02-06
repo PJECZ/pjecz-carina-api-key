@@ -24,7 +24,7 @@ from ..schemas.exh_exhortos_promociones_archivos import (
 from ..settings import get_settings
 from .exh_exhortos_promociones import get_exhorto_promocion_with_folio_seguimiento
 
-exh_exhortos_promociones_archivos = APIRouter(prefix="/v5/exh_exhortos_promociones_archivos", tags=["exh exhortos promociones"])
+exh_exhortos_promociones_archivos = APIRouter(prefix="/api/v5/exh_exhortos_promociones_archivos")
 
 
 @exh_exhortos_promociones_archivos.post("/upload", response_model=OneExhExhortoPromocionArchivoOut)

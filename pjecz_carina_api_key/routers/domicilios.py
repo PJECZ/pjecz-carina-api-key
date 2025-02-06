@@ -14,7 +14,7 @@ from ..models.domicilios import Domicilio
 from ..models.permisos import Permiso
 from ..schemas.domicilios import DomicilioOut, OneDomicilioOut
 
-domicilios = APIRouter(prefix="/v5/domicilios", tags=["categoria"])
+domicilios = APIRouter(prefix="/api/v5/domicilios")
 
 
 @domicilios.get("/{domicilio_id}", response_model=OneDomicilioOut)

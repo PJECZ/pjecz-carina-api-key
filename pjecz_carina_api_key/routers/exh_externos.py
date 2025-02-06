@@ -11,7 +11,7 @@ from ..dependencies.fastapi_not_implemented import NotImplement
 from ..models.exh_externos import ExhExterno  # Necesario para cargar este modelo
 from ..models.permisos import Permiso
 
-exh_externos = APIRouter(prefix="/v5/exh_externos", tags=["exh externos"])
+exh_externos = APIRouter(prefix="/api/v5/exh_externos")
 
 
 @exh_externos.get("", response_model=NotImplement)

@@ -11,7 +11,7 @@ from ..dependencies.fastapi_not_implemented import NotImplement
 from ..models.bitacoras import Bitacora  # Necesario para cargar este modelo
 from ..models.permisos import Permiso
 
-bitacoras = APIRouter(prefix="/v5/bitacoras", tags=["usuarios"])
+bitacoras = APIRouter(prefix="/api/v5/bitacoras")
 
 
 @bitacoras.get("", response_model=NotImplement)
