@@ -11,22 +11,22 @@ import click
 from faker import Faker
 from sqlalchemy import select
 
-from carina.core.autoridades.models import Autoridad
-from carina.core.estados.models import Estado
-from carina.core.exh_areas.models import ExhArea
-from carina.core.exh_exhortos.models import ExhExhorto
-from carina.core.exh_exhortos_actualizaciones.models import ExhExhortoActualizacion
-from carina.core.exh_exhortos_archivos.models import ExhExhortoArchivo
-from carina.core.exh_exhortos_partes.models import ExhExhortoParte
-from carina.core.exh_exhortos_promociones.models import ExhExhortoPromocion
-from carina.core.exh_exhortos_promociones_archivos.models import ExhExhortoPromocionArchivo
-from carina.core.exh_exhortos_promociones_promoventes.models import ExhExhortoPromocionPromovente
-from carina.core.exh_exhortos_videos.models import ExhExhortoVideo
-from carina.core.materias.models import Materia
-from carina.core.municipios.models import Municipio
 from cli.commands.database import get_session
-from lib.pwgen import generar_identificador
-from lib.safe_string import safe_string
+from pjecz_carina_api_key.dependencies.pwgen import generar_identificador
+from pjecz_carina_api_key.dependencies.safe_string import safe_string
+from pjecz_carina_api_key.models.autoridades import Autoridad
+from pjecz_carina_api_key.models.estados import Estado
+from pjecz_carina_api_key.models.exh_areas import ExhArea
+from pjecz_carina_api_key.models.exh_exhortos import ExhExhorto
+from pjecz_carina_api_key.models.exh_exhortos_actualizaciones import ExhExhortoActualizacion
+from pjecz_carina_api_key.models.exh_exhortos_archivos import ExhExhortoArchivo
+from pjecz_carina_api_key.models.exh_exhortos_partes import ExhExhortoParte
+from pjecz_carina_api_key.models.exh_exhortos_promociones import ExhExhortoPromocion
+from pjecz_carina_api_key.models.exh_exhortos_promociones_archivos import ExhExhortoPromocionArchivo
+from pjecz_carina_api_key.models.exh_exhortos_promociones_promoventes import ExhExhortoPromocionPromovente
+from pjecz_carina_api_key.models.exh_exhortos_videos import ExhExhortoVideo
+from pjecz_carina_api_key.models.materias import Materia
+from pjecz_carina_api_key.models.municipios import Municipio
 
 # Definir las constantes
 ARCHIVO_PRUEBA_PDF = "prueba-1.pdf"

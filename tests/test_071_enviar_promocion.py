@@ -13,8 +13,8 @@ import lorem
 import requests
 from faker import Faker
 
+from tests import config
 from tests.database import ExhExhorto, ExhExhortoPromocion, ExhExhortoPromocionArchivo, get_database_session
-from tests.load_env import config
 
 
 class TestsEnviarPromocion(unittest.TestCase):
@@ -30,6 +30,9 @@ class TestsEnviarPromocion(unittest.TestCase):
         exh_exhorto = session.query(ExhExhorto).order_by(ExhExhorto.id.desc()).first()
         if exh_exhorto is None:
             self.fail("No se encontró el último exhorto en database.sqlite")
+
+        # Cerrar la sesion
+        session.close()
 
         # Inicializar el generador de nombres aleatorios
         faker = Faker(locale="es_MX")
@@ -141,6 +144,9 @@ class TestsEnviarPromocion(unittest.TestCase):
             )
             session.add(exh_exhorto_promocion_archivo)
             session.commit()
+
+        # Cerrar la sesion
+        session.close()
 
 
 if __name__ == "__main__":
