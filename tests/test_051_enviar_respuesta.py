@@ -12,14 +12,21 @@ Se envían los datos que conforman la respuesta del exhorto.
 
 import random
 import string
+import time
 import unittest
 from datetime import datetime
 
 import lorem
 import requests
 
-from lib.pwgen import generar_identificador
-from tests.load_env import config
+from tests import config
+
+
+def generar_identificador(largo: int = 16) -> str:
+    """Generar identificador con el tiempo actual y algo aleatorio, todo con letras en mayúsculas y dígitos"""
+    timestamp_unique = str(int(time.time() * 1000))
+    random_characters = "".join(random.sample(string.ascii_uppercase + string.digits, k=largo))
+    return f"{timestamp_unique}{random_characters}"[:largo]
 
 
 class TestsEnviarRespuesta(unittest.TestCase):

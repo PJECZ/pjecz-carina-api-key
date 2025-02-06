@@ -6,33 +6,33 @@ Se deben cargar TODOS los modelos para que SQLAlchemy pueda trabajar con la base
 
 from sqlalchemy.orm import Session, sessionmaker
 
-from carina.core.autoridades.models import Autoridad
-from carina.core.bitacoras.models import Bitacora
-from carina.core.distritos.models import Distrito
-from carina.core.domicilios.models import Domicilio
-from carina.core.entradas_salidas.models import EntradaSalida
-from carina.core.estados.models import Estado
-from carina.core.exh_areas.models import ExhArea
-from carina.core.exh_exhortos.models import ExhExhorto
-from carina.core.exh_exhortos_actualizaciones.models import ExhExhortoActualizacion
-from carina.core.exh_exhortos_archivos.models import ExhExhortoArchivo
-from carina.core.exh_exhortos_partes.models import ExhExhortoParte
-from carina.core.exh_exhortos_promociones.models import ExhExhortoPromocion
-from carina.core.exh_exhortos_promociones_archivos.models import ExhExhortoPromocionArchivo
-from carina.core.exh_exhortos_promociones_promoventes.models import ExhExhortoPromocionPromovente
-from carina.core.exh_exhortos_videos.models import ExhExhortoVideo
-from carina.core.exh_externos.models import ExhExterno
-from carina.core.materias.models import Materia
-from carina.core.modulos.models import Modulo
-from carina.core.municipios.models import Municipio
-from carina.core.oficinas.models import Oficina
-from carina.core.permisos.models import Permiso
-from carina.core.roles.models import Rol
-from carina.core.tareas.models import Tarea
-from carina.core.usuarios.models import Usuario
-from carina.core.usuarios_roles.models import UsuarioRol
-from config.settings import get_settings
-from lib.database import get_engine
+from pjecz_carina_api_key.dependencies.database import get_engine
+from pjecz_carina_api_key.models.autoridades import Autoridad
+from pjecz_carina_api_key.models.bitacoras import Bitacora
+from pjecz_carina_api_key.models.distritos import Distrito
+from pjecz_carina_api_key.models.domicilios import Domicilio
+from pjecz_carina_api_key.models.entradas_salidas import EntradaSalida
+from pjecz_carina_api_key.models.estados import Estado
+from pjecz_carina_api_key.models.exh_areas import ExhArea
+from pjecz_carina_api_key.models.exh_exhortos import ExhExhorto
+from pjecz_carina_api_key.models.exh_exhortos_actualizaciones import ExhExhortoActualizacion
+from pjecz_carina_api_key.models.exh_exhortos_archivos import ExhExhortoArchivo
+from pjecz_carina_api_key.models.exh_exhortos_partes import ExhExhortoParte
+from pjecz_carina_api_key.models.exh_exhortos_promociones import ExhExhortoPromocion
+from pjecz_carina_api_key.models.exh_exhortos_promociones_archivos import ExhExhortoPromocionArchivo
+from pjecz_carina_api_key.models.exh_exhortos_promociones_promoventes import ExhExhortoPromocionPromovente
+from pjecz_carina_api_key.models.exh_exhortos_videos import ExhExhortoVideo
+from pjecz_carina_api_key.models.exh_externos import ExhExterno
+from pjecz_carina_api_key.models.materias import Materia
+from pjecz_carina_api_key.models.modulos import Modulo
+from pjecz_carina_api_key.models.municipios import Municipio
+from pjecz_carina_api_key.models.oficinas import Oficina
+from pjecz_carina_api_key.models.permisos import Permiso
+from pjecz_carina_api_key.models.roles import Rol
+from pjecz_carina_api_key.models.tareas import Tarea
+from pjecz_carina_api_key.models.usuarios import Usuario
+from pjecz_carina_api_key.models.usuarios_roles import UsuarioRol
+from pjecz_carina_api_key.settings import get_settings
 
 
 def get_session() -> Session:

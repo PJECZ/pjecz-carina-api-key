@@ -16,7 +16,7 @@ from pathlib import Path
 
 import requests
 
-from tests.load_env import config
+from tests import config
 
 
 class TestsEnviarRespuestaArchivos(unittest.TestCase):

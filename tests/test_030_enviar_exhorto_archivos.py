@@ -14,8 +14,8 @@ from pathlib import Path
 
 import requests
 
+from tests import config
 from tests.database import ExhExhorto, get_database_session
-from tests.load_env import config
 
 
 class TestsEnviarExhortosArchivos(unittest.TestCase):

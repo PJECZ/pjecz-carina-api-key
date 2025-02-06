@@ -6,7 +6,7 @@ import unittest
 
 import requests
 
-from tests.load_env import config
+from tests import config
 
 
 class TestsConsultarExhAreas(unittest.TestCase):
