@@ -4,7 +4,7 @@ Exh Exhortos Promociones Archivos
 
 import hashlib
 from datetime import datetime
-from typing import Annotated, Any
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
 
@@ -15,7 +15,7 @@ from ..dependencies.google_cloud_storage import upload_file_to_gcs
 from ..dependencies.pwgen import generar_identificador
 from ..models.exh_exhortos_promociones_archivos import ExhExhortoPromocionArchivo
 from ..models.permisos import Permiso
-from ..schemas.exh_exhortos_archivos import ExhExhortoArchivo
+from ..schemas.exh_exhortos_archivos import ExhExhortoArchivoItem
 from ..schemas.exh_exhortos_promociones_archivos import (
     ExhExhortoPromocionArchivoDataAcuse,
     ExhExhortoPromocionArchivoOut,
@@ -165,7 +165,7 @@ async def recibir_exhorto_promocion_archivo_request(
     database.commit()
 
     # Definir los datos del archivo para la respuesta
-    archivo = ExhExhortoArchivo(
+    archivo = ExhExhortoArchivoItem(
         nombreArchivo=exh_exhorto_promocion_archivo.nombre_archivo,
         hashSha1=exh_exhorto_promocion_archivo.hash_sha1,
         hashSha256=exh_exhorto_promocion_archivo.hash_sha256,

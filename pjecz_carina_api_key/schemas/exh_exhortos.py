@@ -5,9 +5,9 @@ Exh Exhortos v4, esquemas de pydantic
 from pydantic import BaseModel
 
 from ..dependencies.schemas_base import OneBaseOut
-from .exh_exhortos_archivos import ExhExhortoArchivo
-from .exh_exhortos_partes import ExhExhortoParte
-from .exh_exhortos_videos import ExhExhortoVideoIn
+from .exh_exhortos_archivos import ExhExhortoArchivoItem
+from .exh_exhortos_partes import ExhExhortoParteItem
+from .exh_exhortos_videos import ExhExhortoVideoItem
 
 
 class ExhExhortoIn(BaseModel):
@@ -24,13 +24,13 @@ class ExhExhortoIn(BaseModel):
     numeroOficioOrigen: str
     tipoJuicioAsuntoDelitos: str
     juezExhortante: str
-    partes: list[ExhExhortoParte]
+    partes: list[ExhExhortoParteItem]
     fojas: int
     diasResponder: int
     tipoDiligenciacionNombre: str
     fechaOrigen: str  # YYYY-MM-DD HH:mm:ss
     observaciones: str
-    archivos: list[ExhExhortoArchivo]
+    archivos: list[ExhExhortoArchivoItem]
 
 
 class ExhExhortoOut(BaseModel):
@@ -83,8 +83,8 @@ class ExhExhortoRespuestaIn(BaseModel):
     numeroExhorto: str
     tipoDiligenciado: int  # 0 = No Diligenciado, 1 = Parcialmente Dilgenciado, 2 = Diligenciado
     observaciones: str
-    archivos: list[ExhExhortoArchivo]
-    videos: list[ExhExhortoVideoIn]
+    archivos: list[ExhExhortoArchivoItem]
+    videos: list[ExhExhortoVideoItem]
 
 
 class ExhExhortoRespuestaOut(BaseModel):

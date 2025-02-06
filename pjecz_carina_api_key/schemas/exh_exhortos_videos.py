@@ -2,27 +2,13 @@
 Exh Exhortos Videos v4, esquemas de pydantic
 """
 
-from pydantic import BaseModel, ConfigDict
-
-from ..dependencies.schemas_base import OneBaseOut
+from pydantic import BaseModel
 
 
-class ExhExhortoVideoIn(BaseModel):
-    """Esquema para estructurar el listado de videos de una promoción"""
+class ExhExhortoVideoItem(BaseModel):
+    """Esquema para recibir los metadatos de un video"""
 
     titulo: str
     descripcion: str
     fecha: str  # YYYY-MM-DD
     urlAcceso: str
-
-
-class ExhExhortoVideoOut(ExhExhortoVideoIn):
-    """Esquema para entregar videos de una promoción"""
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class OneExhExhortoVideoOut(OneBaseOut):
-    """Esquema para entregar un video de una promoción"""
-
-    data: ExhExhortoVideoOut | None = None

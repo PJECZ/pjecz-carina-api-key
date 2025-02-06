@@ -5,8 +5,8 @@ Exh Exhortos Partes v4, esquemas de pydantic
 from pydantic import BaseModel
 
 
-class ExhExhortoParteOut(BaseModel):
-    """Esquema para entregar partes"""
+class ExhExhortoParteItem(BaseModel):
+    """Esquema para recibir los metadatos de una parte"""
 
     nombre: str
     apellidoPaterno: str

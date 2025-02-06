@@ -3,14 +3,13 @@ Exh Exhortos Promociones
 """
 
 from datetime import datetime
-from typing import Annotated, Any
+from typing import Annotated
 
-from dependencies.exceptions import MyAnyError
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
-from ..dependencies.exceptions import MyNotExistsError, MyNotValidParamError
+from ..dependencies.exceptions import MyAnyError, MyNotExistsError, MyNotValidParamError
 from ..dependencies.safe_string import safe_string
 from ..models.exh_exhortos import ExhExhorto
 from ..models.exh_exhortos_promociones import ExhExhortoPromocion

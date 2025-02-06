@@ -4,8 +4,6 @@ Exh Externos v4, esquemas de pydantic
 
 from pydantic import BaseModel, ConfigDict
 
-from ..dependencies.schemas_base import OneBaseOut
-
 
 class ExhExternoOut(BaseModel):
     """Esquema para entregar externos"""
@@ -23,9 +21,3 @@ class ExhExternoOut(BaseModel):
     endpoint_recibir_promocion: str
     endpoint_recibir_promocion_archivo: str
     model_config = ConfigDict(from_attributes=True)
-
-
-class OneExhExternoOut(OneBaseOut):
-    """Esquema para entregar un externo"""
-
-    data: ExhExternoOut | None = None

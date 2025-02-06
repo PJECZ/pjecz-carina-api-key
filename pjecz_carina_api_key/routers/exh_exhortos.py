@@ -5,13 +5,12 @@ Exh Exhortos
 from datetime import datetime
 from typing import Annotated
 
-from dependencies.exceptions import MyAnyError
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
-from ..dependencies.exceptions import MyNotExistsError, MyNotValidParamError
+from ..dependencies.exceptions import MyAnyError, MyNotExistsError, MyNotValidParamError
 from ..dependencies.safe_string import safe_clave, safe_string
 from ..models.autoridades import Autoridad
 from ..models.estados import Estado
@@ -33,8 +32,8 @@ from ..schemas.exh_exhortos import (
     OneExhExhortoOut,
     OneExhExhortoRespuestaOut,
 )
-from ..schemas.exh_exhortos_archivos import ExhExhortoArchivoOut
-from ..schemas.exh_exhortos_partes import ExhExhortoParteOut
+from ..schemas.exh_exhortos_archivos import ExhExhortoArchivoItem
+from ..schemas.exh_exhortos_partes import ExhExhortoParteItem
 
 exh_exhortos = APIRouter(prefix="/v5/exh_exhortos", tags=["exh exhortos"])
 
@@ -203,7 +202,7 @@ async def consultar_exhorto_request(
     # Pasar las partes del exhorto a instancias de ExhExhortoParteIn
     for exh_exhorto_parte in exh_exhorto.exh_exhortos_partes:
         partes.append(
-            ExhExhortoParteOut(
+            ExhExhortoParteItem(
                 nombre=exh_exhorto_parte.nombre,
                 apellidoPaterno=exh_exhorto_parte.apellido_paterno,
                 apellidoMaterno=exh_exhorto_parte.apellido_materno,
@@ -220,7 +219,7 @@ async def consultar_exhorto_request(
     # Pasar los archivos del exhorto a instancias de ExhExhortoArchivoOut
     for exh_exhorto_archivo in exh_exhorto.exh_exhortos_archivos:
         archivos.append(
-            ExhExhortoArchivo(
+            ExhExhortoArchivoItem(
                 nombreArchivo=exh_exhorto_archivo.nombre_archivo,
                 hashSha1=exh_exhorto_archivo.hash_sha1,
                 hashSha256=exh_exhorto_archivo.hash_sha256,

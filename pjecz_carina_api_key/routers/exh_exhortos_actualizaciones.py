@@ -5,11 +5,11 @@ Exh Exhortos Actualizaciones
 from datetime import datetime
 from typing import Annotated
 
-from dependencies.exceptions import MyAnyError
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
+from ..dependencies.exceptions import MyAnyError
 from ..dependencies.safe_string import safe_string
 from ..models.exh_exhortos_actualizaciones import ExhExhortoActualizacion
 from ..models.permisos import Permiso
