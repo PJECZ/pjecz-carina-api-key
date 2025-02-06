@@ -19,7 +19,7 @@ from ..models.permisos import Permiso
 from ..schemas.exh_exhortos_promociones import ExhExhortoPromocionIn, ExhExhortoPromocionOut, OneExhExhortoPromocionOut
 from .exh_exhortos import get_exhorto_with_folio_seguimiento
 
-exh_exhortos_promociones = APIRouter(prefix="/v5/exh_exhortos_promociones", tags=["exh exhortos promociones"])
+exh_exhortos_promociones = APIRouter(prefix="/api/v5/exh_exhortos_promociones")
 
 
 def get_exhorto_promocion_with_folio_seguimiento(

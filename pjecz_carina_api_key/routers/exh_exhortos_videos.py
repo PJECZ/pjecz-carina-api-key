@@ -11,7 +11,7 @@ from ..dependencies.fastapi_not_implemented import NotImplement
 from ..models.exh_exhortos_videos import ExhExhortoVideo  # Necesario para cargar este modelo
 from ..models.permisos import Permiso
 
-exh_exhortos_videos = APIRouter(prefix="/v5/exh_exhortos_videos", tags=["exh exhortos"])
+exh_exhortos_videos = APIRouter(prefix="/api/v5/exh_exhortos_videos")
 
 
 @exh_exhortos_videos.get("", response_model=NotImplement)

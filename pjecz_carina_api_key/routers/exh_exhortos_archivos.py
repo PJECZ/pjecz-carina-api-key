@@ -27,7 +27,7 @@ from ..schemas.exh_exhortos_archivos import (
 from ..settings import get_settings
 from .exh_exhortos import get_exhorto_with_exhorto_origen_id
 
-exh_exhortos_archivos = APIRouter(prefix="/v5/exh_exhortos_archivos", tags=["exh exhortos"])
+exh_exhortos_archivos = APIRouter(prefix="/api/v5/exh_exhortos_archivos")
 
 
 @exh_exhortos_archivos.post("/responder_upload", response_model=OneExhExhortoArchivoRespuestaOut)

@@ -20,7 +20,7 @@ from ..schemas.exh_exhortos_actualizaciones import (
 )
 from .exh_exhortos import get_exhorto_with_exhorto_origen_id
 
-exh_exhortos_actualizaciones = APIRouter(prefix="/v5/exh_exhortos_actualizaciones", tags=["exh exhortos actualizaciones"])
+exh_exhortos_actualizaciones = APIRouter(prefix="/api/v5/exh_exhortos_actualizaciones")
 
 
 @exh_exhortos_actualizaciones.post("", response_model=OneExhExhortoActualizacionOut)

@@ -16,7 +16,7 @@ from ..models.materias import Materia
 from ..models.permisos import Permiso
 from ..schemas.materias import MateriaOut, OneMateriaOut
 
-materias = APIRouter(prefix="/v5/materias", tags=["materias"])
+materias = APIRouter(prefix="/api/v5/materias")
 
 
 @materias.get("/{clave}", response_model=OneMateriaOut)
