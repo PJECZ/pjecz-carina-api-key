@@ -199,7 +199,7 @@ async def recibir_exhorto_promocion_archivo_request(
         acuse = ExhExhortoPromocionArchivoDataAcuse(
             folioOrigenPromocion="",
             folioPromocionRecibida="",
-            fechaHoraRecepcion=None,
+            fechaHoraRecepcion="",
         )
 
     # Juntar los datos para la respuesta

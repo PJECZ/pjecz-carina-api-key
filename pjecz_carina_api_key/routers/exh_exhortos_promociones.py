@@ -78,7 +78,7 @@ async def recibir_exhorto_promocion_request(
 
     # Validar la fecha
     try:
-        fecha_recepcion = datetime.strptime(exh_exhorto_promocion_in.fechaOrigen, "%Y-%m-%d %H:%M:%S")
+        fecha_origen = datetime.strptime(exh_exhorto_promocion_in.fechaOrigen, "%Y-%m-%d %H:%M:%S")
     except ValueError:
         errores.append("La fecha no tiene el formato correcto")
 
@@ -91,7 +91,7 @@ async def recibir_exhorto_promocion_request(
         exh_exhorto_id=exh_exhorto.id,
         folio_origen_promocion=exh_exhorto_promocion_in.folioOrigenPromocion,
         fojas=exh_exhorto_promocion_in.fojas,
-        fecha_recepcion=fecha_recepcion,
+        fecha_origen=fecha_origen,
         observaciones=safe_string(exh_exhorto_promocion_in.observaciones, save_enie=True, max_len=1000),
         remitente="EXTERNO",
         estado="ENVIADO",
