@@ -106,7 +106,7 @@ async def recibir_exhorto_promocion_archivo_request(
     archivo_en_memoria = archivo.file.read()
 
     # Validar la integridad del archivo con SHA1
-    if exh_exhorto_promocion_archivo.hash_sha1 != "":
+    if exh_exhorto_promocion_archivo.hash_sha1 is not None and exh_exhorto_promocion_archivo.hash_sha1 != "":
         hasher_sha1 = hashlib.sha1()
         hasher_sha1.update(archivo_en_memoria)
         if exh_exhorto_promocion_archivo.hash_sha1 != hasher_sha1.hexdigest():
@@ -118,7 +118,7 @@ async def recibir_exhorto_promocion_archivo_request(
             )
 
     # Validar la integridad del archivo con SHA256
-    if exh_exhorto_promocion_archivo.hash_sha256 != "":
+    if exh_exhorto_promocion_archivo.hash_sha256 is not None and exh_exhorto_promocion_archivo.hash_sha256 != "":
         hasher_sha256 = hashlib.sha256()
         hasher_sha256.update(archivo_en_memoria)
         if exh_exhorto_promocion_archivo.hash_sha256 != hasher_sha256.hexdigest():
@@ -195,12 +195,8 @@ async def recibir_exhorto_promocion_archivo_request(
             fechaHoraRecepcion=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         )
     else:
-        # Aún faltan archivos, entonces el acuse no lleva contenido
-        acuse = ExhExhortoPromocionArchivoDataAcuse(
-            folioOrigenPromocion="",
-            folioPromocionRecibida="",
-            fechaHoraRecepcion="",
-        )
+        # Aún faltan archivos, entonces el acuse es nulo
+        acuse = None
 
     # Juntar los datos para la respuesta
     data = ExhExhortoPromocionArchivoOut(

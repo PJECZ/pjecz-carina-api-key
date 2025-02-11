@@ -16,8 +16,8 @@ class ExhExhortoPromocionIn(BaseModel):
     folioOrigenPromocion: str
     promoventes: list[ExhExhortoPromocionPromovente]
     fojas: int
-    fechaOrigen: str  # YYYY-MM-DD HH:mm:ss
-    observaciones: str
+    fechaOrigen: str | None  # YYYY-MM-DD HH:mm:ss
+    observaciones: str | None
     archivos: list[ExhExhortoPromocionArchivo]
 
 
