@@ -91,8 +91,8 @@ class TestsEnviarExhorto(unittest.TestCase):
             archivos.append(
                 {
                     "nombreArchivo": f"prueba-{numero}.pdf",
-                    "hashSha1": "3a9a09bbb22a6da576b2868c4b861cae6b096050",
-                    "hashSha256": "df3d983d24a5002e7dcbff1629e25f45bb3def406682642643efc4c1c8950a77",
+                    "hashSha1": config["archivo_pdf_hashsha1"],
+                    "hashSha256": config["archivo_pdf_hashsha256"],
                     "tipoDocumento": 1,
                 }
             )
@@ -201,6 +201,7 @@ class TestsEnviarExhorto(unittest.TestCase):
                 hash_sha1=archivo["hashSha1"],
                 hash_sha256=archivo["hashSha256"],
                 tipo_documento=archivo["tipoDocumento"],
+                es_respuesta=False,
             )
             session.add(exh_exhorto_archivo)
             session.commit()

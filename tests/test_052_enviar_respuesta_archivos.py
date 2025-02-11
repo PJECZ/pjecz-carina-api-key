@@ -17,6 +17,7 @@ from pathlib import Path
 import requests
 
 from tests import config
+from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
 
 
 class TestsEnviarRespuestaArchivos(unittest.TestCase):
@@ -29,62 +30,27 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
         if config["folio_seguimiento"] == "":
             self.fail("No se ha configurado la variable de entorno FOLIO_SEGUIMIENTO")
 
-        # Consultar el exhorto
-        try:
-            respuesta = requests.get(
-                url=f"{config['api_base_url']}/exh_exhortos/{config['folio_seguimiento']}",
-                headers={"X-Api-Key": config["api_key"]},
-                timeout=config["timeout"],
-            )
-        except requests.exceptions.ConnectionError as error:
-            self.fail(error)
-        self.assertEqual(respuesta.status_code, 200)
+        # Cargar la sesión de la base de datos para recuperar los datos de la prueba anterior
+        session = get_database_session()
 
-        # Validar el contenido
-        contenido = respuesta.json()
-        self.assertEqual("success" in contenido, True)
-        self.assertEqual("message" in contenido, True)
-        self.assertEqual("errors" in contenido, True)
-        self.assertEqual("data" in contenido, True)
-
-        # Validar que se haya tenido éxito
-        if contenido["success"] is False:
-            print(f"Errors: {str(contenido['errors'])}")
-        self.assertEqual(contenido["success"], True)
-
-        # Validar el data
-        self.assertEqual(type(contenido["data"]), dict)
-        data = contenido["data"]
-
-        # Validar el contenido QUE NOS INTERESA de data
-        self.assertEqual("exhortoOrigenId" in data, True)
-        self.assertEqual("respuestaOrigenId" in data, True)
-        self.assertEqual("archivos" in data, True)
-        self.assertEqual(type(data["archivos"]), list)
-        archivos = data["archivos"]
+        # Consultar el último exhorto
+        exh_exhorto = session.query(ExhExhorto).order_by(ExhExhorto.id.desc()).first()
+        if exh_exhorto is None:
+            self.fail("No se encontró el último exhorto en database.sqlite")
 
         # Parámetros para el envío del archivo
         params = {
-            "exhortoOrigenId": data["exhortoOrigenId"],
-            "respuestaOrigenId": data["respuestaOrigenId"],
+            "exhortoOrigenId": exh_exhorto.exhorto_origen_id,
+            "respuestaOrigenId": exh_exhorto.respuesta_origen_id,
         }
 
         # Bucle para mandar los archivo por multipart/form-data
-        for archivo in archivos:
+        data_acuse = None
+        for archivo in exh_exhorto.exh_exhortos_archivos:
             time.sleep(2)  # Pausa de 2 segundos
 
-            # Validar cada archivo
-            self.assertEqual("nombreArchivo" in archivo, True)
-            self.assertEqual("hashSha1" in archivo, True)
-            self.assertEqual("hashSha256" in archivo, True)
-            self.assertEqual("tipoDocumento" in archivo, True)
-
             # Tomar el nombre del archivo
-            archivo_nombre = archivo["nombreArchivo"]
-
-            # Si el nombre del archivo NO comienza con "respuesta", se omite
-            if not archivo_nombre.startswith("respuesta"):
-                continue
+            archivo_nombre = archivo.nombre_archivo
 
             # Validar que el archivo exista
             respuesta_archivo = Path(f"tests/{archivo_nombre}")
@@ -135,7 +101,11 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
                 self.assertEqual("acuse" in data, True)
                 data_acuse = data["acuse"]
 
+        # Validar que data_acuse NO sea nulo
+        self.assertEqual(data_acuse is not None, True)
+
         # Validar el último acuse
+        self.assertEqual(type(data_acuse), dict)
         self.assertEqual("exhortoId" in data_acuse, True)
         self.assertEqual("respuestaOrigenId" in data_acuse, True)
         self.assertEqual("fechaHoraRecepcion" in data_acuse, True)

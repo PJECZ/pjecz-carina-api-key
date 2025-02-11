@@ -61,9 +61,9 @@ class TestsEnviarPromocion(unittest.TestCase):
         archivos = []
         for numero in range(1, random.randint(1, 4) + 1):  # Hasta 4 archivos
             archivo = {
-                "nombreArchivo": f"promocion-{numero}.pdf",
-                "hashSha1": "3a9a09bbb22a6da576b2868c4b861cae6b096050",
-                "hashSha256": "df3d983d24a5002e7dcbff1629e25f45bb3def406682642643efc4c1c8950a77",
+                "nombreArchivo": f"prueba-{numero}.pdf",
+                "hashSha1": config["archivo_pdf_hashsha1"],
+                "hashSha256": config["archivo_pdf_hashsha256"],
                 "tipoDocumento": random.randint(1, 3),
             }
             archivos.append(archivo)
