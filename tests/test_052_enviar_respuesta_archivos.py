@@ -47,7 +47,13 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
         # Bucle para mandar los archivo por multipart/form-data
         data_acuse = None
         for archivo in exh_exhorto.exh_exhortos_archivos:
-            time.sleep(2)  # Pausa de 2 segundos
+            # Si es_respuesta es Falso, se omite
+            if archivo.es_respuesta is False:
+                continue
+
+            # Pausa de 2 segundos
+            print(f"{archivo.nombre_archivo}...")
+            time.sleep(2)
 
             # Tomar el nombre del archivo
             archivo_nombre = archivo.nombre_archivo

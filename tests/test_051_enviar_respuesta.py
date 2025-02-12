@@ -184,13 +184,18 @@ class TestsEnviarRespuesta(unittest.TestCase):
         # Cargar la sesión de SQLite para conservar los datos para las pruebas siguientes
         session = get_database_session()
 
-        # Consultar el último exhorto
-        exh_exhorto = session.query(ExhExhorto).order_by(ExhExhorto.id.desc()).first()
+        # Consultar el exhorto por exh_exhorto_id, si no existe, se inserta
+        exh_exhorto = session.query(ExhExhorto).filter_by(exhorto_id=data["exhortoId"]).first()
         if exh_exhorto is None:
-            self.fail("No se encontró el último exhorto en database.sqlite")
+            exh_exhorto = ExhExhorto(
+                exhorto_origen_id=data["exhortoId"],
+                estado_origen_id=5,
+                folio_seguimiento=config["folio_seguimiento"],
+            )
 
-        # Actualizar en el exhorto la respuesta_origen_id
-        exh_exhorto.respuesta_origen_id = data["exhortoOrigenId"]
+        # Actualizar en el exhorto el exhorto_id y la respuesta_origen_id
+        exh_exhorto.exhorto_id = data["exhortoId"]
+        exh_exhorto.respuesta_origen_id = data["respuestaOrigenId"]
         session.add(exh_exhorto)
         session.commit()
 

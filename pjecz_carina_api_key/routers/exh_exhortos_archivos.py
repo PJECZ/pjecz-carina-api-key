@@ -61,6 +61,7 @@ async def recibir_exhorto_respuesta_archivo_request(
     exh_exhortos_archivos_consulta = (
         database.query(ExhExhortoArchivo)
         .filter_by(exh_exhorto_id=exh_exhorto.id)
+        .filter_by(es_respuesta=True)
         .filter_by(estatus="A")
         .order_by(ExhExhortoArchivo.id)
         .all()
@@ -216,6 +217,7 @@ async def recibir_exhorto_archivo_request(
     exh_exhortos_archivos_consulta = (
         database.query(ExhExhortoArchivo)
         .filter_by(exh_exhorto_id=exh_exhorto.id)
+        .filter_by(es_respuesta=False)
         .filter_by(estatus="A")
         .order_by(ExhExhortoArchivo.id)
         .all()
