@@ -18,18 +18,18 @@ class ExhExhortoIn(BaseModel):
     materiaClave: str
     estadoOrigenId: int
     municipioOrigenId: int
-    juzgadoOrigenId: str
+    juzgadoOrigenId: str | None
     juzgadoOrigenNombre: str
     numeroExpedienteOrigen: str
-    numeroOficioOrigen: str
+    numeroOficioOrigen: str | None
     tipoJuicioAsuntoDelitos: str
-    juezExhortante: str
-    partes: list[ExhExhortoParteItem]
+    juezExhortante: str | None
+    partes: list[ExhExhortoParteItem] | None
     fojas: int
     diasResponder: int
-    tipoDiligenciacionNombre: str
-    fechaOrigen: str  # YYYY-MM-DD HH:mm:ss
-    observaciones: str
+    tipoDiligenciacionNombre: str | None
+    fechaOrigen: str | None  # YYYY-MM-DD HH:mm:ss
+    observaciones: str | None
     archivos: list[ExhExhortoArchivoItem]
 
 
@@ -78,13 +78,13 @@ class ExhExhortoRespuestaIn(BaseModel):
     exhortoId: str
     respuestaOrigenId: str
     municipioTurnadoId: int
-    areaTurnadoId: str
+    areaTurnadoId: str | None
     areaTurnadoNombre: str
-    numeroExhorto: str
+    numeroExhorto: str | None
     tipoDiligenciado: int  # 0 = No Diligenciado, 1 = Parcialmente Dilgenciado, 2 = Diligenciado
-    observaciones: str
+    observaciones: str | None
     archivos: list[ExhExhortoArchivoItem]
-    videos: list[ExhExhortoVideoItem]
+    videos: list[ExhExhortoVideoItem] | None
 
 
 class ExhExhortoRespuestaOut(BaseModel):

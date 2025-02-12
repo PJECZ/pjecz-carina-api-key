@@ -33,11 +33,14 @@ async def recibir_exhorto_actualizacion_request(
     if current_user.permissions.get("EXH EXHORTOS ACTUALIZACIONES", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
+    # Inicializar listado de errores
+    errores = []
+
     # Consultar el exhorto
     try:
         exh_exhorto = get_exhorto_with_exhorto_origen_id(database, exh_exhorto_actualizacion_in.exhortoId)
     except MyAnyError as error:
-        return OneExhExhortoActualizacionOut(success=False, message=str(error), errors=[str(error)], data=None)
+        errores.append(str(error))
 
     # Validar actualizacionOrigenId
     actualizacion_origen_id = safe_string(
@@ -47,15 +50,19 @@ async def recibir_exhorto_actualizacion_request(
         to_uppercase=False,
     )
     if actualizacion_origen_id == "":
-        error = "No es un actualizacionOrigenId válido"
-        return OneExhExhortoActualizacionOut(success=False, message=str(error), errors=[str(error)], data=None)
+        errores.append("No es válido actualizacionOrigenId")
 
     # Validar la fecha_hora
     try:
         fecha_hora = datetime.strptime(exh_exhorto_actualizacion_in.fechaHora, "%Y-%m-%d %H:%M:%S")
     except ValueError:
-        error = "La fecha y hora no tiene el formato correcto"
-        return OneExhExhortoActualizacionOut(success=False, message=str(error), errors=[str(error)], data=None)
+        errores.append("No es válido fecha_hora")
+
+    # Si hubo errores, se termina de forma fallida
+    if len(errores) > 0:
+        return OneExhExhortoActualizacionOut(
+            success=False, message="Falló la recepción de la actualización", errors=errores, data=None
+        )
 
     # Insertar la actualización
     exh_exhorto_actualizacion = ExhExhortoActualizacion(

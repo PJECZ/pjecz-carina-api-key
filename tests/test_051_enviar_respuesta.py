@@ -20,6 +20,7 @@ import lorem
 import requests
 
 from tests import config
+from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
 
 
 def generar_identificador(largo: int = 16) -> str:
@@ -112,9 +113,9 @@ class TestsEnviarRespuesta(unittest.TestCase):
         for numero in range(1, random.randint(1, 4) + 1):  # Hasta 4 archivos
             archivos.append(
                 {
-                    "nombreArchivo": f"respuesta-{numero}.pdf",
-                    "hashSha1": "3a9a09bbb22a6da576b2868c4b861cae6b096050",
-                    "hashSha256": "df3d983d24a5002e7dcbff1629e25f45bb3def406682642643efc4c1c8950a77",
+                    "nombreArchivo": f"prueba-{numero}.pdf",
+                    "hashSha1": config["archivo_pdf_hashsha1"],
+                    "hashSha256": config["archivo_pdf_hashsha256"],
                     "tipoDocumento": 1,
                 }
             )
@@ -179,6 +180,38 @@ class TestsEnviarRespuesta(unittest.TestCase):
         self.assertEqual("exhortoId" in data, True)
         self.assertEqual("respuestaOrigenId" in data, True)
         self.assertEqual("fechaHora" in data, True)
+
+        # Cargar la sesión de SQLite para conservar los datos para las pruebas siguientes
+        session = get_database_session()
+
+        # Consultar el exhorto por exh_exhorto_id, si no existe, se inserta
+        exh_exhorto = session.query(ExhExhorto).filter_by(exhorto_id=data["exhortoId"]).first()
+        if exh_exhorto is None:
+            exh_exhorto = ExhExhorto(
+                exhorto_origen_id=data["exhortoId"],
+                estado_origen_id=5,
+                folio_seguimiento=config["folio_seguimiento"],
+            )
+
+        # Actualizar en el exhorto el exhorto_id y la respuesta_origen_id
+        exh_exhorto.exhorto_id = data["exhortoId"]
+        exh_exhorto.respuesta_origen_id = data["respuestaOrigenId"]
+        session.add(exh_exhorto)
+        session.commit()
+
+        # Insertar los archivos de la respuesta del exhorto en SQLite
+        for archivo in archivos:
+            exh_exhorto_archivo = ExhExhortoArchivo(
+                exh_exhorto=exh_exhorto,
+                exh_exhorto_id=exh_exhorto.id,
+                nombre_archivo=archivo["nombreArchivo"],
+                hash_sha1=archivo["hashSha1"],
+                hash_sha256=archivo["hashSha256"],
+                tipo_documento=archivo["tipoDocumento"],
+                es_respuesta=True,
+            )
+            session.add(exh_exhorto_archivo)
+            session.commit()
 
 
 if __name__ == "__main__":

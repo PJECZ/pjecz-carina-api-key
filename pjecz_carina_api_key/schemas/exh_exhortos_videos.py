@@ -9,6 +9,6 @@ class ExhExhortoVideoItem(BaseModel):
     """Esquema para recibir los metadatos de un video"""
 
     titulo: str
-    descripcion: str
-    fecha: str  # YYYY-MM-DD
+    descripcion: str | None
+    fecha: str | None  # YYYY-MM-DD
     urlAcceso: str

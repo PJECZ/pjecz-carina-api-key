@@ -11,8 +11,8 @@ class ExhExhortoArchivoItem(BaseModel):
     """Esquema para recibir los metadatos de un archivo en la recepción del exhorto"""
 
     nombreArchivo: str
-    hashSha1: str
-    hashSha256: str
+    hashSha1: str | None
+    hashSha256: str | None
     tipoDocumento: int
 
 
@@ -35,17 +35,17 @@ class ExhExhortoArchivoFileDataAcuse(BaseModel):
     exhortoOrigenId: str
     folioSeguimiento: str
     fechaHoraRecepcion: str  # YYYY-MM-DD HH:mm:ss
-    municipioAreaRecibeId: int
-    areaRecibeId: str
-    areaRecibeNombre: str
-    urlInfo: str
+    municipioAreaRecibeId: int | None
+    areaRecibeId: str | None
+    areaRecibeNombre: str | None
+    urlInfo: str | None
 
 
 class ExhExhortoArchivoOut(BaseModel):
     """Esquema con el data"""
 
     archivo: ExhExhortoArchivoFileDataArchivo
-    acuse: ExhExhortoArchivoFileDataAcuse
+    acuse: ExhExhortoArchivoFileDataAcuse | None
 
 
 class OneExhExhortoArchivoOut(OneBaseOut):

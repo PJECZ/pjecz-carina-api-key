@@ -74,13 +74,44 @@ async def recibir_exhorto_promocion_request(
     try:
         exh_exhorto = get_exhorto_with_folio_seguimiento(database, exh_exhorto_promocion_in.folioSeguimiento)
     except MyAnyError as error:
-        return OneExhExhortoPromocionOut(success=False, message=str(error), errors=[str(error)], data=None)
+        errores.append(str(error))
 
     # Validar la fecha
-    try:
-        fecha_origen = datetime.strptime(exh_exhorto_promocion_in.fechaOrigen, "%Y-%m-%d %H:%M:%S")
-    except ValueError:
-        errores.append("La fecha no tiene el formato correcto")
+    fecha_origen = None
+    if exh_exhorto_promocion_in.fechaOrigen is not None:
+        try:
+            fecha_origen = datetime.strptime(exh_exhorto_promocion_in.fechaOrigen, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            errores.append("La fecha no tiene el formato correcto")
+
+    # Validar observaciones
+    observaciones = None
+    if exh_exhorto_promocion_in.observaciones is not None:
+        observaciones = safe_string(exh_exhorto_promocion_in.observaciones, save_enie=True, max_len=1000)
+
+    # Validar que vengan promoventes
+    if len(exh_exhorto_promocion_in.promoventes) == 0:
+        errores.append("Faltan los promoventes")
+
+    # Validar los promoventes
+    for promovente in exh_exhorto_promocion_in.promoventes:
+        if safe_string(promovente.nombre, save_enie=True) == "":
+            errores.append("El nombre de un promovente no es válido")
+        if promovente.genero is not None and promovente.genero not in ["M", "F"]:
+            errores.append("El género de un promovente no es válido")
+        if promovente.tipoParte not in [0, 1, 2]:
+            errores.append("El tipo_parte de un promovente no es válido")
+
+    # Validar que vengan archivos
+    if len(exh_exhorto_promocion_in.archivos) == 0:
+        errores.append("Faltan los archivos")
+
+    # Validar los archivos
+    for archivo in exh_exhorto_promocion_in.archivos:
+        if archivo.nombreArchivo.strip() == "":
+            errores.append("El nombre de un archivo no es válido")
+        if archivo.tipoDocumento not in [1, 2, 3]:
+            errores.append("El tipoDocumento de un archivo no es válido")
 
     # Si hubo errores, se termina de forma fallida
     if len(errores) > 0:
@@ -92,7 +123,7 @@ async def recibir_exhorto_promocion_request(
         folio_origen_promocion=exh_exhorto_promocion_in.folioOrigenPromocion,
         fojas=exh_exhorto_promocion_in.fojas,
         fecha_origen=fecha_origen,
-        observaciones=safe_string(exh_exhorto_promocion_in.observaciones, save_enie=True, max_len=1000),
+        observaciones=observaciones,
         remitente="EXTERNO",
         estado="ENVIADO",
     )

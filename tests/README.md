@@ -1,5 +1,11 @@
 # Unit Tests
 
+Obtenga el SHA1 y SHA256 de sus prueba-1.pdf
+
+```bash
+sha1sum tests/prueba-1.pdf
+```
+
 Crear un archivo .env con las siguientes variables
 
 ```ini
@@ -7,6 +13,8 @@ API_KEY=XXXXXXXX.XXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXX
 API_BASE_URL=http://127.0.0.1:8000/v5
 TIMEOUT=10
 FOLIO_SEGUIMIENTO=XXXXXXXXXXXXXXXX
+ARCHIVO_PDF_HASHSHA1=
+ARCHIVO_PDF_HASHSHA256=
 ```
 
 ## Probar cuando el remitente es EXTERNO

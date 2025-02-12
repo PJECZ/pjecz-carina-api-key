@@ -36,7 +36,7 @@ class ExhExhortoPromocionArchivoOut(BaseModel):
     """Esquema para entregar la confirmación de la recepción de un archivo de promoción"""
 
     archivo: ExhExhortoArchivoItem
-    acuse: ExhExhortoPromocionArchivoDataAcuse
+    acuse: ExhExhortoPromocionArchivoDataAcuse | None
 
 
 class OneExhExhortoPromocionArchivoOut(OneBaseOut):

@@ -9,9 +9,9 @@ class ExhExhortoParteItem(BaseModel):
     """Esquema para recibir los metadatos de una parte"""
 
     nombre: str
-    apellidoPaterno: str
-    apellidoMaterno: str
-    genero: str
+    apellidoPaterno: str | None
+    apellidoMaterno: str | None
+    genero: str | None
     esPersonaMoral: bool
     tipoParte: int
-    tipoParteNombre: str
+    tipoParteNombre: str | None
