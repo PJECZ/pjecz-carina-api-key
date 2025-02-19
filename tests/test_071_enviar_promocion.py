@@ -73,7 +73,7 @@ class TestsEnviarPromocion(unittest.TestCase):
         folio_origen_promocion = "".join(random.choice(characters) for _ in range(11))
 
         # Definir los datos de la promoción
-        datos = {
+        payload_for_json = {
             "folioSeguimiento": exh_exhorto.folio_seguimiento,
             "folioOrigenPromocion": folio_origen_promocion,
             "promoventes": promoventes,
@@ -89,7 +89,7 @@ class TestsEnviarPromocion(unittest.TestCase):
                 url=f"{config['api_base_url']}/exh_exhortos_promociones",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
-                json=datos,
+                json=payload_for_json,
             )
         except requests.exceptions.ConnectionError as error:
             self.fail(error)

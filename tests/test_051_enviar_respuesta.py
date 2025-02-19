@@ -129,7 +129,7 @@ class TestsEnviarRespuesta(unittest.TestCase):
             )
 
         # Definir los datos de la respuesta del exhorto
-        datos = {
+        payload_for_json = {
             "exhortoId": data["exhortoOrigenId"],
             "respuestaOrigenId": respuesta_origen_id,
             "municipioTurnadoId": int(municipio["clave"]),
@@ -148,7 +148,7 @@ class TestsEnviarRespuesta(unittest.TestCase):
                 url=f"{config['api_base_url']}/exh_exhortos/responder",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
-                json=datos,
+                json=payload_for_json,
             )
         except requests.exceptions.ConnectionError as error:
             self.fail(error)

@@ -42,7 +42,7 @@ class TestsEnviarArchivosPromocion(unittest.TestCase):
             self.fail("No hay promoción POR ENVIAR en el exhorto")
 
         # Definir los datos que se van a incluir en el envío de los archivos
-        data_archivo = {
+        payload_for_data = {
             "folioOrigenPromocion": exh_exhorto_promocion.folio_origen_promocion,
             "folioSeguimiento": exh_exhorto_promocion.folio_seguimiento,
         }
@@ -68,7 +68,7 @@ class TestsEnviarArchivosPromocion(unittest.TestCase):
                         headers={"X-Api-Key": config["api_key"]},
                         timeout=config["timeout"],
                         files={"archivo": (archivo_nombre, archivo_prueba, "application/pdf")},
-                        data=data_archivo,
+                        data=payload_for_data,
                     )
                 except requests.exceptions.ConnectionError as error:
                     self.fail(error)

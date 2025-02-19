@@ -118,7 +118,7 @@ class TestsEnviarExhorto(unittest.TestCase):
         municipio = random.choice(contenido["data"])
 
         # Definir los datos del exhorto
-        datos = {
+        payload_for_json = {
             "exhortoOrigenId": exhorto_origen_id,
             "municipioDestinoId": 30,
             "materiaClave": "CIV",
@@ -145,7 +145,7 @@ class TestsEnviarExhorto(unittest.TestCase):
                 url=f"{config['api_base_url']}/exh_exhortos",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
-                json=datos,
+                json=payload_for_json,
             )
         except requests.exceptions.ConnectionError as error:
             self.fail(error)
