@@ -38,8 +38,8 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
         if exh_exhorto is None:
             self.fail("No se encontró el último exhorto en database.sqlite")
 
-        # Parámetros para el envío del archivo
-        params = {
+        # Definir los datos que se van a incluir en el envío de los archivos
+        data_archivo = {
             "exhortoOrigenId": exh_exhorto.exhorto_origen_id,
             "respuestaOrigenId": exh_exhorto.respuesta_origen_id,
         }
@@ -71,8 +71,8 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
                         url=f"{config['api_base_url']}/exh_exhortos_archivos/responder_upload",
                         headers={"X-Api-Key": config["api_key"]},
                         timeout=config["timeout"],
-                        params=params,
                         files={"archivo": (archivo_nombre, archivo_prueba, "application/pdf")},
+                        data=data_archivo,
                     )
                 except requests.exceptions.ConnectionError as error:
                     self.fail(error)

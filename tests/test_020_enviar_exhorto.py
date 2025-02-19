@@ -17,15 +17,9 @@ from datetime import datetime
 import requests
 from faker import Faker
 
+from pjecz_carina_api_key.dependencies.pwgen import generar_identificador
 from tests import config
 from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
-
-
-def generar_identificador(largo: int = 16) -> str:
-    """Generar identificador con el tiempo actual y algo aleatorio, todo con letras en mayúsculas y dígitos"""
-    timestamp_unique = str(int(time.time() * 1000))
-    random_characters = "".join(random.sample(string.ascii_uppercase + string.digits, k=largo))
-    return f"{timestamp_unique}{random_characters}"[:largo]
 
 
 class TestsEnviarExhorto(unittest.TestCase):

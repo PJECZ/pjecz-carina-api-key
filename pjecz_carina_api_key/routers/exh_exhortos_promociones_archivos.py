@@ -6,7 +6,7 @@ import hashlib
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
@@ -31,9 +31,9 @@ exh_exhortos_promociones_archivos = APIRouter(prefix="/api/v5/exh_exhortos_promo
 async def recibir_exhorto_promocion_archivo_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
-    folioSeguimiento: str,
-    folioOrigenPromocion: str,
-    archivo: UploadFile,
+    archivo: UploadFile = File(...),
+    folioSeguimiento: str = Form(...),
+    folioOrigenPromocion: str = Form(...),
 ):
     """Recibir un archivo de una promoción"""
     if current_user.permissions.get("EXH EXHORTOS PROMOCIONES ARCHIVOS", 0) < Permiso.CREAR:
