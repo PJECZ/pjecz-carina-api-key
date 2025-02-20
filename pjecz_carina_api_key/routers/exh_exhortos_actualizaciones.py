@@ -72,6 +72,7 @@ async def recibir_exhorto_actualizacion_request(
         fecha_hora=fecha_hora,
         descripcion=safe_string(exh_exhorto_actualizacion_in.descripcion, save_enie=True),
         remitente="EXTERNO",
+        estado="ENVIADO",
     )
     database.add(exh_exhorto_actualizacion)
     database.commit()
