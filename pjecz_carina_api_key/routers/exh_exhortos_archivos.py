@@ -6,7 +6,7 @@ import hashlib
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
@@ -34,9 +34,9 @@ exh_exhortos_archivos = APIRouter(prefix="/api/v5/exh_exhortos_archivos")
 async def recibir_exhorto_respuesta_archivo_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
-    exhortoOrigenId: str,
-    respuestaOrigenId: str,
-    archivo: UploadFile,
+    archivo: UploadFile = File(...),
+    exhortoOrigenId: str = Form(...),
+    respuestaOrigenId: str = Form(...),
 ):
     """Recibir un archivo de una respuesta"""
     if current_user.permissions.get("EXH EXHORTOS ARCHIVOS", 0) < Permiso.CREAR:
@@ -191,8 +191,8 @@ async def recibir_exhorto_respuesta_archivo_request(
 async def recibir_exhorto_archivo_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
-    exhortoOrigenId: str,
-    archivo: UploadFile,
+    archivo: UploadFile = File(...),
+    exhortoOrigenId: str = Form(...),
 ):
     """Recibir un archivo de un exhorto"""
     if current_user.permissions.get("EXH EXHORTOS ARCHIVOS", 0) < Permiso.CREAR:

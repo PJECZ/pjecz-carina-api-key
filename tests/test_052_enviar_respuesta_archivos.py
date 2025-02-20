@@ -38,8 +38,8 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
         if exh_exhorto is None:
             self.fail("No se encontró el último exhorto en database.sqlite")
 
-        # Parámetros para el envío del archivo
-        params = {
+        # Definir los datos que se van a incluir en el envío de los archivos
+        payload_for_data = {
             "exhortoOrigenId": exh_exhorto.exhorto_origen_id,
             "respuestaOrigenId": exh_exhorto.respuesta_origen_id,
         }
@@ -71,8 +71,8 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
                         url=f"{config['api_base_url']}/exh_exhortos_archivos/responder_upload",
                         headers={"X-Api-Key": config["api_key"]},
                         timeout=config["timeout"],
-                        params=params,
                         files={"archivo": (archivo_nombre, archivo_prueba, "application/pdf")},
+                        data=payload_for_data,
                     )
                 except requests.exceptions.ConnectionError as error:
                     self.fail(error)
@@ -93,19 +93,15 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
                 # Validar el data
                 self.assertEqual(type(contenido["data"]), dict)
                 data = contenido["data"]
-
-                # Validar que dentro de data venga archivo
                 self.assertEqual("archivo" in data, True)
                 data_archivo = data["archivo"]
-                self.assertEqual(type(data_archivo), dict)
-
-                # Validar que dentro de archivo venga nombreArchivo y tamaño
-                self.assertEqual("nombreArchivo" in data_archivo, True)
-                self.assertEqual("tamaño" in data_archivo, True)
-
-                # Validar que dentro de data venga acuse
                 self.assertEqual("acuse" in data, True)
                 data_acuse = data["acuse"]
+
+                # Validar que dentro de archivo venga nombreArchivo y tamaño
+                self.assertEqual(type(data_archivo), dict)
+                self.assertEqual("nombreArchivo" in data_archivo, True)
+                self.assertEqual("tamaño" in data_archivo, True)
 
         # Validar que data_acuse NO sea nulo
         self.assertEqual(data_acuse is not None, True)

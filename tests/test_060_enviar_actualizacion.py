@@ -38,7 +38,7 @@ class TestsEnviarActualizacion(unittest.TestCase):
         actualizacion_origen_id = "".join(random.choice(characters) for _ in range(11))
 
         # Definir los datos de la actualización
-        datos = {
+        payload_for_json = {
             "exhortoId": exh_exhorto.exhorto_origen_id,
             "actualizacionOrigenId": actualizacion_origen_id,
             "tipoActualizacion": random.choice(["AreaTurnado", "NumeroExhorto"]),
@@ -52,7 +52,7 @@ class TestsEnviarActualizacion(unittest.TestCase):
                 url=f"{config['api_base_url']}/exh_exhortos_actualizaciones",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
-                json=datos,
+                json=payload_for_json,
             )
         except requests.exceptions.ConnectionError as error:
             self.fail(error)

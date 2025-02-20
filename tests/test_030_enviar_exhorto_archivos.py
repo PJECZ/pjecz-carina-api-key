@@ -32,6 +32,9 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
         if exh_exhorto is None:
             self.fail("No se encontró el último exhorto en database.sqlite")
 
+        # Definir los datos que se van a incluir en el envío de los archivos
+        payload_for_data = {"exhortoOrigenId": exh_exhorto.exhorto_origen_id}
+
         # Bucle para mandar los archivo por multipart/form-data
         for exh_exhorto_archivo in exh_exhorto.exh_exhortos_archivos:
             time.sleep(2)  # Pausa de 2 segundos
@@ -52,8 +55,8 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
                         url=f"{config['api_base_url']}/exh_exhortos_archivos/upload",
                         headers={"X-Api-Key": config["api_key"]},
                         timeout=config["timeout"],
-                        params={"exhortoOrigenId": exh_exhorto.exhorto_origen_id},
                         files={"archivo": (archivo_nombre, archivo_prueba, "application/pdf")},
+                        data=payload_for_data,
                     )
                 except requests.exceptions.ConnectionError as error:
                     self.fail(error)

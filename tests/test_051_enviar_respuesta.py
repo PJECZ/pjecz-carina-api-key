@@ -19,15 +19,9 @@ from datetime import datetime
 import lorem
 import requests
 
+from pjecz_carina_api_key.dependencies.pwgen import generar_identificador
 from tests import config
 from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
-
-
-def generar_identificador(largo: int = 16) -> str:
-    """Generar identificador con el tiempo actual y algo aleatorio, todo con letras en mayúsculas y dígitos"""
-    timestamp_unique = str(int(time.time() * 1000))
-    random_characters = "".join(random.sample(string.ascii_uppercase + string.digits, k=largo))
-    return f"{timestamp_unique}{random_characters}"[:largo]
 
 
 class TestsEnviarRespuesta(unittest.TestCase):
@@ -135,7 +129,7 @@ class TestsEnviarRespuesta(unittest.TestCase):
             )
 
         # Definir los datos de la respuesta del exhorto
-        datos = {
+        payload_for_json = {
             "exhortoId": data["exhortoOrigenId"],
             "respuestaOrigenId": respuesta_origen_id,
             "municipioTurnadoId": int(municipio["clave"]),
@@ -154,7 +148,7 @@ class TestsEnviarRespuesta(unittest.TestCase):
                 url=f"{config['api_base_url']}/exh_exhortos/responder",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
-                json=datos,
+                json=payload_for_json,
             )
         except requests.exceptions.ConnectionError as error:
             self.fail(error)
