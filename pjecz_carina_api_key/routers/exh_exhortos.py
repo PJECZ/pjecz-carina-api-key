@@ -436,7 +436,8 @@ async def recibir_exhorto_request(
         for parte in exh_exhorto_in.partes:
             if safe_string(parte.nombre, save_enie=True) == "":
                 errores.append("El nombre de una parte no es válido")
-            if parte.genero is not None and parte.genero not in ["M", "F"]:
+            genero = safe_string(parte.genero, to_uppercase=True)
+            if genero != "" and genero not in ExhExhortoParte.GENEROS:
                 errores.append("El género de una parte no es válido")
             if parte.tipoParte not in [0, 1, 2]:
                 errores.append("El tipo_parte de una parte no es válido")
@@ -497,9 +498,9 @@ async def recibir_exhorto_request(
     # OPCIONAL Insertar las partes
     if exh_exhorto_in.partes:
         for parte in exh_exhorto_in.partes:
-            genero = "-"
-            if parte.genero and parte.genero in ExhExhortoParte.GENEROS:
-                genero = parte.genero
+            genero = safe_string(parte.genero, to_uppercase=True)
+            if genero not in ExhExhortoParte.GENEROS:
+                genero = "-"  # En persona moral se usa guion
             exh_exhorto_parte = ExhExhortoParte(
                 exh_exhorto_id=exh_exhorto.id,
                 nombre=safe_string(parte.nombre, save_enie=True),
