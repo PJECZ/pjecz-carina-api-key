@@ -77,8 +77,8 @@ def get_exhorto_with_folio_seguimiento(database: Annotated[Session, Depends(get_
 
 def get_municipio_destino(
     database: Annotated[Session, Depends(get_db)],
-    municipio_num: int,
     settings: Annotated[Settings, Depends(get_settings)],
+    municipio_num: int,
 ) -> Municipio:
     """Obtener el municipio de destino a partir de la clave INEGI"""
     municipio_destino_clave = str(municipio_num).zfill(3)
@@ -348,26 +348,26 @@ async def recibir_exhorto_request(
 
     # Validar municipioDestinoId, obligatorio y es un identificador INEGI
     try:
-        municipio_destino = get_municipio_destino(database, exh_exhorto_in.municipioDestinoId)
+        municipio_destino = get_municipio_destino(database, settings, exh_exhorto_in.municipioDestinoId)
     except MyAnyError as error:
         errores.append(str(error))
 
-    # Consultar ExhExterno de nuestro estado
+    # Consultar nuestro estado en exh_externos
     estado_destino_exh_externo = database.query(ExhExterno).filter_by(estado_id=estado_destino.id).first()
     if estado_destino_exh_externo is None:
         errores.append(f"No existe el registro del estado {settings.estado_clave} en exh_externos")
 
-    # Tomar las materias de nuestro estado
-    materias = estado_destino_exh_externo.materias
-    if materias is None or len(materias) == 0:
-        errores.append(f"No hay materias en el estado {settings.estado_clave} en exh_externos")
-
-    # Validar la materia
-    materia_clave = safe_clave(exh_exhorto_in.materiaClave)
-    try:
-        materia_nombre = materias[materia_clave]
-    except KeyError as error:
-        errores.append(f"No tiene la materia {materia_clave} el estado {settings.estado_clave} en exh_externos")
+    # Validar materiaClave, que la tenga nuestro estado
+    if estado_destino_exh_externo:
+        materias = estado_destino_exh_externo.materias
+        if materias:
+            materia_clave = safe_clave(exh_exhorto_in.materiaClave)
+            try:
+                materia_nombre = materias[materia_clave]
+            except KeyError:
+                errores.append(f"No tiene la materia '{materia_clave}' el estado {settings.estado_clave} en exh_externos")
+        else:
+            errores.append(f"No hay materias en el estado {settings.estado_clave} en exh_externos")
 
     # Validar estadoOrigenId y municipioOrigenId, enteros obligatorios y son identificadores INEGI
     try:
