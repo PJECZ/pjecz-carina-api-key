@@ -1,7 +1,5 @@
 """
 Unit test - Enviar Promoción
-
-Se pueden enviar o recibir promociones sobre exhortos radicados.
 """
 
 import random

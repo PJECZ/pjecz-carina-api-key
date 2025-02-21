@@ -1,12 +1,5 @@
 """
 Unit test - Consultar Exhorto
-
-Consultar exhorto enviado al PJ exhortado para ver su información.
-
-- DEBE CONFIGURAR en las variables de entorno FOLIO_SEGUIMIENTO
-- GET /exh_exhortos/{FOLIO_SEGUIMIENTO}
-- Se recibe el esquema OneExhExhortoOut.
-
 """
 
 import unittest

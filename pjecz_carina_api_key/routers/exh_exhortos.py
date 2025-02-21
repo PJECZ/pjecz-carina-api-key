@@ -34,11 +34,9 @@ from ..schemas.exh_exhortos import (
 )
 from ..schemas.exh_exhortos_archivos import ExhExhortoArchivoItem
 from ..schemas.exh_exhortos_partes import ExhExhortoParteItem
+from ..settings import Settings, get_settings
 
 exh_exhortos = APIRouter(prefix="/api/v5/exh_exhortos")
-
-ESTADO_DESTINO_NOMBRE = "COAHUILA DE ZARAGOZA"
-ESTADO_DESTINO_ID = 5
 
 
 def get_exhorto_with_exhorto_origen_id(database: Annotated[Session, Depends(get_db)], exhorto_origen_id: str) -> ExhExhorto:
@@ -77,15 +75,21 @@ def get_exhorto_with_folio_seguimiento(database: Annotated[Session, Depends(get_
     return exh_exhorto
 
 
-def get_municipio_destino(database: Annotated[Session, Depends(get_db)], municipio_num: int) -> Municipio:
+def get_municipio_destino(
+    database: Annotated[Session, Depends(get_db)],
+    municipio_num: int,
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> Municipio:
     """Obtener el municipio de destino a partir de la clave INEGI"""
     municipio_destino_clave = str(municipio_num).zfill(3)
     try:
         municipio_destino = (
-            database.query(Municipio).filter_by(estado_id=ESTADO_DESTINO_ID).filter_by(clave=municipio_destino_clave).one()
+            database.query(Municipio).filter_by(estado_id=settings.estado_clave).filter_by(clave=municipio_destino_clave).one()
         )
     except (MultipleResultsFound, NoResultFound) as error:
-        raise MyNotExistsError(f"No existe el municipio {municipio_destino_clave} en {ESTADO_DESTINO_NOMBRE}") from error
+        raise MyNotExistsError(
+            f"No existe el municipio {municipio_destino_clave} en el estado {settings.estado_clave}"
+        ) from error
     return municipio_destino
 
 
@@ -102,7 +106,7 @@ def get_municipio_origen(database: Annotated[Session, Depends(get_db)], estado_n
             database.query(Municipio).filter_by(estado_id=estado_origen.id).filter_by(clave=municipio_origen_clave).one()
         )
     except (MultipleResultsFound, NoResultFound) as error:
-        raise MyNotExistsError(f"No existe el municipio {municipio_origen_clave} en {ESTADO_DESTINO_NOMBRE}") from error
+        raise MyNotExistsError(f"No existe el municipio {municipio_origen_clave} en {estado_origen_clave}") from error
     return municipio_origen
 
 
@@ -322,6 +326,7 @@ async def consultar_exhorto_request(
 async def recibir_exhorto_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
+    settings: Annotated[Settings, Depends(get_settings)],
     exh_exhorto_in: ExhExhortoIn,
 ):
     """Recepción de datos de un exhorto"""
@@ -337,9 +342,9 @@ async def recibir_exhorto_request(
         errores.append("No es válido exhortoOrigenId")
 
     # Consultar nuestro estado
-    estado_destino = database.query(Estado).get(ESTADO_DESTINO_ID)
+    estado_destino = database.query(Estado).get(settings.estado_clave)
     if estado_destino is None:
-        errores.append(f"No existe el estado de destino {ESTADO_DESTINO_NOMBRE}")
+        errores.append(f"No existe el estado de destino {settings.estado_clave}")
 
     # Validar municipioDestinoId, obligatorio y es un identificador INEGI
     try:
@@ -350,19 +355,19 @@ async def recibir_exhorto_request(
     # Consultar ExhExterno de nuestro estado
     estado_destino_exh_externo = database.query(ExhExterno).filter_by(estado_id=estado_destino.id).first()
     if estado_destino_exh_externo is None:
-        errores.append(f"No existe el registro de {ESTADO_DESTINO_NOMBRE} en exh_externos")
+        errores.append(f"No existe el registro del estado {settings.estado_clave} en exh_externos")
 
     # Tomar las materias de nuestro estado
     materias = estado_destino_exh_externo.materias
-    if materias is None:
-        errores.append(f"No hay materias para {ESTADO_DESTINO_NOMBRE}")
+    if materias is None or len(materias) == 0:
+        errores.append(f"No hay materias en el estado {settings.estado_clave} en exh_externos")
 
-    # Validar materiaClave, obligatorio
+    # Validar la materia
     materia_clave = safe_clave(exh_exhorto_in.materiaClave)
-    materia = next((materia for materia in materias if materia["clave"] == materia_clave), None)
-    if materia is None:
-        errores.append(f"No tiene la materia {materia_clave} en {ESTADO_DESTINO_NOMBRE}")
-    materia_nombre = materia["nombre"]
+    try:
+        materia_nombre = materias[materia_clave]
+    except KeyError as error:
+        errores.append(f"No tiene la materia {materia_clave} el estado {settings.estado_clave} en exh_externos")
 
     # Validar estadoOrigenId y municipioOrigenId, enteros obligatorios y son identificadores INEGI
     try:

@@ -12,13 +12,13 @@ from tests import config
 class TestsConsultarMunicipios(unittest.TestCase):
     """Tests Consultar Municipios"""
 
-    def test_get_municipios_estado_clave_05(self):
-        """GET method for municipios for estado with clave 05"""
+    def test_get_municipios_estado_clave(self):
+        """GET method for municipios for estado with clave"""
 
-        # Consultar los municipios
+        # Consultar los municipios del estado definido en la variable de entorno ESTADO_CLAVE
         try:
             response = requests.get(
-                url=f"{config['api_base_url']}/municipios/05",
+                url=f"{config['api_base_url']}/municipios/{config['estado_clave']}",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )

@@ -1,11 +1,5 @@
 """
 Unit test - Enviar los Archivos del Exhorto
-
-Se manda exhortoOrigenId y el archivo
-
-- POST /exh_exhortos_archivos/upload
-
-Se recibe el esquema OneExhExhortoArchivoFileOut.
 """
 
 import time

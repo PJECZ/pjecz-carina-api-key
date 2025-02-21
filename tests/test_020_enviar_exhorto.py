@@ -1,16 +1,8 @@
 """
 Unit test - Enviar Exhorto
-
-Se manda el esquema ExhExhortoIn.
-
-- POST /exh_exhortos
-
-Se recibe el esquema OneExhExhortoConfirmacionDatosExhortoRecibidoOut.
 """
 
 import random
-import string
-import time
 import unittest
 from datetime import datetime
 
