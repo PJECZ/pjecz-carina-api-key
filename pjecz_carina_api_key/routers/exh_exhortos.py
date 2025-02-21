@@ -358,16 +358,20 @@ async def recibir_exhorto_request(
         errores.append(f"No existe el registro del estado {settings.estado_clave} en exh_externos")
 
     # Validar materiaClave, que la tenga nuestro estado
+    materia_clave = ""
+    materia_nombre = ""
     if estado_destino_exh_externo:
-        materias = estado_destino_exh_externo.materias
+        materias = estado_destino_exh_externo.materias  # Listado de diccionarios {"clave": "...", "nombre": "..."}
         if materias:
             materia_clave = safe_clave(exh_exhorto_in.materiaClave)
-            try:
-                materia_nombre = materias[materia_clave]
-            except KeyError:
-                errores.append(f"No tiene la materia '{materia_clave}' el estado {settings.estado_clave} en exh_externos")
-        else:
-            errores.append(f"No hay materias en el estado {settings.estado_clave} en exh_externos")
+            for item in materias:
+                if item["clave"] == materia_clave:
+                    materia_nombre = item["nombre"]
+                    break
+    if materia_clave == "":
+        errores.append(f"No hay materias en el estado {settings.estado_clave} en exh_externos")
+    if materia_nombre == "":
+        errores.append(f"No tiene la materia '{materia_clave}' el estado {settings.estado_clave} en exh_externos")
 
     # Validar estadoOrigenId y municipioOrigenId, enteros obligatorios y son identificadores INEGI
     try:
