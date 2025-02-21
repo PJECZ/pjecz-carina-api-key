@@ -1,7 +1,5 @@
 """
 Unit test - Enviar Archivos de la Promoción
-
-Se pueden enviar o recibir promociones sobre exhortos radicados.
 """
 
 import time

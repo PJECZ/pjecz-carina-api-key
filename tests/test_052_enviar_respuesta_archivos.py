@@ -1,13 +1,5 @@
 """
 Unit test - Enviar los Archivos de la Respuesta
-
-Se envían los documentos que conforman la respuesta del exhorto.
-
-- DEBE CONFIGURAR en las variables de entorno FOLIO_SEGUIMIENTO
-- Se envía exhortoOrigenId, respuestaOrigenId y el archivo
-- POST /exh_exhortos_archivos/responder_upload
-- Se recibe el esquema OneExhExhortoArchivoRecibirRespuestaExhortoDataOut.
-
 """
 
 import time

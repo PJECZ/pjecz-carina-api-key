@@ -44,13 +44,13 @@ class TestsConsultarEstados(unittest.TestCase):
             self.assertEqual("clave" in item, True)
             self.assertEqual("nombre" in item, True)
 
-    def test_get_estado_clave_05(self):
-        """GET method for estado with clave 05 nombre COAHUILA DE ZARAGOZA"""
+    def test_get_estado_clave(self):
+        """GET method for estado with clave"""
 
-        # Consultar el estado aguascalientes
+        # Consultar el estado definido en la variable de entorno ESTADO_CLAVE
         try:
             response = requests.get(
-                url=f"{config['api_base_url']}/estados/05",
+                url=f"{config['api_base_url']}/estados/{config['estado_clave']}",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )

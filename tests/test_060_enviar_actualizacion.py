@@ -1,10 +1,5 @@
 """
 Unit test - Enviar Actualización
-
-Se puede realizar este proceso cuando el exhorto llega a una Oficialía y se turna a un Juzgado.
-
-Se manda el esquema ExhExhortoActualizarIn.
-
 """
 
 import random

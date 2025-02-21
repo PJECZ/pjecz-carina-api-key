@@ -15,6 +15,7 @@ con las siguientes variables:
 - DB_NAME
 - DB_USER
 - DB_PASS
+- ESTADO_CLAVE
 - ORIGINS
 - SALT
 
@@ -28,6 +29,7 @@ y cree como secretos las siguientes variables de entorno
 - pjecz_carina_api_key_db_name
 - pjecz_carina_api_key_db_user
 - pjecz_carina_api_key_db_pass
+- pjecz_carina_api_key_estado_clave
 - pjecz_carina_api_key_origins
 - pjecz_carina_api_key_salt
 
@@ -77,6 +79,7 @@ class Settings(BaseSettings):
     db_name: str = get_secret("db_name")
     db_pass: str = get_secret("db_pass")
     db_user: str = get_secret("db_user")
+    estado_clave: str = get_secret("estado_clave")
     origins: str = get_secret("origins")
     salt: str = get_secret("salt")
     tz: str = "America/Mexico_City"

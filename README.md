@@ -68,6 +68,9 @@ DB_PASS=XXXXXXXXXXXX
 # Google Cloud Storage
 CLOUD_STORAGE_DEPOSITO=XXXXXXXXXXXX
 
+# Clave INEGI del Estado, 05 = Coahuila de Zaragoza
+ESTADO_CLAVE=05
+
 # Origins
 ORIGINS=http://127.0.0.1:3000
 
@@ -102,6 +105,7 @@ then
     echo "   DB_NAME: ${DB_NAME}"
     echo "   DB_USER: ${DB_USER}"
     echo "   DB_PASS: ${DB_PASS}"
+    echo "   ESTADO_CLAVE: ${ESTADO_CLAVE}"
     echo "   ORIGINS: ${ORIGINS}"
     echo "   SALT: ${SALT}"
     echo

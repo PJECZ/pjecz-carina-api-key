@@ -1,18 +1,9 @@
 """
 Unit test - Enviar Respuesta
-
-Se envían los datos que conforman la respuesta del exhorto.
-
-- DEBE CONFIGURAR en las variables de entorno FOLIO_SEGUIMIENTO
-- Se manda el esquema ExhExhortoRecibirRespuestaIn que contiene archivos (ExhExhortoArchivoIn) y videos (ExhExhortoVideoIn).
-- POST /exh_exhortos/responder
-- Se recibe el esquema OneExhExhortoRecibirRespuestaOut.
-
 """
 
 import random
 import string
-import time
 import unittest
 from datetime import datetime
 

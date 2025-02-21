@@ -1,11 +1,5 @@
 """
 Unit test - Consultar Materias
-
-Listado de materias del PJ exhortado.
-
-- GET /materias
-- GET /materias/{MATERIA_CLAVE}
-
 """
 
 import unittest
