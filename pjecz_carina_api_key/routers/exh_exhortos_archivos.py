@@ -170,14 +170,32 @@ async def recibir_exhorto_respuesta_archivo_request(
         tamaño=archivo_pdf_tamanio,
     )
 
-    # Definir el acuse
-    acuse = ExhExhortoArchivoRespuestaDataAcuse(
-        exhortoId=exhortoOrigenId,
-        respuestaOrigenId=respuestaOrigenId,
-        fechaHoraRecepcion=exh_exhorto.modificado.strftime("%Y-%m-%d %H:%M:%S"),
+    # Consultar la cantidad de archivos PENDIENTES
+    exh_exhortos_archivos_pendientes_cantidad = (
+        database.query(ExhExhortoArchivo)
+        .filter_by(exh_exhorto_id=exh_exhorto.id)
+        .filter_by(es_respuesta=True)
+        .filter_by(estado="PENDIENTE")
+        .filter_by(estatus="A")
+        .order_by(ExhExhortoArchivo.id)
+        .count()
     )
 
-    # Definir el data
+    # Si YA NO HAY PENDIENTES entonces ES EL ULTIMO ARCHIVO
+    acuse = None  # Si aún faltan archivos, entonces el acuse es nulo
+    if exh_exhortos_archivos_pendientes_cantidad == 0:
+        # Cambiar el estado de exh_exhorto a RESPONDIDO
+        exh_exhorto.estado = "RESPONDIDO"
+        database.add(exh_exhorto)
+        database.commit()
+        # Y se va a elaborar el acuse
+        acuse = ExhExhortoArchivoRespuestaDataAcuse(
+            exhortoId=exhortoOrigenId,
+            respuestaOrigenId=respuestaOrigenId,
+            fechaHoraRecepcion=exh_exhorto.modificado.strftime("%Y-%m-%d %H:%M:%S"),
+        )
+
+    # Juntar los datos para la respuesta
     data = ExhExhortoArchivoRespuestaOut(
         archivo=archivo,
         acuse=acuse,
@@ -330,6 +348,7 @@ async def recibir_exhorto_archivo_request(
     exh_exhortos_archivos_pendientes_cantidad = (
         database.query(ExhExhortoArchivo)
         .filter_by(exh_exhorto_id=exh_exhorto.id)
+        .filter_by(es_respuesta=False)
         .filter_by(estado="PENDIENTE")
         .filter_by(estatus="A")
         .order_by(ExhExhortoArchivo.id)
@@ -337,6 +356,7 @@ async def recibir_exhorto_archivo_request(
     )
 
     # Si YA NO HAY PENDIENTES entonces ES EL ULTIMO ARCHIVO
+    acuse = None  # Si aún faltan archivos, entonces el acuse es nulo
     if exh_exhortos_archivos_pendientes_cantidad == 0:
         # Cambiar el estado de exh_exhorto a RECIBIDO y se define el folio de seguimiento
         exh_exhorto.estado = "RECIBIDO"
@@ -357,9 +377,6 @@ async def recibir_exhorto_archivo_request(
             areaRecibeNombre=exh_exhorto.respuesta_area_turnado_nombre,
             urlInfo="https://www.google.com.mx",
         )
-    else:
-        # Aún faltan archivos, entonces el acuse es nulo
-        acuse = None
 
     # Juntar los datos para la respuesta
     data = ExhExhortoArchivoOut(
