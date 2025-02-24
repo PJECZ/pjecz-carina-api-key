@@ -161,6 +161,7 @@ async def recibir_exhorto_respuesta_archivo_request(
     exh_exhorto_archivo.fecha_hora_recepcion = fecha_hora_recepcion
     exh_exhorto_archivo.tamano = archivo_pdf_tamanio
     exh_exhorto_archivo.url = archivo_pdf_url
+    database.add(exh_exhorto_archivo)
     database.commit()
     database.refresh(exh_exhorto_archivo)
 
