@@ -163,6 +163,7 @@ async def recibir_exhorto_promocion_archivo_request(
     exh_exhorto_promocion_archivo.url = archivo_pdf_url
     database.add(exh_exhorto_promocion_archivo)
     database.commit()
+    database.refresh(exh_exhorto_promocion_archivo)
 
     # Definir los datos del archivo para la respuesta
     archivo = ExhExhortoArchivoItem(
