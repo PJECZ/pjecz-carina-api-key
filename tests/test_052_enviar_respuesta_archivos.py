@@ -32,7 +32,7 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
 
         # Definir los datos que se van a incluir en el envío de los archivos
         payload_for_data = {
-            "exhortoOrigenId": exh_exhorto.exhorto_origen_id,
+            "exhortoId": exh_exhorto.exhorto_origen_id,
             "respuestaOrigenId": exh_exhorto.respuesta_origen_id,
         }
 
