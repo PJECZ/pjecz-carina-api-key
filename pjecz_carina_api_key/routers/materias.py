@@ -37,7 +37,10 @@ async def detalle_materia(
     except (MultipleResultsFound, NoResultFound) as error:
         return OneMateriaOut(success=False, message="No existe esa materia", errors=[str(error)])
     if materia.estatus != "A":
-        message = "No está habilitada esa materia"
+        message = "No está activa esa materia, está eliminada"
+        return OneMateriaOut(success=False, message=message, errors=[message])
+    if materia.en_exh_exhortos is False:
+        message = "No está habilitada esa materia para exhortos"
         return OneMateriaOut(success=False, message=message, errors=[message])
     return OneMateriaOut(success=True, message=f"Detalle de {clave}", data=MateriaOut.model_validate(materia))
 
@@ -50,4 +53,4 @@ async def listado_materias(
     """Listado de materias"""
     if current_user.permissions.get("MATERIAS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
-    return paginate(database.query(Materia).filter_by(estatus="A").order_by(Materia.nombre))
+    return paginate(database.query(Materia).filter_by(en_exh_exhortos=True).filter_by(estatus="A").order_by(Materia.nombre))
