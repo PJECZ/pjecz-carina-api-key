@@ -39,6 +39,22 @@ from ..settings import Settings, get_settings
 exh_exhortos = APIRouter(prefix="/api/v5/exh_exhortos")
 
 
+def get_autoridad_with_clave_nd(database: Annotated[Session, Depends(get_db)]) -> Autoridad:
+    """Consultar la autoridad con clave ND"""
+    try:
+        return database.query(Autoridad).filter_by(clave="ND").one()
+    except (MultipleResultsFound, NoResultFound) as error:
+        raise MyAnyError("No existe la autoridad con clave ND") from error
+
+
+def get_exh_area_with_clave_nd(database: Annotated[Session, Depends(get_db)]) -> ExhArea:
+    """Consultar el área con clave ND"""
+    try:
+        return database.query(ExhArea).filter_by(clave="ND").one()
+    except (MultipleResultsFound, NoResultFound) as error:
+        raise MyAnyError("No existe el área con clave ND") from error
+
+
 def get_exhorto_with_exhorto_origen_id(database: Annotated[Session, Depends(get_db)], exhorto_origen_id: str) -> ExhExhorto:
     """Consultar un exhorto con su exhorto_origen_id"""
 
@@ -460,11 +476,11 @@ async def recibir_exhorto_request(
     # GUID/UUID... que sea único. Va a ser generado cuando se vaya a regresar el acuse con el último archivo.
     folio_seguimiento = ""
 
-    # Área de recepción, 1 = NO DEFINIDO
-    exh_area = database.query(ExhArea).filter_by(clave="ND").first()
+    # Área de recepción, es NO DEFINIDO
+    exh_area = get_exh_area_with_clave_nd(database)
 
-    # Juzgado/Área al que se turna el Exhorto, por defecto ND
-    autoridad = database.query(Autoridad).filter_by(clave="ND").first()
+    # Juzgado/Área al que se turna el Exhorto, es NO DEFINIDO
+    autoridad = get_autoridad_with_clave_nd(database)
 
     # Insertar el exhorto
     exh_exhorto = ExhExhorto(
