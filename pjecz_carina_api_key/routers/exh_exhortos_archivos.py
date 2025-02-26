@@ -364,8 +364,8 @@ async def recibir_exhorto_archivo_request(
         exh_exhorto.folio_seguimiento = generar_identificador()
         exh_exhorto.respuesta_fecha_hora_recepcion = fecha_hora_recepcion
         exh_exhorto.respuesta_municipio_turnado_id = 30  # Saltillo
-        exh_exhorto.respuesta_area_turnado_id = "ND"
-        exh_exhorto.respuesta_area_turnado_nombre = "NO DEFINIDO"
+        exh_exhorto.respuesta_area_turnado_id = None  # Como el área NO esta definida se responde con nulo
+        exh_exhorto.respuesta_area_turnado_nombre = None  # Como el área NO esta definida se responde con nulo
         database.add(exh_exhorto)
         database.commit()
         # Y se va a elaborar el acuse
