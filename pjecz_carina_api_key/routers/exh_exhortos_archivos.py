@@ -35,7 +35,7 @@ async def recibir_exhorto_respuesta_archivo_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
     archivo: UploadFile = File(...),
-    exhortoOrigenId: str = Form(...),
+    exhortoId: str = Form(...),
     respuestaOrigenId: str = Form(...),
 ):
     """Recibir un archivo de una respuesta"""
@@ -53,7 +53,7 @@ async def recibir_exhorto_respuesta_archivo_request(
 
     # Consultar el exhorto
     try:
-        exh_exhorto = get_exhorto_with_exhorto_origen_id(database, exhortoOrigenId)
+        exh_exhorto = get_exhorto_with_exhorto_origen_id(database, exhortoId)
     except (MyNotValidParamError, MyNotExistsError) as error:
         return OneExhExhortoArchivoRespuestaOut(success=False, message=str(error), errors=[str(error)], data=None)
 
@@ -130,7 +130,7 @@ async def recibir_exhorto_respuesta_archivo_request(
             )
 
     # Definir el nombre del archivo a subir a Google Storage
-    archivo_pdf_nombre = f"{exhortoOrigenId}_{str(recibidos_contador + 1).zfill(4)}.pdf"
+    archivo_pdf_nombre = f"{exhortoId}_{str(recibidos_contador + 1).zfill(4)}.pdf"
 
     # Definir la ruta para blob_name con la fecha actual
     fecha_hora_recepcion = datetime.now()
@@ -191,7 +191,7 @@ async def recibir_exhorto_respuesta_archivo_request(
         database.commit()
         # Y se va a elaborar el acuse
         acuse = ExhExhortoArchivoRespuestaDataAcuse(
-            exhortoId=exhortoOrigenId,
+            exhortoId=exhortoId,
             respuestaOrigenId=respuestaOrigenId,
             fechaHoraRecepcion=exh_exhorto.modificado.strftime("%Y-%m-%d %H:%M:%S"),
         )
