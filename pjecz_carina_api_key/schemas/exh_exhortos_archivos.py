@@ -45,7 +45,7 @@ class ExhExhortoArchivoOut(BaseModel):
     """Esquema con el data"""
 
     archivo: ExhExhortoArchivoFileDataArchivo
-    acuse: ExhExhortoArchivoFileDataAcuse | None
+    acuse: ExhExhortoArchivoFileDataAcuse | None = None
 
 
 class OneExhExhortoArchivoOut(OneBaseOut):
@@ -73,7 +73,7 @@ class ExhExhortoArchivoRespuestaOut(BaseModel):
     """Respuesta de la operación de Recibir Respuesta Exhorto Archivo"""
 
     archivo: ExhExhortoArchivoFileDataArchivo
-    acuse: ExhExhortoArchivoRespuestaDataAcuse
+    acuse: ExhExhortoArchivoRespuestaDataAcuse | None = None
 
 
 class OneExhExhortoArchivoRespuestaOut(OneBaseOut):
