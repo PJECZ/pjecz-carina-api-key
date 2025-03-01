@@ -1,5 +1,5 @@
 """
-Distritos v4, esquemas de pydantic
+Distritos, esquemas de pydantic
 """
 
 from pydantic import BaseModel, ConfigDict

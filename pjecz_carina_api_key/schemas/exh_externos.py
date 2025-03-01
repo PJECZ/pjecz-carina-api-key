@@ -1,5 +1,5 @@
 """
-Exh Externos v4, esquemas de pydantic
+Exh Externos, esquemas de pydantic
 """
 
 from pydantic import BaseModel, ConfigDict

@@ -18,7 +18,7 @@ from ..models.exh_areas import ExhArea
 from ..models.exh_exhortos import ExhExhorto
 from ..models.exh_exhortos_archivos import ExhExhortoArchivo
 from ..models.exh_exhortos_partes import ExhExhortoParte
-from ..models.exh_exhortos_videos import ExhExhortoVideo
+from ..models.exh_exhortos_respuestas_videos import ExhExhortoRespuestaVideo
 from ..models.exh_externos import ExhExterno
 from ..models.municipios import Municipio
 from ..models.permisos import Permiso
@@ -26,14 +26,12 @@ from ..schemas.exh_exhortos import (
     ExhExhortoConsultaOut,
     ExhExhortoIn,
     ExhExhortoOut,
-    ExhExhortoRespuestaIn,
-    ExhExhortoRespuestaOut,
     OneExhExhortoConsultaOut,
     OneExhExhortoOut,
-    OneExhExhortoRespuestaOut,
 )
 from ..schemas.exh_exhortos_archivos import ExhExhortoArchivoItem
 from ..schemas.exh_exhortos_partes import ExhExhortoParteItem
+from ..schemas.exh_exhortos_respuestas import ExhExhortoRespuestaIn, ExhExhortoRespuestaOut, OneExhExhortoRespuestaOut
 from ..settings import Settings, get_settings
 
 exh_exhortos = APIRouter(prefix="/api/v5/exh_exhortos")
@@ -222,7 +220,7 @@ async def recibir_exhorto_respuesta_request(
             fecha = datetime.strptime(video.fecha, "%Y-%m-%d")
         except ValueError:
             fecha = None
-        exh_exhorto_video = ExhExhortoVideo(
+        exh_exhorto_video = ExhExhortoRespuestaVideo(
             exh_exhorto=exh_exhorto,
             titulo=safe_string(video.titulo, save_enie=True),
             descripcion=safe_string(video.descripcion, save_enie=True),

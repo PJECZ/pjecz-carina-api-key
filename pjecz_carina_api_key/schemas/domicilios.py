@@ -1,5 +1,5 @@
 """
-Domicilios v4, esquemas de pydantic
+Domicilios, esquemas de pydantic
 """
 
 from pydantic import BaseModel, ConfigDict

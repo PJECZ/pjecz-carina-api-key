@@ -1,5 +1,5 @@
 """
-Entradas-Salidas v4, esquemas de pydantic
+Entradas-Salidas, esquemas de pydantic
 """
 
 from pydantic import BaseModel, ConfigDict

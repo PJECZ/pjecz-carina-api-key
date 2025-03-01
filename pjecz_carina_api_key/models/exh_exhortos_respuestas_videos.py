@@ -1,5 +1,5 @@
 """
-Exh Exhortos Videos, modelos
+Exh Exhortos Respuestas Videos, modelos
 """
 
 from datetime import datetime
@@ -12,8 +12,8 @@ from ..dependencies.database import Base
 from ..dependencies.universal_mixin import UniversalMixin
 
 
-class ExhExhortoVideo(Base, UniversalMixin):
-    """ExhExhortoVideo"""
+class ExhExhortoRespuestaVideo(Base, UniversalMixin):
+    """ExhExhortoRespuestaVideo"""
 
     # Nombre de la tabla
     __tablename__ = "exh_exhortos_videos"
@@ -22,10 +22,10 @@ class ExhExhortoVideo(Base, UniversalMixin):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     # Clave foránea
-    exh_exhorto_id: Mapped[int] = mapped_column(ForeignKey("exh_exhortos.id"))
-    exh_exhorto: Mapped["ExhExhorto"] = relationship(back_populates="exh_exhortos_videos")
+    exh_exhorto_respuesta_id: Mapped[int] = mapped_column(ForeignKey("exh_exhortos_respuestas.id"))
+    exh_exhorto_respuesta: Mapped["ExhExhortoRespuesta"] = relationship(back_populates="exh_exhortos_respuestas_videos")
 
-    # El titulo del video, esto para que pueda identificarse
+    # El título del video, esto para que pueda identificarse
     titulo: Mapped[str] = mapped_column(String(256))
 
     # Descripción del video/audiencia realizada
@@ -39,4 +39,4 @@ class ExhExhortoVideo(Base, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<ExhExhortoVideo {self.id}>"
+        return f"<ExhExhortoRespuestaVideo {self.id}>"

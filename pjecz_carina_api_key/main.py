@@ -22,7 +22,7 @@ from .routers.exh_exhortos_partes import exh_exhortos_partes
 from .routers.exh_exhortos_promociones import exh_exhortos_promociones
 from .routers.exh_exhortos_promociones_archivos import exh_exhortos_promociones_archivos
 from .routers.exh_exhortos_promociones_promoventes import exh_exhortos_promociones_promoventes
-from .routers.exh_exhortos_videos import exh_exhortos_videos
+from .routers.exh_exhortos_respuestas_videos import exh_exhortos_videos
 from .routers.exh_externos import exh_externos
 from .routers.materias import materias
 from .routers.modulos import modulos

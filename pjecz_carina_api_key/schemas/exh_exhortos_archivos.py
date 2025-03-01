@@ -1,5 +1,5 @@
 """
-Exh Exhortos Archivos v4, esquemas de pydantic
+Exh Exhortos Archivos, esquemas de pydantic
 """
 
 from pydantic import BaseModel

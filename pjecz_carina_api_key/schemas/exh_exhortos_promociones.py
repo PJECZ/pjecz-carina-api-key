@@ -1,5 +1,5 @@
 """
-Exh Exhortos Promociones v4, esquemas de pydantic
+Exh Exhortos Promociones, esquemas de pydantic
 """
 
 from pydantic import BaseModel

@@ -1,5 +1,5 @@
 """
-Exh Exhortos Promociones Promoventes v4, esquemas de pydantic
+Exh Exhortos Promociones Promoventes, esquemas de pydantic
 """
 
 from pydantic import BaseModel, ConfigDict
@@ -8,7 +8,7 @@ from ..dependencies.schemas_base import OneBaseOut
 
 
 class ExhExhortoPromocionPromovente(BaseModel):
-    """Esquema para estructurar el listado de promoventes de una promoción"""
+    """Esquema para estructurar el listado de promoventes"""
 
     nombre: str
     apellidoPaterno: str
@@ -20,12 +20,12 @@ class ExhExhortoPromocionPromovente(BaseModel):
 
 
 class ExhExhortoPromocionPromoventeOut(ExhExhortoPromocionPromovente):
-    """Esquema para entregar promoventes de una promoción"""
+    """Esquema para entregar promoventes"""
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class OneExhExhortoPromocionPromoventeOut(OneBaseOut):
-    """Esquema para entregar un promovente de una promoción"""
+    """Esquema para entregar un promovente"""
 
     data: ExhExhortoPromocionPromoventeOut | None = None

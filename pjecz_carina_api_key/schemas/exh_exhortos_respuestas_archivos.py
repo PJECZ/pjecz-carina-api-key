@@ -1,5 +1,5 @@
 """
-Exh Exhortos Promociones Archivos, esquemas de pydantic
+Exh Exhortos Respuestas Archivos, esquemas de pydantic
 """
 
 from pydantic import BaseModel
@@ -8,7 +8,7 @@ from ..dependencies.schemas_base import OneBaseOut
 from .exh_exhortos_archivos import ExhExhortoArchivoItem
 
 
-class ExhExhortoPromocionArchivo(BaseModel):
+class ExhExhortoRespuestaArchivo(BaseModel):
     """Esquema para estructurar el listado de archivos"""
 
     nombreArchivo: str
@@ -17,29 +17,29 @@ class ExhExhortoPromocionArchivo(BaseModel):
     tipoDocumento: int
 
 
-class ExhExhortoPromocionArchivoFileIn(BaseModel):
+class ExhExhortoRespuestaArchivoFileIn(BaseModel):
     """Esquema para recibir archivos Content-Disposition, form-data, file"""
 
     folioSeguimiento: str
-    folioOrigenPromocion: str
+    folioOrigenRespuesta: str
 
 
-class ExhExhortoPromocionArchivoDataAcuse(BaseModel):
+class ExhExhortoRespuestaArchivoDataAcuse(BaseModel):
     """Esquema con la estructura para la data con el acuse"""
 
-    folioOrigenPromocion: str
-    folioPromocionRecibida: str
+    folioOrigenRespuesta: str
+    folioRespuestaRecibida: str
     fechaHoraRecepcion: str  # YYYY-MM-DD HH:mm:ss
 
 
-class ExhExhortoPromocionArchivoOut(BaseModel):
+class ExhExhortoRespuestaArchivoOut(BaseModel):
     """Esquema para entregar la confirmación de la recepción de un archivo"""
 
     archivo: ExhExhortoArchivoItem
-    acuse: ExhExhortoPromocionArchivoDataAcuse | None = None
+    acuse: ExhExhortoRespuestaArchivoDataAcuse | None = None
 
 
-class OneExhExhortoPromocionArchivoOut(OneBaseOut):
+class OneExhExhortoRespuestaArchivoOut(OneBaseOut):
     """Esquema para responder por un archivo recibido"""
 
-    data: ExhExhortoPromocionArchivoOut | None = None
+    data: ExhExhortoRespuestaArchivoOut | None = None

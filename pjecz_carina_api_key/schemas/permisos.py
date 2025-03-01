@@ -1,5 +1,5 @@
 """
-Permisos v4, esquemas de pydantic
+Permisos, esquemas de pydantic
 """
 
 from pydantic import BaseModel, ConfigDict

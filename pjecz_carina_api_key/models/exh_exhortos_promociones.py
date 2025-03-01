@@ -38,7 +38,7 @@ class ExhExhortoPromocion(Base, UniversalMixin):
 
     # Columnas
     # Identificador del origen de la promoción; éste puede ser el folio del oficio u otro documento desde donde partió la promoción
-    folio_origen_promocion: Mapped[str] = mapped_column(String(48))
+    folio_origen_promocion: Mapped[str] = mapped_column(String(64))
 
     # Hijo: Contiene la definición de los promoventes, en este caso el juzgado quien realiza la promoción
     exh_exhortos_promociones_promoventes: Mapped[List["ExhExhortoPromocionPromovente"]] = relationship(

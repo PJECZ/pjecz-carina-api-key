@@ -21,7 +21,7 @@ from pjecz_carina_api_key.models.exh_exhortos_partes import ExhExhortoParte
 from pjecz_carina_api_key.models.exh_exhortos_promociones import ExhExhortoPromocion
 from pjecz_carina_api_key.models.exh_exhortos_promociones_archivos import ExhExhortoPromocionArchivo
 from pjecz_carina_api_key.models.exh_exhortos_promociones_promoventes import ExhExhortoPromocionPromovente
-from pjecz_carina_api_key.models.exh_exhortos_videos import ExhExhortoVideo
+from pjecz_carina_api_key.models.exh_exhortos_respuestas_videos import ExhExhortoVideo
 from pjecz_carina_api_key.models.exh_externos import ExhExterno
 from pjecz_carina_api_key.models.materias import Materia
 from pjecz_carina_api_key.models.modulos import Modulo

@@ -1,5 +1,5 @@
 """
-Modulos v4, esquemas de pydantic
+Modulos, esquemas de pydantic
 """
 
 from pydantic import BaseModel, ConfigDict

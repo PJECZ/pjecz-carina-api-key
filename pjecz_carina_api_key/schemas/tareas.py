@@ -1,5 +1,5 @@
 """
-Tareas v4, esquemas de pydantic
+Tareas, esquemas de pydantic
 """
 
 from pydantic import BaseModel, ConfigDict

@@ -60,10 +60,10 @@ class ExhExhorto(Base, UniversalMixin):
     municipio_origen: Mapped["Municipio"] = relationship(back_populates="exh_exhortos_origenes")
 
     # GUID/UUID... que sea único. Pero es opcional para nosotros cuando el estado es PENDIENTE
-    folio_seguimiento: Mapped[Optional[str]] = mapped_column(String(48))
+    folio_seguimiento: Mapped[Optional[str]] = mapped_column(String(64))
 
     # UUID identificador con el que el PJ exhortante identifica el exhorto que envía
-    exhorto_origen_id: Mapped[str] = mapped_column(String(48))
+    exhorto_origen_id: Mapped[str] = mapped_column(String(64))
 
     # ID de la tabla Municipios: Para el payload es el Identificador INEGI del Municipio del Estado del PJ exhortado
     # al que se quiere enviar el Exhorto
@@ -115,18 +115,7 @@ class ExhExhorto(Base, UniversalMixin):
     # Número de Exhorto con el que se radica en el Juzgado/Área que se turnó el exhorto.
     # Este número sirve para que el usuario pueda indentificar su exhorto dentro del Juzgado/Área donde se turnó,
     # opcional
-    numero_exhorto: Mapped[Optional[str]] = mapped_column(String(256))
-
-    # Hijos: PersonaParte[] NO Contiene la definición de las partes del Expediente
-    exh_exhortos_partes: Mapped[List["ExhExhortoParte"]] = relationship("ExhExhortoParte", back_populates="exh_exhorto")
-
-    # Hijos: ArchivoARecibir[] SI Colección de los datos referentes a los archivos
-    # que se van a recibir el Poder Judicial exhortado en el envío del Exhorto.
-    exh_exhortos_archivos: Mapped[List["ExhExhortoArchivo"]] = relationship("ExhExhortoArchivo", back_populates="exh_exhorto")
-
-    # Hijos: Colección de objetos de tipo VideoAcceso que representan los accesos a
-    # los videos de las audiencias que forman parte de la respuesta.
-    exh_exhortos_videos: Mapped[List["ExhExhortoVideo"]] = relationship("ExhExhortoVideo", back_populates="exh_exhorto")
+    numero_exhorto: Mapped[Optional[str]] = mapped_column(String(64))
 
     # Cuando el exhorto está en estado POR ENVIAR
     # Puede tener un tiempo con su anterior intento, si es nulo es que no ha sido enviado aun
@@ -148,7 +137,7 @@ class ExhExhorto(Base, UniversalMixin):
     # Acuse Identificador del área o Juzgado turnado en donde se recibe el Exhorto.
     # En caso que todavía no esté turnado o se disponga de una "Oficialía Virtual",
     # este dato puede no ir en la respuesta.
-    acuse_area_recibe_id: Mapped[Optional[str]] = mapped_column(String(256))
+    acuse_area_recibe_id: Mapped[Optional[str]] = mapped_column(String(64))
 
     # Acuse Nombre del área o Juzgado turnado en donde se encuentra el Exhorto.
     # En caso de tener una "Oficialía Virtual", este dato puede omitirse
@@ -159,38 +148,12 @@ class ExhExhorto(Base, UniversalMixin):
     # fue enviado correctamente al Poder Judicial exhortado o también una página que muestre el estatus del exhorto.
     acuse_url_info: Mapped[Optional[str]] = mapped_column(String(256))
 
-    # Identificador propio del Poder Judicial exhortado con el que identifica la respuesta del exhorto.
-    # Este dato puede ser un número consecutivo (ej "1", "2", "3"...),
-    # un GUID/UUID o cualquíer otro valor con que se identifique la respuesta
-    respuesta_origen_id: Mapped[Optional[str]] = mapped_column(String(48))
+    # Hijo: Definición de las partes del Expediente
+    exh_exhortos_partes: Mapped[List["ExhExhortoParte"]] = relationship("ExhExhortoParte", back_populates="exh_exhorto")
 
-    # Identificador del municipio que corresponde al Juzgado/Área al que se turnó el Exhorto y que realiza la respuesta de este
-    respuesta_municipio_turnado_id: Mapped[Optional[int]]
-
-    # Identificador propio del PJ exhortado que corresponde al Juzgado/Área al que se turna el Exhorto y está respondiendo
-    respuesta_area_turnado_id: Mapped[Optional[str]] = mapped_column(String(256))
-
-    # Nombre del Juzgado/Área al que el Exhorto se turnó y está respondiendo.
-    respuesta_area_turnado_nombre: Mapped[Optional[str]] = mapped_column(String(256))
-
-    # Número de Exhorto con el que se radicó en el Juzgado/Área que se turnó el exhorto.
-    # Este número sirve para que el usuario pueda identificar su exhorto dentro del Juzgado/Área donde se turnó.
-    respuesta_numero_exhorto: Mapped[Optional[str]] = mapped_column(String(256))
-
-    # Valor que representa si se realizó la diligenciación del Exhorto:
-    # 0 = No Diligenciado
-    # 1 = Parcialmente Diligenciado
-    # 2 = Diligenciado"
-    respuesta_tipo_diligenciado: Mapped[Optional[int]]
-
-    # Fecha hora local del Poder Judicial que recibe la respuesta del Exhorto
-    respuesta_fecha_hora_recepcion: Mapped[Optional[datetime]]
-
-    # Texto simple referente a alguna observación u observaciones correspondientes a la respuesta del Exhorto
-    respuesta_observaciones: Mapped[Optional[str]] = mapped_column(String(1024))
-
-    # Fecha hora local en el que el Poder Judicial exhortante marca la Respuesta del Exhorto como recibida
-    respuesta_fecha_hora_recepcion_acuse: Mapped[Optional[datetime]]
+    # Hijo: Colección de los datos referentes a los archivos
+    # que se van a recibir el Poder Judicial exhortado en el envío del Exhorto.
+    exh_exhortos_archivos: Mapped[List["ExhExhortoArchivo"]] = relationship("ExhExhortoArchivo", back_populates="exh_exhorto")
 
     # Hijo: Actualizaciones
     exh_exhortos_actualizaciones: Mapped[List["ExhExhortoActualizacion"]] = relationship(
@@ -200,6 +163,11 @@ class ExhExhorto(Base, UniversalMixin):
     # Hijo: Promociones
     exh_exhortos_promociones: Mapped[List["ExhExhortoPromocion"]] = relationship(
         "ExhExhortoPromocion", back_populates="exh_exhorto"
+    )
+
+    # Hijo: Respuestas
+    exh_exhortos_respuestas: Mapped[List["ExhExhortoRespuesta"]] = relationship(
+        "ExhExhortoRespuesta", back_populates="exh_exhorto"
     )
 
     def __repr__(self):

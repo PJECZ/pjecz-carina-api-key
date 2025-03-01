@@ -1,5 +1,5 @@
 """
-Oficinas v4, esquemas de pydantic
+Oficinas, esquemas de pydantic
 """
 
 from pydantic import BaseModel, ConfigDict
