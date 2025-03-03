@@ -1,5 +1,5 @@
 """
-Exh Areas, esquemas de pydantic
+Exh Áreas, esquemas de pydantic
 """
 
 from pydantic import BaseModel, ConfigDict

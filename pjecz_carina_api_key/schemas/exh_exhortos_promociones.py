@@ -5,8 +5,8 @@ Exh Exhortos Promociones, esquemas de pydantic
 from pydantic import BaseModel
 
 from ..dependencies.schemas_base import OneBaseOut
-from .exh_exhortos_promociones_archivos import ExhExhortoPromocionArchivo
-from .exh_exhortos_promociones_promoventes import ExhExhortoPromocionPromovente
+from .exh_exhortos_promociones_archivos import ExhExhortoPromocionArchivoItem
+from .exh_exhortos_promociones_promoventes import ExhExhortoPromocionPromoventeItem
 
 
 class ExhExhortoPromocionIn(BaseModel):
@@ -14,11 +14,11 @@ class ExhExhortoPromocionIn(BaseModel):
 
     folioSeguimiento: str
     folioOrigenPromocion: str
-    promoventes: list[ExhExhortoPromocionPromovente]
+    promoventes: list[ExhExhortoPromocionPromoventeItem]
     fojas: int
     fechaOrigen: str | None  # YYYY-MM-DD HH:mm:ss
     observaciones: str | None
-    archivos: list[ExhExhortoPromocionArchivo]
+    archivos: list[ExhExhortoPromocionArchivoItem]
 
 
 class ExhExhortoPromocionOut(BaseModel):

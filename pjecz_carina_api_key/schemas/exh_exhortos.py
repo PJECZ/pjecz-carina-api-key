@@ -7,7 +7,6 @@ from pydantic import BaseModel
 from ..dependencies.schemas_base import OneBaseOut
 from .exh_exhortos_archivos import ExhExhortoArchivoItem
 from .exh_exhortos_partes import ExhExhortoParteItem
-from .exh_exhortos_respuestas_videos import ExhExhortoVideoItem
 
 
 class ExhExhortoIn(BaseModel):

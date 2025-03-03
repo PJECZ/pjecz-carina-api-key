@@ -22,7 +22,9 @@ from .routers.exh_exhortos_partes import exh_exhortos_partes
 from .routers.exh_exhortos_promociones import exh_exhortos_promociones
 from .routers.exh_exhortos_promociones_archivos import exh_exhortos_promociones_archivos
 from .routers.exh_exhortos_promociones_promoventes import exh_exhortos_promociones_promoventes
-from .routers.exh_exhortos_respuestas_videos import exh_exhortos_videos
+from .routers.exh_exhortos_respuestas import exh_exhortos_respuestas
+from .routers.exh_exhortos_respuestas_archivos import exh_exhortos_respuestas_archivos
+from .routers.exh_exhortos_respuestas_videos import exh_exhortos_respuestas_videos
 from .routers.exh_externos import exh_externos
 from .routers.materias import materias
 from .routers.modulos import modulos
@@ -71,7 +73,9 @@ app.include_router(exh_exhortos_partes, include_in_schema=False)
 app.include_router(exh_exhortos_promociones, tags=["promociones"])
 app.include_router(exh_exhortos_promociones_archivos, tags=["promociones"])
 app.include_router(exh_exhortos_promociones_promoventes, include_in_schema=False)
-app.include_router(exh_exhortos_videos, include_in_schema=False)
+app.include_router(exh_exhortos_respuestas, tags=["respuestas"])
+app.include_router(exh_exhortos_respuestas_archivos, tags=["respuestas"])
+app.include_router(exh_exhortos_respuestas_videos, include_in_schema=False)
 app.include_router(exh_externos, include_in_schema=False)
 app.include_router(materias, tags=["materias"])
 app.include_router(modulos, include_in_schema=False)

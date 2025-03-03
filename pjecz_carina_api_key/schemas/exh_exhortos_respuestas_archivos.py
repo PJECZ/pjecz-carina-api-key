@@ -5,15 +5,14 @@ Exh Exhortos Respuestas Archivos, esquemas de pydantic
 from pydantic import BaseModel
 
 from ..dependencies.schemas_base import OneBaseOut
-from .exh_exhortos_archivos import ExhExhortoArchivoItem
 
 
-class ExhExhortoRespuestaArchivo(BaseModel):
-    """Esquema para estructurar el listado de archivos"""
+class ExhExhortoRespuestaArchivoItem(BaseModel):
+    """Esquema para recibir los metadatos de un archivo en la recepción de una respuesta"""
 
     nombreArchivo: str
-    hashSha1: str
-    hashSha256: str
+    hashSha1: str | None
+    hashSha256: str | None
     tipoDocumento: int
 
 
@@ -35,7 +34,7 @@ class ExhExhortoRespuestaArchivoDataAcuse(BaseModel):
 class ExhExhortoRespuestaArchivoOut(BaseModel):
     """Esquema para entregar la confirmación de la recepción de un archivo"""
 
-    archivo: ExhExhortoArchivoItem
+    archivo: ExhExhortoRespuestaArchivoItem
     acuse: ExhExhortoRespuestaArchivoDataAcuse | None = None
 
 

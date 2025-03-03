@@ -22,20 +22,20 @@ from .exh_exhortos import get_exhorto_with_folio_seguimiento
 exh_exhortos_promociones = APIRouter(prefix="/api/v5/exh_exhortos_promociones")
 
 
-def get_exhorto_promocion_with_folio_seguimiento(
+def get_exhorto_promocion(
     database: Annotated[Session, Depends(get_db)],
     folio_seguimiento: str,
     folio_origen_promocion: str,
 ) -> ExhExhortoPromocion:
     """Consultar una promoción con el folio de seguimiento del exhorto y el folio origen de la promoción"""
 
-    # Normalizar folio_seguimiento a 48 caracteres como máximo
-    folio_seguimiento = safe_string(folio_seguimiento, max_len=48, do_unidecode=True, to_uppercase=False)
+    # Validar folio_seguimiento
+    folio_seguimiento = safe_string(folio_seguimiento, max_len=64, do_unidecode=True, to_uppercase=False)
     if folio_seguimiento == "":
         raise MyNotValidParamError("No es un folio de seguimiento de exhorto válido")
 
-    # Normalizar folio_seguimiento a 48 caracteres como máximo
-    folio_origen_promocion = safe_string(folio_origen_promocion, max_len=48, do_unidecode=True, to_uppercase=False)
+    # Validar folio_origen_promocion
+    folio_origen_promocion = safe_string(folio_origen_promocion, max_len=64, do_unidecode=True, to_uppercase=False)
     if folio_origen_promocion == "":
         raise MyNotValidParamError("No es un folio de origen de la promoción válido")
 

@@ -15,14 +15,14 @@ from ..dependencies.google_cloud_storage import upload_file_to_gcs
 from ..dependencies.pwgen import generar_identificador
 from ..models.exh_exhortos_promociones_archivos import ExhExhortoPromocionArchivo
 from ..models.permisos import Permiso
-from ..schemas.exh_exhortos_archivos import ExhExhortoArchivoItem
 from ..schemas.exh_exhortos_promociones_archivos import (
     ExhExhortoPromocionArchivoDataAcuse,
+    ExhExhortoPromocionArchivoItem,
     ExhExhortoPromocionArchivoOut,
     OneExhExhortoPromocionArchivoOut,
 )
 from ..settings import get_settings
-from .exh_exhortos_promociones import get_exhorto_promocion_with_folio_seguimiento
+from .exh_exhortos_promociones import get_exhorto_promocion
 
 exh_exhortos_promociones_archivos = APIRouter(prefix="/api/v5/exh_exhortos_promociones_archivos")
 
@@ -50,7 +50,7 @@ async def recibir_exhorto_promocion_archivo_request(
 
     # Consultar la promoción
     try:
-        exh_exhorto_promocion = get_exhorto_promocion_with_folio_seguimiento(
+        exh_exhorto_promocion = get_exhorto_promocion(
             database=database,
             folio_seguimiento=folioSeguimiento,
             folio_origen_promocion=folioOrigenPromocion,
@@ -166,7 +166,7 @@ async def recibir_exhorto_promocion_archivo_request(
     database.refresh(exh_exhorto_promocion_archivo)
 
     # Definir los datos del archivo para la respuesta
-    archivo = ExhExhortoArchivoItem(
+    archivo = ExhExhortoPromocionArchivoItem(
         nombreArchivo=exh_exhorto_promocion_archivo.nombre_archivo,
         hashSha1=exh_exhorto_promocion_archivo.hash_sha1,
         hashSha256=exh_exhorto_promocion_archivo.hash_sha256,
@@ -184,6 +184,7 @@ async def recibir_exhorto_promocion_archivo_request(
     )
 
     # Si YA NO HAY PENDIENTES entonces ES EL ÚLTIMO ARCHIVO
+    acuse = None
     if exh_exhortos_promociones_archivos_pendientes_cantidad == 0:
         # Cambiar el estado de la promoción a ENVIADO
         exh_exhorto_promocion.estado = "ENVIADO"
@@ -195,9 +196,6 @@ async def recibir_exhorto_promocion_archivo_request(
             folioPromocionRecibida=generar_identificador(),  # TODO: Debe de conservarse en la base de datos
             fechaHoraRecepcion=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         )
-    else:
-        # Aún faltan archivos, entonces el acuse es nulo
-        acuse = None
 
     # Juntar los datos para la respuesta
     data = ExhExhortoPromocionArchivoOut(

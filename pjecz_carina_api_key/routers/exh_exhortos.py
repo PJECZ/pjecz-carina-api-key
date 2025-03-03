@@ -12,13 +12,10 @@ from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
 from ..dependencies.exceptions import MyAnyError, MyNotExistsError, MyNotValidParamError
 from ..dependencies.safe_string import safe_clave, safe_string
-from ..models.autoridades import Autoridad
 from ..models.estados import Estado
-from ..models.exh_areas import ExhArea
 from ..models.exh_exhortos import ExhExhorto
 from ..models.exh_exhortos_archivos import ExhExhortoArchivo
 from ..models.exh_exhortos_partes import ExhExhortoParte
-from ..models.exh_exhortos_respuestas_videos import ExhExhortoRespuestaVideo
 from ..models.exh_externos import ExhExterno
 from ..models.municipios import Municipio
 from ..models.permisos import Permiso
@@ -33,24 +30,10 @@ from ..schemas.exh_exhortos_archivos import ExhExhortoArchivoItem
 from ..schemas.exh_exhortos_partes import ExhExhortoParteItem
 from ..schemas.exh_exhortos_respuestas import ExhExhortoRespuestaIn, ExhExhortoRespuestaOut, OneExhExhortoRespuestaOut
 from ..settings import Settings, get_settings
+from .autoridades import get_autoridad_with_clave_nd
+from .exh_areas import get_exh_area_with_clave_nd
 
 exh_exhortos = APIRouter(prefix="/api/v5/exh_exhortos")
-
-
-def get_autoridad_with_clave_nd(database: Annotated[Session, Depends(get_db)]) -> Autoridad:
-    """Consultar la autoridad con clave ND"""
-    try:
-        return database.query(Autoridad).filter_by(clave="ND").one()
-    except (MultipleResultsFound, NoResultFound) as error:
-        raise MyAnyError("No existe la autoridad con clave ND") from error
-
-
-def get_exh_area_with_clave_nd(database: Annotated[Session, Depends(get_db)]) -> ExhArea:
-    """Consultar el área con clave ND"""
-    try:
-        return database.query(ExhArea).filter_by(clave="ND").one()
-    except (MultipleResultsFound, NoResultFound) as error:
-        raise MyAnyError("No existe el área con clave ND") from error
 
 
 def get_exhorto_with_exhorto_origen_id(database: Annotated[Session, Depends(get_db)], exhorto_origen_id: str) -> ExhExhorto:
@@ -87,41 +70,6 @@ def get_exhorto_with_folio_seguimiento(database: Annotated[Session, Depends(get_
 
     # Entregar
     return exh_exhorto
-
-
-def get_municipio_destino(
-    database: Annotated[Session, Depends(get_db)],
-    settings: Annotated[Settings, Depends(get_settings)],
-    municipio_num: int,
-) -> Municipio:
-    """Obtener el municipio de destino a partir de la clave INEGI"""
-    municipio_destino_clave = str(municipio_num).zfill(3)
-    try:
-        municipio_destino = (
-            database.query(Municipio).filter_by(estado_id=settings.estado_clave).filter_by(clave=municipio_destino_clave).one()
-        )
-    except (MultipleResultsFound, NoResultFound) as error:
-        raise MyNotExistsError(
-            f"No existe el municipio {municipio_destino_clave} en el estado {settings.estado_clave}"
-        ) from error
-    return municipio_destino
-
-
-def get_municipio_origen(database: Annotated[Session, Depends(get_db)], estado_num: int, municipio_num: int) -> Municipio:
-    """Obtener el municipio de destino a partir de la clave INEGI"""
-    estado_origen_clave = str(estado_num).zfill(2)
-    try:
-        estado_origen = database.query(Estado).filter_by(clave=estado_origen_clave).one()
-    except (MultipleResultsFound, NoResultFound) as error:
-        raise MyNotExistsError(f"No existe el estado {estado_origen_clave}") from error
-    municipio_origen_clave = str(municipio_num).zfill(3)
-    try:
-        municipio_origen = (
-            database.query(Municipio).filter_by(estado_id=estado_origen.id).filter_by(clave=municipio_origen_clave).one()
-        )
-    except (MultipleResultsFound, NoResultFound) as error:
-        raise MyNotExistsError(f"No existe el municipio {municipio_origen_clave} en {estado_origen_clave}") from error
-    return municipio_origen
 
 
 @exh_exhortos.post("/responder", response_model=OneExhExhortoRespuestaOut)

@@ -14,11 +14,47 @@ from ..dependencies.safe_string import safe_string
 from ..models.exh_exhortos import ExhExhorto
 from ..models.exh_exhortos_respuestas import ExhExhortoRespuesta
 from ..models.exh_exhortos_respuestas_archivos import ExhExhortoRespuestaArchivo
+from ..models.exh_exhortos_respuestas_videos import ExhExhortoRespuestaVideo
 from ..models.permisos import Permiso
 from ..schemas.exh_exhortos_respuestas import ExhExhortoRespuestaIn, ExhExhortoRespuestaOut, OneExhExhortoRespuestaOut
 from .exh_exhortos import get_exhorto_with_exhorto_origen_id
 
 exh_exhortos_respuestas = APIRouter(prefix="/api/v5/exh_exhortos")
+
+
+def get_exhorto_respuesta(
+    database: Annotated[Session, Depends(get_db)],
+    folio_seguimiento: str,
+    origen_id: str,
+) -> ExhExhortoRespuesta:
+    """Consultar una respuesta con el folio de seguimiento del exhorto y origen ID de la respuesta."""
+
+    # Validar folio_seguimiento
+    folio_seguimiento = safe_string(folio_seguimiento, max_len=64, do_unidecode=True, to_uppercase=False)
+    if folio_seguimiento == "":
+        raise MyNotValidParamError("No es un folio de seguimiento de exhorto válido")
+
+    # Validar origen_id
+    origen_id = safe_string(origen_id, max_len=64, do_unidecode=True, to_uppercase=False)
+    if origen_id == "":
+        raise MyNotValidParamError("No es un origen ID de la respuesta válida")
+
+    # Consultar la promoción
+    exh_exhorto_respuesta = (
+        database.query(ExhExhortoRespuesta)
+        .join(ExhExhorto)
+        .filter(ExhExhorto.folio_seguimiento == folio_seguimiento)
+        .filter(ExhExhortoRespuesta.origen_id == origen_id)
+        .filter(ExhExhortoRespuesta.estatus == "A")
+        .first()
+    )
+
+    # Verificar que exista
+    if exh_exhorto_respuesta is None:
+        raise MyNotExistsError("No existe esa promoción de exhorto")
+
+    # Entregar
+    return exh_exhorto_respuesta
 
 
 @exh_exhortos_respuestas.post("/responder", response_model=OneExhExhortoRespuestaOut)

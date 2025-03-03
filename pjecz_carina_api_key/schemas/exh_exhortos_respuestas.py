@@ -5,8 +5,8 @@ Exh Exhortos Respuestas, esquemas de pydantic
 from pydantic import BaseModel
 
 from ..dependencies.schemas_base import OneBaseOut
-from .exh_exhortos_archivos import ExhExhortoArchivoItem
-from .exh_exhortos_respuestas_videos import ExhExhortoVideoItem
+from .exh_exhortos_respuestas_archivos import ExhExhortoRespuestaArchivoItem
+from .exh_exhortos_respuestas_videos import ExhExhortoRespuestaVideoItem
 
 
 class ExhExhortoRespuestaIn(BaseModel):
@@ -20,8 +20,8 @@ class ExhExhortoRespuestaIn(BaseModel):
     numeroExhorto: str | None
     tipoDiligenciado: int  # 0 = No Diligenciado, 1 = Parcialmente Dilgenciado, 2 = Diligenciado
     observaciones: str | None
-    archivos: list[ExhExhortoArchivoItem]
-    videos: list[ExhExhortoVideoItem] | None
+    archivos: list[ExhExhortoRespuestaArchivoItem]
+    videos: list[ExhExhortoRespuestaVideoItem] | None
 
 
 class ExhExhortoRespuestaOut(BaseModel):
