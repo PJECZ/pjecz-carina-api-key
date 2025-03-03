@@ -28,10 +28,10 @@ from ..schemas.exh_exhortos import (
 )
 from ..schemas.exh_exhortos_archivos import ExhExhortoArchivoItem
 from ..schemas.exh_exhortos_partes import ExhExhortoParteItem
-from ..schemas.exh_exhortos_respuestas import ExhExhortoRespuestaIn, ExhExhortoRespuestaOut, OneExhExhortoRespuestaOut
 from ..settings import Settings, get_settings
 from .autoridades import get_autoridad_with_clave_nd
 from .exh_areas import get_exh_area_with_clave_nd
+from .municipios import get_municipio_destino, get_municipio_origen
 
 exh_exhortos = APIRouter(prefix="/api/v5/exh_exhortos")
 
@@ -45,11 +45,10 @@ def get_exhorto_with_exhorto_origen_id(database: Annotated[Session, Depends(get_
         raise MyNotValidParamError("No es un exhortoId válido")
 
     # Consultar el exhorto
-    exh_exhorto = database.query(ExhExhorto).filter_by(exhorto_origen_id=exhorto_origen_id).filter_by(estatus="A").first()
-
-    # Verificar que exista
-    if exh_exhorto is None:
-        raise MyNotExistsError(f"No existe el exhorto con exhorto_origen_id {exhorto_origen_id}")
+    try:
+        exh_exhorto = database.query(ExhExhorto).filter_by(exhorto_origen_id=exhorto_origen_id).filter_by(estatus="A").first()
+    except (MultipleResultsFound, NoResultFound) as error:
+        raise MyNotExistsError(f"No existe el exhorto con exhorto_origen_id {exhorto_origen_id}") from error
 
     # Entregar
     return exh_exhorto
@@ -72,125 +71,7 @@ def get_exhorto_with_folio_seguimiento(database: Annotated[Session, Depends(get_
     return exh_exhorto
 
 
-@exh_exhortos.post("/responder", response_model=OneExhExhortoRespuestaOut)
-async def recibir_exhorto_respuesta_request(
-    current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
-    database: Annotated[Session, Depends(get_db)],
-    exh_exhorto_recibir_respuesta: ExhExhortoRespuestaIn,
-):
-    """Recepción de respuesta de un exhorto"""
-    if current_user.permissions.get("EXH EXHORTOS", 0) < Permiso.CREAR:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
-
-    # Inicializar listado de errores
-    errores = []
-
-    # Consultar el exhorto con el exhorto_origen_id
-    try:
-        exh_exhorto = get_exhorto_with_exhorto_origen_id(database, exh_exhorto_recibir_respuesta.exhortoId)
-    except MyAnyError as error:
-        errores.append(str(error))
-
-    # Validar respuestaOrigenId, obligatorio
-    respuesta_origen_id = safe_string(
-        exh_exhorto_recibir_respuesta.respuestaOrigenId, max_len=48, do_unidecode=True, to_uppercase=False
-    )
-    if respuesta_origen_id == "":
-        errores.append("No es válido respuestaOrigenId")
-
-    # TODO: Validar municipioTurnadoId, entero obligatorio es identificador INEGI
-    respuesta_municipio_turnado_id = exh_exhorto_recibir_respuesta.municipioTurnadoId
-
-    # Validar areaTurnadoId, es opcional
-    respuesta_area_turnado_id = None
-    if exh_exhorto_recibir_respuesta.areaTurnadoId is not None:
-        respuesta_area_turnado_id = safe_string(exh_exhorto_recibir_respuesta.areaTurnadoId)
-
-    # Validar areaTurnadoNombre, obligatorio
-    respuesta_area_turnado_nombre = safe_string(exh_exhorto_recibir_respuesta.areaTurnadoNombre)
-    if respuesta_area_turnado_nombre == "":
-        errores.append("No es válido areaTurnadoNombre")
-
-    # Validar numeroExhorto, es opcional
-    respuesta_numero_exhorto = None
-    if exh_exhorto_recibir_respuesta.numeroExhorto is not None:
-        respuesta_numero_exhorto = safe_string(exh_exhorto_recibir_respuesta.numeroExhorto)
-
-    # Validar tipoDiligenciado, debe ser entero 0, 1 o 2
-    respuesta_tipo_diligenciado = None
-    if exh_exhorto_recibir_respuesta.tipoDiligenciado in (0, 1, 2):
-        respuesta_tipo_diligenciado = exh_exhorto_recibir_respuesta.tipoDiligenciado
-    if respuesta_tipo_diligenciado is None:
-        errores.append("No es válido tipoDiligenciado")
-
-    # Validar observaciones, es opcional
-    respuesta_observaciones = None
-    if exh_exhorto_recibir_respuesta.observaciones is not None:
-        respuesta_observaciones = safe_string(exh_exhorto_recibir_respuesta.observaciones, save_enie=True, max_len=1000)
-
-    # Si hubo errores, se termina de forma fallida
-    if len(errores) > 0:
-        return OneExhExhortoRespuestaOut(success=False, message="Falló la recepción de la respuesta", errors=errores, data=None)
-
-    # Actualizar el exhorto con los datos de la respuesta
-    exh_exhorto.respuesta_origen_id = respuesta_origen_id
-    exh_exhorto.respuesta_municipio_turnado_id = respuesta_municipio_turnado_id
-    exh_exhorto.respuesta_area_turnado_id = respuesta_area_turnado_id
-    exh_exhorto.respuesta_area_turnado_nombre = respuesta_area_turnado_nombre
-    exh_exhorto.respuesta_numero_exhorto = respuesta_numero_exhorto
-    exh_exhorto.respuesta_tipo_diligenciado = respuesta_tipo_diligenciado
-    exh_exhorto.respuesta_fecha_hora_recepcion = datetime.now()
-    exh_exhorto.respuesta_observaciones = respuesta_observaciones
-
-    # El estado del exhorto cambia a RESPONDIDO
-    exh_exhorto.estado = "RESPONDIDO"
-    database.add(exh_exhorto)
-    database.commit()
-
-    # Insertar los archivos
-    for archivo in exh_exhorto_recibir_respuesta.archivos:
-        exh_exhorto_archivo = ExhExhortoArchivo(
-            exh_exhorto=exh_exhorto,
-            nombre_archivo=archivo.nombreArchivo,
-            hash_sha1=archivo.hashSha1,
-            hash_sha256=archivo.hashSha256,
-            tipo_documento=archivo.tipoDocumento,
-            estado="PENDIENTE",
-            tamano=0,
-            fecha_hora_recepcion=datetime.now(),
-            es_respuesta=True,  # Es un archivo que viene de una respuesta
-        )
-        database.add(exh_exhorto_archivo)
-
-    # Insertar los videos
-    for video in exh_exhorto_recibir_respuesta.videos:
-        try:
-            fecha = datetime.strptime(video.fecha, "%Y-%m-%d")
-        except ValueError:
-            fecha = None
-        exh_exhorto_video = ExhExhortoRespuestaVideo(
-            exh_exhorto=exh_exhorto,
-            titulo=safe_string(video.titulo, save_enie=True),
-            descripcion=safe_string(video.descripcion, save_enie=True),
-            fecha=fecha,
-            url_acceso=video.urlAcceso,
-        )
-        database.add(exh_exhorto_video)
-
-    # Terminar la transacción
-    database.commit()
-    database.refresh(exh_exhorto)
-
-    # Entregar
-    data = ExhExhortoRespuestaOut(
-        exhortoId=exh_exhorto.exhorto_origen_id,
-        respuestaOrigenId=exh_exhorto.respuesta_origen_id,
-        fechaHora=exh_exhorto.respuesta_fecha_hora_recepcion.strftime("%Y-%m-%d %H:%M:%S"),
-    )
-    return OneExhExhortoRespuestaOut(success=True, message="Respuesta recibida con éxito", errors=[], data=data)
-
-
-@exh_exhortos.get("/{folio_seguimiento}", response_model=OneExhExhortoConsultaOut)
+@exh_exhortos.get("/folio_seguimiento/{folio_seguimiento}", response_model=OneExhExhortoConsultaOut)
 async def consultar_exhorto_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
@@ -284,7 +165,7 @@ async def consultar_exhorto_request(
     return OneExhExhortoConsultaOut(success=True, message="Consulta hecha con éxito", errors=[], data=data)
 
 
-@exh_exhortos.post("", response_model=OneExhExhortoOut)
+@exh_exhortos.post("/recibir", response_model=OneExhExhortoOut)
 async def recibir_exhorto_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],

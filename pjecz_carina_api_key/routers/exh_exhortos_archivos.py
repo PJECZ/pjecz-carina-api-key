@@ -24,10 +24,10 @@ from ..schemas.exh_exhortos_archivos import (
 from ..settings import get_settings
 from .exh_exhortos import get_exhorto_with_exhorto_origen_id
 
-exh_exhortos_archivos = APIRouter(prefix="/api/v5/exh_exhortos_archivos")
+exh_exhortos_archivos = APIRouter(prefix="/api/v5/exh_exhortos")
 
 
-@exh_exhortos_archivos.post("/upload", response_model=OneExhExhortoArchivoOut)
+@exh_exhortos_archivos.post("/recibir_archivo", response_model=OneExhExhortoArchivoOut)
 async def recibir_exhorto_archivo_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],

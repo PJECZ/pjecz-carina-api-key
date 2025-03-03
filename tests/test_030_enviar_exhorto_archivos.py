@@ -46,7 +46,7 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
                 # Mandar el archivo
                 try:
                     respuesta = requests.post(
-                        url=f"{config['api_base_url']}/exh_exhortos_archivos/upload",
+                        url=f"{config['api_base_url']}/exh_exhortos/recibir_archivo",
                         headers={"X-Api-Key": config["api_key"]},
                         timeout=config["timeout"],
                         files={"archivo": (archivo_nombre, archivo_prueba, "application/pdf")},

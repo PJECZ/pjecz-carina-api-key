@@ -19,7 +19,7 @@ from ..models.permisos import Permiso
 from ..schemas.exh_exhortos_promociones import ExhExhortoPromocionIn, ExhExhortoPromocionOut, OneExhExhortoPromocionOut
 from .exh_exhortos import get_exhorto_with_folio_seguimiento
 
-exh_exhortos_promociones = APIRouter(prefix="/api/v5/exh_exhortos_promociones")
+exh_exhortos_promociones = APIRouter(prefix="/api/v5/exh_exhortos")
 
 
 def get_exhorto_promocion(
@@ -57,7 +57,7 @@ def get_exhorto_promocion(
     return exh_exhorto_promocion
 
 
-@exh_exhortos_promociones.post("", response_model=OneExhExhortoPromocionOut)
+@exh_exhortos_promociones.post("/recibir_promocion", response_model=OneExhExhortoPromocionOut)
 async def recibir_exhorto_promocion_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],

@@ -134,7 +134,7 @@ class TestsEnviarExhorto(unittest.TestCase):
         # Mandar el exhorto
         try:
             respuesta = requests.post(
-                url=f"{config['api_base_url']}/exh_exhortos",
+                url=f"{config['api_base_url']}/exh_exhortos/recibir",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
                 json=payload_for_json,

@@ -22,7 +22,7 @@ class TestsConsultarExhorto(unittest.TestCase):
         # Consultar el exhorto
         try:
             respuesta = requests.get(
-                url=f"{config['api_base_url']}/exh_exhortos/{config['folio_seguimiento']}",
+                url=f"{config['api_base_url']}/exh_exhortos/folio_seguimiento/{config['folio_seguimiento']}",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )

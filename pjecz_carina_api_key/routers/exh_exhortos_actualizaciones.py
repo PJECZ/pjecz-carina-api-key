@@ -20,10 +20,10 @@ from ..schemas.exh_exhortos_actualizaciones import (
 )
 from .exh_exhortos import get_exhorto_with_exhorto_origen_id
 
-exh_exhortos_actualizaciones = APIRouter(prefix="/api/v5/exh_exhortos_actualizaciones")
+exh_exhortos_actualizaciones = APIRouter(prefix="/api/v5/exh_exhortos")
 
 
-@exh_exhortos_actualizaciones.post("", response_model=OneExhExhortoActualizacionOut)
+@exh_exhortos_actualizaciones.post("/actualizar", response_model=OneExhExhortoActualizacionOut)
 async def recibir_exhorto_actualizacion_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],

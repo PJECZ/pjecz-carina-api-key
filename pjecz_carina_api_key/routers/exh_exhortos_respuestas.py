@@ -57,13 +57,13 @@ def get_exhorto_respuesta(
     return exh_exhorto_respuesta
 
 
-@exh_exhortos_respuestas.post("/responder", response_model=OneExhExhortoRespuestaOut)
+@exh_exhortos_respuestas.post("/recibir_respuesta", response_model=OneExhExhortoRespuestaOut)
 async def recibir_exhorto_respuesta_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
     exh_exhorto_respuesta_in: ExhExhortoRespuestaIn,
 ):
-    """Recibir una promoción de un exhorto"""
+    """Recibir una respuesta de un exhorto"""
     if current_user.permissions.get("EXH EXHORTOS RESPUESTAS", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 

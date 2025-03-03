@@ -24,10 +24,10 @@ from ..schemas.exh_exhortos_promociones_archivos import (
 from ..settings import get_settings
 from .exh_exhortos_promociones import get_exhorto_promocion
 
-exh_exhortos_promociones_archivos = APIRouter(prefix="/api/v5/exh_exhortos_promociones_archivos")
+exh_exhortos_promociones_archivos = APIRouter(prefix="/api/v5/exh_exhortos")
 
 
-@exh_exhortos_promociones_archivos.post("/upload", response_model=OneExhExhortoPromocionArchivoOut)
+@exh_exhortos_promociones_archivos.post("/recibir_promocion_archivo", response_model=OneExhExhortoPromocionArchivoOut)
 async def recibir_exhorto_promocion_archivo_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],

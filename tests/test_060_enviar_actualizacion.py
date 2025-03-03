@@ -44,7 +44,7 @@ class TestsEnviarActualizacion(unittest.TestCase):
         # Mandar la actualización
         try:
             respuesta = requests.post(
-                url=f"{config['api_base_url']}/exh_exhortos_actualizaciones",
+                url=f"{config['api_base_url']}/actualizar",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
                 json=payload_for_json,

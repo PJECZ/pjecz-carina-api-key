@@ -28,7 +28,7 @@ class TestsEnviarRespuesta(unittest.TestCase):
         # Consultar el exhorto
         try:
             respuesta = requests.get(
-                url=f"{config['api_base_url']}/exh_exhortos/{config['folio_seguimiento']}",
+                url=f"{config['api_base_url']}/exh_exhortos/folio_seguimiento/{config['folio_seguimiento']}",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )
@@ -136,7 +136,7 @@ class TestsEnviarRespuesta(unittest.TestCase):
         # Mandar la respuesta del exhorto
         try:
             respuesta = requests.post(
-                url=f"{config['api_base_url']}/exh_exhortos/responder",
+                url=f"{config['api_base_url']}/exh_exhortos/recibir_respuesta",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
                 json=payload_for_json,

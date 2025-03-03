@@ -84,7 +84,7 @@ class TestsEnviarPromocion(unittest.TestCase):
         # Mandar la promoción
         try:
             respuesta = requests.post(
-                url=f"{config['api_base_url']}/exh_exhortos_promociones",
+                url=f"{config['api_base_url']}/recibir_promocion",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
                 json=payload_for_json,
