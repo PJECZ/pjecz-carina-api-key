@@ -13,7 +13,6 @@ API_KEY=XXXXXXXX.XXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXX
 API_BASE_URL=http://127.0.0.1:8000/v5
 TIMEOUT=10
 ESTADO_CLAVE=05
-FOLIO_SEGUIMIENTO=XXXXXXXXXXXXXXXX
 ARCHIVO_PDF_HASHSHA1=
 ARCHIVO_PDF_HASHSHA256=
 ```
@@ -40,7 +39,6 @@ El **FOLIO_SEGUIMIENTO** se debe tener en las variables de entorno
 3. Agregue por lo menos un archivo
 4. Copie el Exhorto Origen ID
 5. Ejecute `cli exh_exhortos demo-02-enviar XXXXXXXXXXX`
-6. Copie el folio de seguimiento y péguelo en .env
-7. Pruebe `python3 -m unittest tests/test_040_consultar_exhorto.py`
-8. Pruebe `python3 -m unittest tests/test_051_enviar_respuesta.py`
-9. Pruebe `python3 -m unittest tests/test_052_enviar_respuesta_archivos.py`
+6. Pruebe `python3 -m unittest tests/test_040_consultar_exhorto.py`
+7. Pruebe `python3 -m unittest tests/test_051_enviar_respuesta.py`
+8. Pruebe `python3 -m unittest tests/test_052_enviar_respuesta_archivos.py`

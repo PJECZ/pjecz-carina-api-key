@@ -7,6 +7,7 @@ import unittest
 import requests
 
 from tests import config
+from tests.database import TestExhExhorto, get_database_session
 
 
 class TestsConsultarExhorto(unittest.TestCase):
@@ -15,14 +16,20 @@ class TestsConsultarExhorto(unittest.TestCase):
     def test_get_exhorto(self):
         """Probar el GET para consultar un exhorto"""
 
-        # Validar que se haya configurado la variable de entorno FOLIO_SEGUIMIENTO
-        if config["folio_seguimiento"] == "":
-            self.fail("No se ha configurado la variable de entorno FOLIO_SEGUIMIENTO")
+        # Cargar la sesión de la base de datos para recuperar los datos de la prueba anterior
+        session = get_database_session()
+
+        # Consultar el último exhorto en sqlite
+        test_exh_exhorto = (
+            session.query(TestExhExhorto).filter_by(estado="RECIBIDO CON EXITO").order_by(TestExhExhorto.id.desc()).first()
+        )
+        if test_exh_exhorto is None:
+            self.fail("No se encontró un exhorto RECIBIDO CON EXITO en sqlite")
 
         # Consultar el exhorto
         try:
             respuesta = requests.get(
-                url=f"{config['api_base_url']}/exh_exhortos/folio_seguimiento/{config['folio_seguimiento']}",
+                url=f"{config['api_base_url']}/exh_exhortos/folio_seguimiento/{test_exh_exhorto.folio_seguimiento}",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )
@@ -79,6 +86,9 @@ class TestsConsultarExhorto(unittest.TestCase):
         self.assertEqual("areaTurnadoNombre" in data, True)
         self.assertEqual("numeroExhorto" in data, True)
         self.assertEqual("urlInfo" in data, True)
+
+        # Cerrar la sesión SQLite
+        session.close()
 
 
 if __name__ == "__main__":

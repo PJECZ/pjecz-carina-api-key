@@ -55,7 +55,8 @@ class ExhExhorto(Base, UniversalMixin):
     materia_clave: Mapped[str] = mapped_column(String(24))
     materia_nombre: Mapped[str] = mapped_column(String(256))
 
-    # Clave foránea: Identificador INEGI del Municipio donde está localizado el Juzgado del PJ exhortante
+    # Clave foránea: Municipio de Origen donde está localizado el Juzgado del PJ exhortante
+    # Cuando haya comunicación por medio de la API se debe recibir o transmitir el identificador INEGI del municipio
     municipio_origen_id: Mapped[int] = mapped_column(ForeignKey("municipios.id"))
     municipio_origen: Mapped["Municipio"] = relationship(back_populates="exh_exhortos_origenes")
 
@@ -65,8 +66,9 @@ class ExhExhorto(Base, UniversalMixin):
     # UUID identificador con el que el PJ exhortante identifica el exhorto que envía
     exhorto_origen_id: Mapped[str] = mapped_column(String(64))
 
-    # ID de la tabla Municipios: Para el payload es el Identificador INEGI del Municipio del Estado del PJ exhortado
-    # al que se quiere enviar el Exhorto
+    # ID del municipio del Estado del PJ exhortado al que se quiere enviar el Exhorto
+    # NO es clave foránea para no causar conflicto con municipio_origen_id
+    # Cuando haya comunicación por medio de la API se debe recibir o transmitir el identificador INEGI del municipio
     municipio_destino_id: Mapped[int]
 
     # Identificador propio del Juzgado/Área que envía el Exhorto, opcional

@@ -9,7 +9,7 @@ from pathlib import Path
 import requests
 
 from tests import config
-from tests.database import ExhExhorto, get_database_session
+from tests.database import TestExhExhorto, get_database_session
 
 
 class TestsEnviarExhortosArchivos(unittest.TestCase):
@@ -22,19 +22,21 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
         session = get_database_session()
 
         # Consultar el último exhorto
-        exh_exhorto = session.query(ExhExhorto).order_by(ExhExhorto.id.desc()).first()
-        if exh_exhorto is None:
-            self.fail("No se encontró el último exhorto en database.sqlite")
+        test_exh_exhorto = (
+            session.query(TestExhExhorto).filter_by(estado="PENDIENTE").order_by(TestExhExhorto.id.desc()).first()
+        )
+        if test_exh_exhorto is None:
+            self.fail("No se encontró un exhorto PENDIENTE en sqlite")
 
         # Definir los datos que se van a incluir en el envío de los archivos
-        payload_for_data = {"exhortoOrigenId": exh_exhorto.exhorto_origen_id}
+        payload_for_data = {"exhortoOrigenId": test_exh_exhorto.exhorto_origen_id}
 
         # Bucle para mandar los archivo por multipart/form-data
-        for exh_exhorto_archivo in exh_exhorto.exh_exhortos_archivos:
+        for test_exh_exhorto_archivo in test_exh_exhorto.exh_exhortos_archivos:
             time.sleep(2)  # Pausa de 2 segundos
 
             # Tomar el nombre del archivo
-            archivo_nombre = exh_exhorto_archivo.nombre_archivo
+            archivo_nombre = test_exh_exhorto_archivo.nombre_archivo
 
             # Validar que el archivo exista
             archivo_ruta = Path(f"tests/{archivo_nombre}")
@@ -93,15 +95,19 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
 
         # Validar que se recibe el mismo exhortoOrigenId
         self.assertEqual(type(data_acuse["exhortoOrigenId"]), str)
-        self.assertEqual(data_acuse["exhortoOrigenId"], exh_exhorto.exhorto_origen_id)
+        self.assertEqual(data_acuse["exhortoOrigenId"], test_exh_exhorto.exhorto_origen_id)
 
         # Validar que se recibe el folioSeguimiento
         self.assertEqual(type(data_acuse["folioSeguimiento"]), str)
         self.assertNotEqual(data_acuse["folioSeguimiento"], "")
 
-        # Guardar el folio de seguimiento en la base de datos
-        exh_exhorto.folio_seguimiento = data_acuse["folioSeguimiento"]
+        # Guardar el folio de seguimiento y cambiar estado en sqlite
+        test_exh_exhorto.folio_seguimiento = data_acuse["folioSeguimiento"]
+        test_exh_exhorto.estado = "RECIBIDO CON EXITO"
         session.commit()
+
+        # Cerrar la sesión sqlite
+        session.close()
 
 
 if __name__ == "__main__":

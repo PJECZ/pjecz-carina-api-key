@@ -9,7 +9,7 @@ from pathlib import Path
 import requests
 
 from tests import config
-from tests.database import ExhExhorto, ExhExhortoPromocion, get_database_session
+from tests.database import TestExhExhortoPromocion, get_database_session
 
 
 class TestsEnviarArchivosPromocion(unittest.TestCase):
@@ -21,36 +21,30 @@ class TestsEnviarArchivosPromocion(unittest.TestCase):
         # Cargar la sesión de la base de datos para recuperar los datos de la prueba anterior
         session = get_database_session()
 
-        # Consultar el último exhorto
-        exh_exhorto = session.query(ExhExhorto).order_by(ExhExhorto.id.desc()).first()
-        if exh_exhorto is None:
-            self.fail("No se encontró el último exhorto en database.sqlite")
-
-        # Consultar la promoción del exhorto
-        exh_exhorto_promocion = (
-            session.query(ExhExhortoPromocion)
-            .join(ExhExhorto)
-            .filter(ExhExhorto.id == exh_exhorto.id)
-            .order_by(ExhExhortoPromocion.id.desc())
+        # Consultar la última promoción con estado PENDIENTE
+        test_exh_exhorto_promocion = (
+            session.query(TestExhExhortoPromocion)
+            .filter(TestExhExhortoPromocion.estado == "PENDIENTE")
+            .order_by(TestExhExhortoPromocion.id.desc())
             .first()
         )
-
-        # Validar que exista la promoción
-        if exh_exhorto_promocion is None:
-            self.fail("No hay promoción POR ENVIAR en el exhorto")
+        if test_exh_exhorto_promocion is None:
+            self.fail("No se encontró la último promoción PENDIENTE en SQLite")
 
         # Definir los datos que se van a incluir en el envío de los archivos
         payload_for_data = {
-            "folioOrigenPromocion": exh_exhorto_promocion.folio_origen_promocion,
-            "folioSeguimiento": exh_exhorto_promocion.folio_seguimiento,
+            "folioOrigenPromocion": test_exh_exhorto_promocion.folio_origen_promocion,
+            "folioSeguimiento": test_exh_exhorto_promocion.folio_seguimiento,
         }
 
         # Bucle para mandar los archivos por multipart/form-data
-        for exh_exhorto_promocion_archivo in exh_exhorto_promocion.exh_exhortos_promociones_archivos:
-            time.sleep(2)  # Pausa de 2 segundos
+        for archivo in test_exh_exhorto_promocion.exh_exhortos_promociones_archivos:
+            # Pausa de 2 segundos
+            print(f"{archivo.nombre_archivo}...")
+            time.sleep(2)
 
             # Tomar el nombre del archivo
-            archivo_nombre = exh_exhorto_promocion_archivo.nombre_archivo
+            archivo_nombre = archivo.nombre_archivo
 
             # Validar que el archivo exista
             archivo_ruta = Path(f"tests/{archivo_nombre}")
@@ -102,9 +96,12 @@ class TestsEnviarArchivosPromocion(unittest.TestCase):
         self.assertEqual("folioPromocionRecibida" in data_acuse, True)
         self.assertEqual("fechaHoraRecepcion" in data_acuse, True)
 
-        # Actualizar SQLite
-        exh_exhorto_promocion_archivo.estado = "RECIBIDO"
+        # Actualizar la promoción en SQLite
+        test_exh_exhorto_promocion.estado = "ENVIADO"
         session.commit()
+
+        # Cerrar la sesión SQLite
+        session.close()
 
 
 if __name__ == "__main__":

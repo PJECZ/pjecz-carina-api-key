@@ -10,9 +10,10 @@ from datetime import datetime
 import lorem
 import requests
 from faker import Faker
+from sqlalchemy.sql import or_
 
 from tests import config
-from tests.database import ExhExhorto, ExhExhortoPromocion, ExhExhortoPromocionArchivo, get_database_session
+from tests.database import TestExhExhorto, TestExhExhortoPromocion, TestExhExhortoPromocionArchivo, get_database_session
 
 
 class TestsEnviarPromocion(unittest.TestCase):
@@ -24,13 +25,15 @@ class TestsEnviarPromocion(unittest.TestCase):
         # Cargar la sesión de la base de datos para recuperar los datos de la prueba anterior
         session = get_database_session()
 
-        # Consultar el último exhorto
-        exh_exhorto = session.query(ExhExhorto).order_by(ExhExhorto.id.desc()).first()
-        if exh_exhorto is None:
-            self.fail("No se encontró el último exhorto en database.sqlite")
-
-        # Cerrar la sesion
-        session.close()
+        # Consultar el último exhorto RESPONDIDO o CONTESTADO
+        test_exh_exhorto = (
+            session.query(TestExhExhorto)
+            .filter(or_(TestExhExhorto.estado == "RESPONDIDO", TestExhExhorto.estado == "CONTESTADO"))
+            .order_by(TestExhExhorto.id.desc())
+            .first()
+        )
+        if test_exh_exhorto is None:
+            self.fail("No se encontró un exhorto RESPONDIDO o CONTESTADO en sqlite")
 
         # Inicializar el generador de nombres aleatorios
         faker = Faker(locale="es_MX")
@@ -72,7 +75,7 @@ class TestsEnviarPromocion(unittest.TestCase):
 
         # Definir los datos de la promoción
         payload_for_json = {
-            "folioSeguimiento": exh_exhorto.folio_seguimiento,
+            "folioSeguimiento": test_exh_exhorto.folio_seguimiento,
             "folioOrigenPromocion": folio_origen_promocion,
             "promoventes": promoventes,
             "fojas": random.randint(2, 9),
@@ -121,20 +124,21 @@ class TestsEnviarPromocion(unittest.TestCase):
         session = get_database_session()
 
         # Insertar la promoción en SQLite
-        exh_exhorto_promocion = ExhExhortoPromocion(
-            exh_exhorto=exh_exhorto,
-            exh_exhorto_id=exh_exhorto.id,
+        test_exh_exhorto_promocion = TestExhExhortoPromocion(
+            exh_exhorto=test_exh_exhorto,
+            exh_exhorto_id=test_exh_exhorto.id,
             folio_origen_promocion=folio_origen_promocion,
             folio_seguimiento=data["folioSeguimiento"],
+            estado="PENDIENTE",
         )
-        session.add(exh_exhorto_promocion)
+        session.add(test_exh_exhorto_promocion)
         session.commit()
 
         # Insertar los archivos de la promoción en SQLite
         for archivo in archivos:
-            exh_exhorto_promocion_archivo = ExhExhortoPromocionArchivo(
-                exh_exhorto_promocion=exh_exhorto_promocion,
-                exh_exhorto_promocion_id=exh_exhorto_promocion.id,
+            exh_exhorto_promocion_archivo = TestExhExhortoPromocionArchivo(
+                exh_exhorto_promocion=test_exh_exhorto_promocion,
+                exh_exhorto_promocion_id=test_exh_exhorto_promocion.id,
                 nombre_archivo=archivo["nombreArchivo"],
                 hash_sha1=archivo["hashSha1"],
                 hash_sha256=archivo["hashSha256"],
@@ -143,7 +147,7 @@ class TestsEnviarPromocion(unittest.TestCase):
             session.add(exh_exhorto_promocion_archivo)
             session.commit()
 
-        # Cerrar la sesion
+        # Cerrar la sesión SQLite
         session.close()
 
 

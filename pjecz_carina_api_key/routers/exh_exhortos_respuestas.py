@@ -147,7 +147,6 @@ async def recibir_exhorto_respuesta_request(
             estado="PENDIENTE",
             tamano=0,
             fecha_hora_recepcion=datetime.now(),
-            es_respuesta=True,  # Es un archivo que viene de una respuesta
         )
         database.add(exh_exhorto_respuesta_archivo)
 

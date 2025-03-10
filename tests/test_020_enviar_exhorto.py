@@ -11,7 +11,7 @@ from faker import Faker
 
 from pjecz_carina_api_key.dependencies.pwgen import generar_identificador
 from tests import config
-from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
+from tests.database import TestExhExhorto, TestExhExhortoArchivo, get_database_session
 
 
 class TestsEnviarExhorto(unittest.TestCase):
@@ -170,27 +170,30 @@ class TestsEnviarExhorto(unittest.TestCase):
         session = get_database_session()
 
         # Insertar el exhorto en SQLite
-        exh_exhorto = ExhExhorto(
+        test_exh_exhorto = TestExhExhorto(
             exhorto_origen_id=exhorto_origen_id,
             folio_seguimiento=data["exhortoOrigenId"],
             estado_origen_id=int(estado["clave"]),
+            estado="PENDIENTE",
         )
-        session.add(exh_exhorto)
+        session.add(test_exh_exhorto)
         session.commit()
 
         # Insertar los archivos del exhorto en SQLite
         for archivo in archivos:
-            exh_exhorto_archivo = ExhExhortoArchivo(
-                exh_exhorto=exh_exhorto,
-                exh_exhorto_id=exh_exhorto.id,
+            test_exh_exhorto_archivo = TestExhExhortoArchivo(
+                exh_exhorto=test_exh_exhorto,
+                exh_exhorto_id=test_exh_exhorto.id,
                 nombre_archivo=archivo["nombreArchivo"],
                 hash_sha1=archivo["hashSha1"],
                 hash_sha256=archivo["hashSha256"],
                 tipo_documento=archivo["tipoDocumento"],
-                es_respuesta=False,
             )
-            session.add(exh_exhorto_archivo)
+            session.add(test_exh_exhorto_archivo)
             session.commit()
+
+        # Cerrar la sesión sqlite
+        session.close()
 
 
 if __name__ == "__main__":
