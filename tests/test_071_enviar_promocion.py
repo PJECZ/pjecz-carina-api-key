@@ -137,8 +137,8 @@ class TestsEnviarPromocion(unittest.TestCase):
         # Insertar los archivos de la promoción en SQLite
         for archivo in archivos:
             exh_exhorto_promocion_archivo = TestExhExhortoPromocionArchivo(
-                exh_exhorto_promocion=test_exh_exhorto_promocion,
-                exh_exhorto_promocion_id=test_exh_exhorto_promocion.id,
+                test_exh_exhorto_promocion=test_exh_exhorto_promocion,
+                test_exh_exhorto_promocion_id=test_exh_exhorto_promocion.id,
                 nombre_archivo=archivo["nombreArchivo"],
                 hash_sha1=archivo["hashSha1"],
                 hash_sha256=archivo["hashSha256"],

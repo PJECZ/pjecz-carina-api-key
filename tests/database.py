@@ -18,7 +18,7 @@ class Base(DeclarativeBase, MappedAsDataclass):
 class TestExhExhorto(Base):
     """Exhorto"""
 
-    __tablename__ = "exh_exhortos"
+    __tablename__ = "test_exh_exhortos"
 
     # Clave primaria
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
@@ -30,19 +30,19 @@ class TestExhExhorto(Base):
     estado: Mapped[str]
 
     # Hijos
-    exh_exhortos_archivos: Mapped[List["TestExhExhortoArchivo"]] = relationship(
-        "ExhExhortoArchivo",
-        back_populates="exh_exhorto",
+    test_exh_exhortos_archivos: Mapped[List["TestExhExhortoArchivo"]] = relationship(
+        "TestExhExhortoArchivo",
+        back_populates="test_exh_exhorto",
         init=False,
     )
-    exh_exhortos_respuestas: Mapped[List["TestExhExhortoRespuesta"]] = relationship(
-        "ExhExhortoRespuesta",
-        back_populates="exh_exhorto",
+    test_exh_exhortos_respuestas: Mapped[List["TestExhExhortoRespuesta"]] = relationship(
+        "TestExhExhortoRespuesta",
+        back_populates="test_exh_exhorto",
         init=False,
     )
-    exh_exhortos_promociones: Mapped[List["TestExhExhortoPromocion"]] = relationship(
-        "ExhExhortoPromocion",
-        back_populates="exh_exhorto",
+    test_exh_exhortos_promociones: Mapped[List["TestExhExhortoPromocion"]] = relationship(
+        "TestExhExhortoPromocion",
+        back_populates="test_exh_exhorto",
         init=False,
     )
 
@@ -50,14 +50,14 @@ class TestExhExhorto(Base):
 class TestExhExhortoArchivo(Base):
     """Archivo de Exhorto"""
 
-    __tablename__ = "exh_exhortos_archivos"
+    __tablename__ = "test_exh_exhortos_archivos"
 
     # Clave primaria
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
     # Clave foránea
-    exh_exhorto_id: Mapped[int] = mapped_column(ForeignKey("exh_exhortos.id"))
-    exh_exhorto: Mapped["TestExhExhorto"] = relationship(back_populates="exh_exhortos_archivos")
+    test_exh_exhorto_id: Mapped[int] = mapped_column(ForeignKey("test_exh_exhortos.id"))
+    test_exh_exhorto: Mapped["TestExhExhorto"] = relationship(back_populates="test_exh_exhortos_archivos")
 
     # Columnas
     nombre_archivo: Mapped[str]
@@ -69,23 +69,23 @@ class TestExhExhortoArchivo(Base):
 class TestExhExhortoRespuesta(Base):
     """Respuesta"""
 
-    __tablename__ = "exh_exhortos_respuestas"
+    __tablename__ = "test_exh_exhortos_respuestas"
 
     # Clave primaria
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
     # Clave foránea
-    exh_exhorto_id: Mapped[int] = mapped_column(ForeignKey("exh_exhortos.id"))
-    exh_exhorto: Mapped["TestExhExhorto"] = relationship(back_populates="exh_exhortos_archivos")
+    test_exh_exhorto_id: Mapped[int] = mapped_column(ForeignKey("test_exh_exhortos.id"))
+    test_exh_exhorto: Mapped["TestExhExhorto"] = relationship(back_populates="test_exh_exhortos_respuestas")
 
     # Columnas
     respuesta_origen_id: Mapped[str]
     estado: Mapped[str]
 
     # Hijos
-    exh_exhortos_respuestas_archivos: Mapped[List["TestExhExhortoRespuestaArchivo"]] = relationship(
-        "ExhExhortoRespuestaArchivo",
-        back_populates="exh_exhorto_respuesta",
+    test_exh_exhortos_respuestas_archivos: Mapped[List["TestExhExhortoRespuestaArchivo"]] = relationship(
+        "TestExhExhortoRespuestaArchivo",
+        back_populates="test_exh_exhorto_respuesta",
         init=False,
     )
 
@@ -93,14 +93,16 @@ class TestExhExhortoRespuesta(Base):
 class TestExhExhortoRespuestaArchivo(Base):
     """Archivo de Respuesta"""
 
-    __tablename__ = "exh_exhortos_respuestas_archivos"
+    __tablename__ = "test_exh_exhortos_respuestas_archivos"
 
     # Clave primaria
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
     # Clave foránea
-    exh_exhorto_respuesta_id: Mapped[int] = mapped_column(ForeignKey("exh_exhortos_respuestas.id"))
-    exh_exhorto_respuesta: Mapped["TestExhExhortoRespuesta"] = relationship(back_populates="exh_exhortos_respuestas_archivos")
+    test_exh_exhorto_respuesta_id: Mapped[int] = mapped_column(ForeignKey("test_exh_exhortos_respuestas.id"))
+    test_exh_exhorto_respuesta: Mapped["TestExhExhortoRespuesta"] = relationship(
+        back_populates="test_exh_exhortos_respuestas_archivos"
+    )
 
     # Columnas
     nombre_archivo: Mapped[str]
@@ -113,14 +115,14 @@ class TestExhExhortoRespuestaArchivo(Base):
 class TestExhExhortoPromocion(Base):
     """Promoción"""
 
-    __tablename__ = "exh_exhortos_promociones"
+    __tablename__ = "test_exh_exhortos_promociones"
 
     # Clave primaria
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
     # Clave foránea
-    exh_exhorto_id: Mapped[int] = mapped_column(ForeignKey("exh_exhortos.id"))
-    exh_exhorto: Mapped["TestExhExhorto"] = relationship(back_populates="exh_exhortos_promociones")
+    test_exh_exhorto_id: Mapped[int] = mapped_column(ForeignKey("test_exh_exhortos.id"))
+    test_exh_exhorto: Mapped["TestExhExhorto"] = relationship(back_populates="test_exh_exhortos_promociones")
 
     # Columnas
     folio_origen_promocion: Mapped[str]
@@ -128,9 +130,9 @@ class TestExhExhortoPromocion(Base):
     estado: Mapped[str]
 
     # Hijos
-    exh_exhortos_promociones_archivos: Mapped[List["TestExhExhortoPromocionArchivo"]] = relationship(
-        "ExhExhortoPromocionArchivo",
-        back_populates="exh_exhorto_promocion",
+    test_exh_exhortos_promociones_archivos: Mapped[List["TestExhExhortoPromocionArchivo"]] = relationship(
+        "TestExhExhortoPromocionArchivo",
+        back_populates="test_exh_exhorto_promocion",
         init=False,
     )
 
@@ -138,14 +140,16 @@ class TestExhExhortoPromocion(Base):
 class TestExhExhortoPromocionArchivo(Base):
     """Archivo de Promoción"""
 
-    __tablename__ = "exh_exhortos_promociones_archivos"
+    __tablename__ = "test_exh_exhortos_promociones_archivos"
 
     # Clave primaria
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
     # Clave foránea
-    exh_exhorto_promocion_id: Mapped[int] = mapped_column(ForeignKey("exh_exhortos_promociones.id"))
-    exh_exhorto_promocion: Mapped["TestExhExhortoPromocion"] = relationship(back_populates="exh_exhortos_promociones_archivos")
+    test_exh_exhorto_promocion_id: Mapped[int] = mapped_column(ForeignKey("test_exh_exhortos_promociones.id"))
+    test_exh_exhorto_promocion: Mapped["TestExhExhortoPromocion"] = relationship(
+        back_populates="test_exh_exhortos_promociones_archivos"
+    )
 
     # Columnas
     nombre_archivo: Mapped[str]

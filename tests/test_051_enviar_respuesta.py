@@ -160,8 +160,8 @@ class TestsEnviarRespuesta(unittest.TestCase):
         # Insertar los archivos de la respuesta del exhorto en SQLite
         for archivo in archivos:
             test_exh_exhorto_respuesta_archivo = TestExhExhortoRespuestaArchivo(
-                exh_exhorto=test_exh_exhorto,
-                exh_exhorto_id=test_exh_exhorto.id,
+                test_exh_exhorto=test_exh_exhorto,
+                test_exh_exhorto_id=test_exh_exhorto.id,
                 nombre_archivo=archivo["nombreArchivo"],
                 hash_sha1=archivo["hashSha1"],
                 hash_sha256=archivo["hashSha256"],
