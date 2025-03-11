@@ -71,62 +71,67 @@ async def recibir_exhorto_respuesta_request(
     errores = []
 
     # Consultar el exhorto
+    exh_exhorto = None
     try:
         exh_exhorto = get_exhorto_with_exhorto_origen_id(database, exh_exhorto_respuesta_in.exhortoId)
     except MyAnyError as error:
         errores.append(str(error))
+    if exh_exhorto is None:
+        return OneExhExhortoRespuestaOut(success=False, message="No se encuentra el exhorto", errors=errores, data=None)
 
     # Validar respuestaOrigenId, obligatorio
-    respuesta_origen_id = safe_string(
-        exh_exhorto_respuesta_in.respuestaOrigenId, max_len=48, do_unidecode=True, to_uppercase=False
-    )
-    if respuesta_origen_id == "":
+    origen_id = safe_string(exh_exhorto_respuesta_in.respuestaOrigenId, max_len=48, do_unidecode=True, to_uppercase=False)
+    if origen_id == "":
         errores.append("No es válido respuestaOrigenId")
 
     # TODO: Validar municipioTurnadoId, entero obligatorio es identificador INEGI
-    respuesta_municipio_turnado_id = exh_exhorto_respuesta_in.municipioTurnadoId
+    municipio_turnado_id = exh_exhorto_respuesta_in.municipioTurnadoId
 
     # Validar areaTurnadoId, es opcional
-    respuesta_area_turnado_id = None
+    area_turnado_id = None
     if exh_exhorto_respuesta_in.areaTurnadoId is not None:
-        respuesta_area_turnado_id = safe_string(exh_exhorto_respuesta_in.areaTurnadoId)
+        area_turnado_id = safe_string(exh_exhorto_respuesta_in.areaTurnadoId)
 
     # Validar areaTurnadoNombre, obligatorio
-    respuesta_area_turnado_nombre = safe_string(exh_exhorto_respuesta_in.areaTurnadoNombre)
-    if respuesta_area_turnado_nombre == "":
+    area_turnado_nombre = safe_string(exh_exhorto_respuesta_in.areaTurnadoNombre)
+    if area_turnado_nombre == "":
         errores.append("No es válido areaTurnadoNombre")
 
     # Validar numeroExhorto, es opcional
-    respuesta_numero_exhorto = None
+    numero_exhorto = None
     if exh_exhorto_respuesta_in.numeroExhorto is not None:
-        respuesta_numero_exhorto = safe_string(exh_exhorto_respuesta_in.numeroExhorto)
+        numero_exhorto = safe_string(exh_exhorto_respuesta_in.numeroExhorto)
 
     # Validar tipoDiligenciado, debe ser entero 0, 1 o 2
-    respuesta_tipo_diligenciado = None
+    tipo_diligenciado = None
     if exh_exhorto_respuesta_in.tipoDiligenciado in (0, 1, 2):
-        respuesta_tipo_diligenciado = exh_exhorto_respuesta_in.tipoDiligenciado
-    if respuesta_tipo_diligenciado is None:
+        tipo_diligenciado = exh_exhorto_respuesta_in.tipoDiligenciado
+    if tipo_diligenciado is None:
         errores.append("No es válido tipoDiligenciado")
 
     # Validar observaciones, es opcional
-    respuesta_observaciones = None
+    observaciones = None
     if exh_exhorto_respuesta_in.observaciones is not None:
-        respuesta_observaciones = safe_string(exh_exhorto_respuesta_in.observaciones, save_enie=True, max_len=1000)
+        observaciones = safe_string(exh_exhorto_respuesta_in.observaciones, save_enie=True, max_len=1000)
 
     # Si hubo errores, se termina de forma fallida
     if len(errores) > 0:
         return OneExhExhortoRespuestaOut(success=False, message="Falló la recepción de la respuesta", errors=errores, data=None)
 
     # Insertar la respuesta
-    # exh_exhorto.respuesta_origen_id = respuesta_origen_id
-    # exh_exhorto.respuesta_municipio_turnado_id = respuesta_municipio_turnado_id
-    # exh_exhorto.respuesta_area_turnado_id = respuesta_area_turnado_id
-    # exh_exhorto.respuesta_area_turnado_nombre = respuesta_area_turnado_nombre
-    # exh_exhorto.respuesta_numero_exhorto = respuesta_numero_exhorto
-    # exh_exhorto.respuesta_tipo_diligenciado = respuesta_tipo_diligenciado
-    # exh_exhorto.respuesta_fecha_hora_recepcion = datetime.now()
-    # exh_exhorto.respuesta_observaciones = respuesta_observaciones
-    exh_exhorto_respuesta = ExhExhortoRespuesta()
+    exh_exhorto_respuesta = ExhExhortoRespuesta(
+        exh_exhorto_id=exh_exhorto.id,
+        origen_id=origen_id,
+        municipio_turnado_id=municipio_turnado_id,
+        area_turnado_id=area_turnado_id,
+        area_turnado_nombre=area_turnado_nombre,
+        numero_exhorto=numero_exhorto,
+        tipo_diligenciado=tipo_diligenciado,
+        fecha_hora_recepcion=datetime.now(),
+        observaciones=observaciones,
+        remitente="EXTERNO",
+        estado="PENDIENTE",
+    )
     database.add(exh_exhorto_respuesta)
     database.commit()
     database.refresh(exh_exhorto_respuesta)
@@ -139,7 +144,7 @@ async def recibir_exhorto_respuesta_request(
     # Insertar los archivos
     for archivo in exh_exhorto_respuesta_in.archivos:
         exh_exhorto_respuesta_archivo = ExhExhortoRespuestaArchivo(
-            exh_exhorto=exh_exhorto,
+            exh_exhorto_respuesta_id=exh_exhorto_respuesta.id,
             nombre_archivo=archivo.nombreArchivo,
             hash_sha1=archivo.hashSha1,
             hash_sha256=archivo.hashSha256,
@@ -152,12 +157,14 @@ async def recibir_exhorto_respuesta_request(
 
     # Insertar los videos
     for video in exh_exhorto_respuesta_in.videos:
+        fecha = None
         try:
-            fecha = datetime.strptime(video.fecha, "%Y-%m-%d")
+            if video.fecha is not None:
+                fecha = datetime.strptime(video.fecha, "%Y-%m-%d")
         except ValueError:
             fecha = None
         exh_exhorto_video = ExhExhortoRespuestaVideo(
-            exh_exhorto=exh_exhorto,
+            exh_exhorto_respuesta=exh_exhorto_respuesta,
             titulo=safe_string(video.titulo, save_enie=True),
             descripcion=safe_string(video.descripcion, save_enie=True),
             fecha=fecha,
@@ -172,7 +179,7 @@ async def recibir_exhorto_respuesta_request(
     # Entregar
     data = ExhExhortoRespuestaOut(
         exhortoId=exh_exhorto.exhorto_origen_id,
-        respuestaOrigenId=exh_exhorto.respuesta_origen_id,
-        fechaHora=exh_exhorto.respuesta_fecha_hora_recepcion.strftime("%Y-%m-%d %H:%M:%S"),
+        respuestaOrigenId=exh_exhorto_respuesta.origen_id,
+        fechaHora=exh_exhorto_respuesta.fecha_hora_recepcion.strftime("%Y-%m-%d %H:%M:%S"),
     )
     return OneExhExhortoRespuestaOut(success=True, message="Respuesta recibida con éxito", errors=[], data=data)

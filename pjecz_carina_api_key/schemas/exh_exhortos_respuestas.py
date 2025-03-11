@@ -18,7 +18,7 @@ class ExhExhortoRespuestaIn(BaseModel):
     areaTurnadoId: str | None
     areaTurnadoNombre: str
     numeroExhorto: str | None
-    tipoDiligenciado: int  # 0 = No Diligenciado, 1 = Parcialmente Dilgenciado, 2 = Diligenciado
+    tipoDiligenciado: int  # 0 = No Diligenciado, 1 = Parcialmente Diligenciado, 2 = Diligenciado
     observaciones: str | None
     archivos: list[ExhExhortoRespuestaArchivoItem]
     videos: list[ExhExhortoRespuestaVideoItem] | None
@@ -27,8 +27,8 @@ class ExhExhortoRespuestaIn(BaseModel):
 class ExhExhortoRespuestaOut(BaseModel):
     """Esquema para confirmar la recepción de una respuesta"""
 
-    folioSeguimiento: str
-    folioOrigenRespuesta: str
+    exhortoId: str
+    respuestaOrigenId: str
     fechaHora: str  # YYYY-MM-DD HH:mm:ss
 
 

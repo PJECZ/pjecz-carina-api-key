@@ -30,6 +30,7 @@ class TestsEnviarRespuesta(unittest.TestCase):
             session.query(TestExhExhorto)
             .filter(
                 or_(
+                    TestExhExhorto.estado == "RECIBIDO",
                     TestExhExhorto.estado == "RECIBIDO CON EXITO",
                     TestExhExhorto.estado == "TRANSFERIDO",
                     TestExhExhorto.estado == "PROCESANDO",
@@ -39,7 +40,7 @@ class TestsEnviarRespuesta(unittest.TestCase):
             .first()
         )
         if test_exh_exhorto is None:
-            self.fail("No se encontró un exhorto RECIBIDO CON EXITO, TRANSFERIDO o PROCESANDO en sqlite")
+            self.fail("No se encontró un exhorto RECIBIDO, RECIBIDO CON EXITO, TRANSFERIDO o PROCESANDO en sqlite")
 
         # Generar el identificador propio del PJ exhortado con el que identifica la respuesta del exhorto
         respuesta_origen_id = generar_identificador()
@@ -149,8 +150,8 @@ class TestsEnviarRespuesta(unittest.TestCase):
 
         # Insertar la respuesta en SQLite
         test_exh_exhorto_respuesta = TestExhExhortoRespuesta(
-            exh_exhorto=test_exh_exhorto,
-            exh_exhorto_id=test_exh_exhorto.id,
+            test_exh_exhorto=test_exh_exhorto,
+            test_exh_exhorto_id=test_exh_exhorto.id,
             respuesta_origen_id=data["respuestaOrigenId"],
             estado="PENDIENTE",
         )
@@ -160,8 +161,8 @@ class TestsEnviarRespuesta(unittest.TestCase):
         # Insertar los archivos de la respuesta del exhorto en SQLite
         for archivo in archivos:
             test_exh_exhorto_respuesta_archivo = TestExhExhortoRespuestaArchivo(
-                test_exh_exhorto=test_exh_exhorto,
-                test_exh_exhorto_id=test_exh_exhorto.id,
+                test_exh_exhorto_respuesta=test_exh_exhorto_respuesta,
+                test_exh_exhorto_respuesta_id=test_exh_exhorto_respuesta.id,
                 nombre_archivo=archivo["nombreArchivo"],
                 hash_sha1=archivo["hashSha1"],
                 hash_sha256=archivo["hashSha256"],

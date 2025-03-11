@@ -40,7 +40,8 @@ class ExhExhortoPromocion(Base, UniversalMixin):
     # Identificador del origen de la promoción; éste puede ser el folio del oficio u otro documento desde donde partió la promoción
     folio_origen_promocion: Mapped[str] = mapped_column(String(64))
 
-    # Hijo: Contiene la definición de los promoventes, en este caso el juzgado quien realiza la promoción
+    # Hijo: promoventes
+    # Contiene la definición de los promoventes, en este caso el juzgado quien realiza la promoción
     exh_exhortos_promociones_promoventes: Mapped[List["ExhExhortoPromocionPromovente"]] = relationship(
         back_populates="exh_exhorto_promocion"
     )
@@ -56,7 +57,8 @@ class ExhExhortoPromocion(Base, UniversalMixin):
     # Texto simple que contenga información extra o relevante sobre el exhorto.
     observaciones: Mapped[Optional[str]] = mapped_column(String(1024))
 
-    # Hijo: Colección de los datos referentes a los archivos que se van a recibir el Poder Judicial exhortado en el envío del Exhorto.
+    # Hijo: archivos
+    # Colección de los datos referentes a los archivos que se van a recibir el Poder Judicial exhortado en el envío del Exhorto.
     exh_exhortos_promociones_archivos: Mapped[List["ExhExhortoPromocionArchivo"]] = relationship(
         back_populates="exh_exhorto_promocion"
     )

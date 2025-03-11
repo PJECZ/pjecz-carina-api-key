@@ -125,8 +125,8 @@ class TestsEnviarPromocion(unittest.TestCase):
 
         # Insertar la promoción en SQLite
         test_exh_exhorto_promocion = TestExhExhortoPromocion(
-            exh_exhorto=test_exh_exhorto,
-            exh_exhorto_id=test_exh_exhorto.id,
+            test_exh_exhorto=test_exh_exhorto,
+            test_exh_exhorto_id=test_exh_exhorto.id,
             folio_origen_promocion=folio_origen_promocion,
             folio_seguimiento=data["folioSeguimiento"],
             estado="PENDIENTE",
