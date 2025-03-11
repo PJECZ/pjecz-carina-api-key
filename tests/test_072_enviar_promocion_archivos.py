@@ -38,7 +38,7 @@ class TestsEnviarArchivosPromocion(unittest.TestCase):
         }
 
         # Bucle para mandar los archivos por multipart/form-data
-        for archivo in test_exh_exhorto_promocion.exh_exhortos_promociones_archivos:
+        for archivo in test_exh_exhorto_promocion.test_exh_exhortos_promociones_archivos:
             # Pausa de 2 segundos
             print(f"{archivo.nombre_archivo}...")
             time.sleep(2)

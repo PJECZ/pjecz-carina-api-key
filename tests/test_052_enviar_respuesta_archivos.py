@@ -39,7 +39,7 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
 
         # Bucle para mandar los archivo por multipart/form-data
         data_acuse = None
-        for archivo in test_exh_exhorto_respuesta.exh_exhortos_respuestas_archivos:
+        for archivo in test_exh_exhorto_respuesta.test_exh_exhortos_respuestas_archivos:
             # Pausa de 2 segundos
             print(f"{archivo.nombre_archivo}...")
             time.sleep(2)

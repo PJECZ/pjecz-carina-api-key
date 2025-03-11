@@ -32,7 +32,7 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
         payload_for_data = {"exhortoOrigenId": test_exh_exhorto.exhorto_origen_id}
 
         # Bucle para mandar los archivo por multipart/form-data
-        for test_exh_exhorto_archivo in test_exh_exhorto.exh_exhortos_archivos:
+        for test_exh_exhorto_archivo in test_exh_exhorto.test_exh_exhortos_archivos:
             time.sleep(2)  # Pausa de 2 segundos
 
             # Tomar el nombre del archivo
@@ -103,7 +103,7 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
 
         # Guardar el folio de seguimiento y cambiar estado en sqlite
         test_exh_exhorto.folio_seguimiento = data_acuse["folioSeguimiento"]
-        test_exh_exhorto.estado = "RECIBIDO CON EXITO"
+        test_exh_exhorto.estado = "RECIBIDO"
         session.commit()
 
         # Cerrar la sesión sqlite

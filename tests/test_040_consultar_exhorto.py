@@ -5,6 +5,7 @@ Unit test - Consultar Exhorto
 import unittest
 
 import requests
+from sqlalchemy.sql import or_
 
 from tests import config
 from tests.database import TestExhExhorto, get_database_session
@@ -21,10 +22,13 @@ class TestsConsultarExhorto(unittest.TestCase):
 
         # Consultar el último exhorto en sqlite
         test_exh_exhorto = (
-            session.query(TestExhExhorto).filter_by(estado="RECIBIDO CON EXITO").order_by(TestExhExhorto.id.desc()).first()
+            session.query(TestExhExhorto)
+            .filter(or_(TestExhExhorto.estado == "RECIBIDO", TestExhExhorto.estado == "RECIBIDO CON EXITO"))
+            .order_by(TestExhExhorto.id.desc())
+            .first()
         )
         if test_exh_exhorto is None:
-            self.fail("No se encontró un exhorto RECIBIDO CON EXITO en sqlite")
+            self.fail("No se encontró un exhorto RECIBIDO o RECIBIDO CON EXITO en sqlite")
 
         # Consultar el exhorto
         try:

@@ -158,7 +158,6 @@ async def consultar_exhorto_request(
         areaTurnadoNombre=exh_exhorto.exh_area.nombre,
         numeroExhorto=exh_exhorto.numero_exhorto,
         urlInfo="https://carina.justiciadigital.gob.mx/",
-        respuestaOrigenId=str(exh_exhorto.respuesta_origen_id),
     )
 
     # Entregar
@@ -332,7 +331,7 @@ async def recibir_exhorto_request(
         autoridad_id=autoridad.id,
         numero_exhorto="",
         remitente="EXTERNO",
-        estado="RECIBIDO",
+        estado="PENDIENTE",
     )
     database.add(exh_exhorto)
     database.commit()

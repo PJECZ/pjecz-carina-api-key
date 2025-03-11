@@ -109,6 +109,11 @@ class TestsEnviarExhorto(unittest.TestCase):
         contenido = response.json()
         municipio = random.choice(contenido["data"])
 
+        # Definir un número de expediente y número de oficio aleatorio
+        anio = datetime.now().year
+        numero_expediente = f"{random.randint(1, 100)}/{anio}"
+        numero_oficio = f"{random.randint(1, 100)}/{anio}"
+
         # Definir los datos del exhorto
         payload_for_json = {
             "exhortoOrigenId": exhorto_origen_id,
@@ -118,8 +123,8 @@ class TestsEnviarExhorto(unittest.TestCase):
             "municipioOrigenId": int(municipio["clave"]),
             "juzgadoOrigenId": "EDO-J2-FAM",
             "juzgadoOrigenNombre": "JUZGADO SEGUNDO FAMILIAR",
-            "numeroExpedienteOrigen": "123/2024",
-            "numeroOficioOrigen": "3001/2024",
+            "numeroExpedienteOrigen": numero_expediente,
+            "numeroOficioOrigen": numero_oficio,
             "tipoJuicioAsuntoDelitos": "DIVORCIO",
             "juezExhortante": nombre_juez_exhortante,
             "partes": partes,

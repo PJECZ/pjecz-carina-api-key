@@ -159,6 +159,9 @@ async def recibir_exhorto_archivo_request(
     database.add(exh_exhorto_archivo)
     database.commit()
 
+    # Actualizar el exhorto en la base de datos al estado RECIBIDO
+    exh_exhorto.estado = "RECIBIDO"
+
     # Definir los datos del archivo para la respuesta
     archivo = ExhExhortoArchivoFileDataArchivo(
         nombreArchivo=exh_exhorto_archivo.nombre_archivo,
