@@ -39,16 +39,16 @@ exh_exhortos = APIRouter(prefix="/api/v5/exh_exhortos")
 def get_exhorto_with_exhorto_origen_id(database: Annotated[Session, Depends(get_db)], exhorto_origen_id: str) -> ExhExhorto:
     """Consultar un exhorto con su exhorto_origen_id"""
 
-    # Normalizar exhorto_origen_id a 48 caracteres como máximo
-    exhorto_origen_id = safe_string(exhorto_origen_id, max_len=48, do_unidecode=True, to_uppercase=False)
+    # Validar exhorto_origen_id
+    exhorto_origen_id = safe_string(exhorto_origen_id, max_len=64, do_unidecode=True, to_uppercase=False)
     if exhorto_origen_id == "":
-        raise MyNotValidParamError("No es un exhortoId válido")
+        raise MyNotValidParamError("No es un 'exhorto origen id' válido")
 
     # Consultar el exhorto
     try:
         exh_exhorto = database.query(ExhExhorto).filter_by(exhorto_origen_id=exhorto_origen_id).filter_by(estatus="A").first()
     except (MultipleResultsFound, NoResultFound) as error:
-        raise MyNotExistsError(f"No existe el exhorto con exhorto_origen_id {exhorto_origen_id}") from error
+        raise MyNotExistsError(f"No existe el exhorto con el 'exhorto origen id' {exhorto_origen_id}") from error
 
     # Entregar
     return exh_exhorto
@@ -60,7 +60,7 @@ def get_exhorto_with_folio_seguimiento(database: Annotated[Session, Depends(get_
     # Normalizar folio_seguimiento a 48 caracteres como máximo
     folio_seguimiento = safe_string(folio_seguimiento, max_len=48, do_unidecode=True, to_uppercase=False)
     if folio_seguimiento == "":
-        raise MyNotValidParamError("No es un folio de seguimiento válido")
+        raise MyNotValidParamError("No es un 'folio seguimiento' válido")
 
     # Consultar el exhorto
     exh_exhorto = database.query(ExhExhorto).filter_by(folio_seguimiento=folio_seguimiento).filter_by(estatus="A").first()
@@ -295,18 +295,21 @@ async def recibir_exhorto_request(
         if archivo.tipoDocumento not in [1, 2, 3]:
             errores.append("El tipoDocumento de un archivo no es válido")
 
+    # Área de recepción, es NO DEFINIDO
+    try:
+        exh_area = get_exh_area_with_clave_nd(database)
+    except MyNotExistsError:
+        errores.append("Falló porque no existe el área por defecto")
+
+    # Juzgado/Área al que se turna el Exhorto, es NO DEFINIDO
+    try:
+        autoridad = get_autoridad_with_clave_nd(database)
+    except MyNotExistsError:
+        errores.append("Falló porque no existe la autoridad por defecto")
+
     # Si hubo errores, se termina de forma fallida
     if len(errores) > 0:
         return OneExhExhortoOut(success=False, message="Falló la recepción del exhorto", errors=errores, data=None)
-
-    # GUID/UUID... que sea único. Va a ser generado cuando se vaya a regresar el acuse con el último archivo.
-    folio_seguimiento = ""
-
-    # Área de recepción, es NO DEFINIDO
-    exh_area = get_exh_area_with_clave_nd(database)
-
-    # Juzgado/Área al que se turna el Exhorto, es NO DEFINIDO
-    autoridad = get_autoridad_with_clave_nd(database)
 
     # Insertar el exhorto
     exh_exhorto = ExhExhorto(
@@ -326,7 +329,7 @@ async def recibir_exhorto_request(
         tipo_diligenciacion_nombre=tipo_diligenciacion_nombre,
         fecha_origen=fecha_origen,
         observaciones=observaciones,
-        folio_seguimiento=folio_seguimiento,
+        folio_seguimiento="",
         exh_area_id=exh_area.id,
         autoridad_id=autoridad.id,
         numero_exhorto="",

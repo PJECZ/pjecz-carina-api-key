@@ -64,6 +64,7 @@ class TestExhExhortoArchivo(Base):
     hash_sha1: Mapped[str]
     hash_sha256: Mapped[str]
     tipo_documento: Mapped[int]
+    estado: Mapped[str]
 
 
 class TestExhExhortoRespuesta(Base):
@@ -109,7 +110,7 @@ class TestExhExhortoRespuestaArchivo(Base):
     hash_sha1: Mapped[str]
     hash_sha256: Mapped[str]
     tipo_documento: Mapped[int]
-    estado: Mapped[str] = mapped_column(default="POR ENVIAR")
+    estado: Mapped[str]
 
 
 class TestExhExhortoPromocion(Base):
@@ -156,7 +157,7 @@ class TestExhExhortoPromocionArchivo(Base):
     hash_sha1: Mapped[str]
     hash_sha256: Mapped[str]
     tipo_documento: Mapped[int]
-    estado: Mapped[str] = mapped_column(default="POR ENVIAR")
+    estado: Mapped[str]
 
 
 def get_engine() -> Engine:

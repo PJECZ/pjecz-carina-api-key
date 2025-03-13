@@ -24,27 +24,27 @@ exh_exhortos_respuestas = APIRouter(prefix="/api/v5/exh_exhortos")
 
 def get_exhorto_respuesta(
     database: Annotated[Session, Depends(get_db)],
-    folio_seguimiento: str,
-    origen_id: str,
+    exhorto_id: str,
+    respuesta_origen_id: str,
 ) -> ExhExhortoRespuesta:
     """Consultar una respuesta con el folio de seguimiento del exhorto y origen ID de la respuesta."""
 
-    # Validar folio_seguimiento
-    folio_seguimiento = safe_string(folio_seguimiento, max_len=64, do_unidecode=True, to_uppercase=False)
-    if folio_seguimiento == "":
-        raise MyNotValidParamError("No es un folio de seguimiento de exhorto válido")
+    # Validar exhorto_id
+    exhorto_id = safe_string(exhorto_id, max_len=64, do_unidecode=True, to_uppercase=False)
+    if exhorto_id == "":
+        raise MyNotValidParamError("No es un 'exhorto id' válido")
 
-    # Validar origen_id
-    origen_id = safe_string(origen_id, max_len=64, do_unidecode=True, to_uppercase=False)
-    if origen_id == "":
-        raise MyNotValidParamError("No es un origen ID de la respuesta válida")
+    # Validar respuesta_origen_id
+    respuesta_origen_id = safe_string(respuesta_origen_id, max_len=64, do_unidecode=True, to_uppercase=False)
+    if respuesta_origen_id == "":
+        raise MyNotValidParamError("No es una 'respuesta origen id' válida")
 
     # Consultar la promoción
     exh_exhorto_respuesta = (
         database.query(ExhExhortoRespuesta)
         .join(ExhExhorto)
-        .filter(ExhExhorto.folio_seguimiento == folio_seguimiento)
-        .filter(ExhExhortoRespuesta.origen_id == origen_id)
+        .filter(ExhExhorto.exhorto_origen_id == exhorto_id)
+        .filter(ExhExhortoRespuesta.origen_id == respuesta_origen_id)
         .filter(ExhExhortoRespuesta.estatus == "A")
         .first()
     )

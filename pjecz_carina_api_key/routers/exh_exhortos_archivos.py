@@ -49,7 +49,10 @@ async def recibir_exhorto_archivo_request(
 
     # Consultar el exhorto
     try:
-        exh_exhorto = get_exhorto_with_exhorto_origen_id(database, exhortoOrigenId)
+        exh_exhorto = get_exhorto_with_exhorto_origen_id(
+            database=database,
+            exhorto_origen_id=exhortoOrigenId,
+        )
     except (MyNotValidParamError, MyNotExistsError) as error:
         return OneExhExhortoArchivoOut(success=False, message=str(error), errors=[str(error)], data=None)
 
@@ -181,9 +184,11 @@ async def recibir_exhorto_archivo_request(
     # Si YA NO HAY PENDIENTES entonces ES EL ULTIMO ARCHIVO
     acuse = None  # Si aún faltan archivos, entonces el acuse es nulo
     if exh_exhortos_archivos_pendientes_cantidad == 0:
-        # Cambiar el estado de exh_exhorto a RECIBIDO y se define el folio de seguimiento
+        # Generar el folio de seguimiento
+        folio_seguimiento = generar_identificador()
+        # Actualizar el exhorto
         exh_exhorto.estado = "RECIBIDO"
-        exh_exhorto.folio_seguimiento = generar_identificador()
+        exh_exhorto.folio_seguimiento = folio_seguimiento
         exh_exhorto.respuesta_fecha_hora_recepcion = fecha_hora_recepcion
         exh_exhorto.respuesta_municipio_turnado_id = 30  # Saltillo
         exh_exhorto.respuesta_area_turnado_id = None  # Como el área NO esta definida se responde con nulo
@@ -193,7 +198,7 @@ async def recibir_exhorto_archivo_request(
         # Y se va a elaborar el acuse
         acuse = ExhExhortoArchivoFileDataAcuse(
             exhortoOrigenId=exh_exhorto.exhorto_origen_id,
-            folioSeguimiento=exh_exhorto.folio_seguimiento,
+            folioSeguimiento=folio_seguimiento,
             fechaHoraRecepcion=exh_exhorto.respuesta_fecha_hora_recepcion.strftime("%Y-%m-%d %H:%M:%S"),
             municipioAreaRecibeId=exh_exhorto.respuesta_municipio_turnado_id,
             areaRecibeId=exh_exhorto.respuesta_area_turnado_id,

@@ -16,6 +16,13 @@ class ExhExhortoRespuestaArchivoItem(BaseModel):
     tipoDocumento: int
 
 
+class ExhExhortoRespuestaArchivoDataArchivo(BaseModel):
+    """Esquema para estructurar los datos del archivo"""
+
+    nombreArchivo: str
+    tamaño: int
+
+
 class ExhExhortoRespuestaArchivoFileIn(BaseModel):
     """Esquema para recibir archivos Content-Disposition, form-data, file"""
 
@@ -34,7 +41,7 @@ class ExhExhortoRespuestaArchivoDataAcuse(BaseModel):
 class ExhExhortoRespuestaArchivoOut(BaseModel):
     """Esquema para entregar la confirmación de la recepción de un archivo"""
 
-    archivo: ExhExhortoRespuestaArchivoItem
+    archivo: ExhExhortoRespuestaArchivoDataArchivo
     acuse: ExhExhortoRespuestaArchivoDataAcuse | None = None
 
 

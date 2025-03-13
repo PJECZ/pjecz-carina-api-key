@@ -17,7 +17,7 @@ from ..models.exh_exhortos_promociones_archivos import ExhExhortoPromocionArchiv
 from ..models.permisos import Permiso
 from ..schemas.exh_exhortos_promociones_archivos import (
     ExhExhortoPromocionArchivoDataAcuse,
-    ExhExhortoPromocionArchivoItem,
+    ExhExhortoPromocionArchivoDataArchivo,
     ExhExhortoPromocionArchivoOut,
     OneExhExhortoPromocionArchivoOut,
 )
@@ -166,11 +166,9 @@ async def recibir_exhorto_promocion_archivo_request(
     database.refresh(exh_exhorto_promocion_archivo)
 
     # Definir los datos del archivo para la respuesta
-    archivo = ExhExhortoPromocionArchivoItem(
+    archivo = ExhExhortoPromocionArchivoDataArchivo(
         nombreArchivo=exh_exhorto_promocion_archivo.nombre_archivo,
-        hashSha1=exh_exhorto_promocion_archivo.hash_sha1,
-        hashSha256=exh_exhorto_promocion_archivo.hash_sha256,
-        tipoDocumento=exh_exhorto_promocion_archivo.tipo_documento,
+        tamaño=exh_exhorto_promocion_archivo.tamano,
     )
 
     # Consultar la cantidad de archivos PENDIENTES de la promoción
@@ -186,14 +184,15 @@ async def recibir_exhorto_promocion_archivo_request(
     # Si YA NO HAY PENDIENTES entonces ES EL ÚLTIMO ARCHIVO
     acuse = None
     if exh_exhortos_promociones_archivos_pendientes_cantidad == 0:
-        # Cambiar el estado de la promoción a ENVIADO
+        # Actualizar la promoción
+        exh_exhorto_promocion.folio_promocion_recibida = generar_identificador()
         exh_exhorto_promocion.estado = "ENVIADO"
         database.add(exh_exhorto_promocion)
         database.commit()
         # Elaborar el acuse
         acuse = ExhExhortoPromocionArchivoDataAcuse(
             folioOrigenPromocion=exh_exhorto_promocion.folio_origen_promocion,
-            folioPromocionRecibida=generar_identificador(),  # TODO: Debe de conservarse en la base de datos
+            folioPromocionRecibida=exh_exhorto_promocion.folio_promocion_recibida,
             fechaHoraRecepcion=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         )
 

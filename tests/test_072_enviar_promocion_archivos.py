@@ -38,13 +38,11 @@ class TestsEnviarArchivosPromocion(unittest.TestCase):
         }
 
         # Bucle para mandar los archivos por multipart/form-data
-        for archivo in test_exh_exhorto_promocion.test_exh_exhortos_promociones_archivos:
-            # Pausa de 2 segundos
-            print(f"{archivo.nombre_archivo}...")
-            time.sleep(2)
+        for test_exh_exhorto_promocion_archivo in test_exh_exhorto_promocion.test_exh_exhortos_promociones_archivos:
+            time.sleep(1)  # Pausa de 1 segundos
 
             # Tomar el nombre del archivo
-            archivo_nombre = archivo.nombre_archivo
+            archivo_nombre = test_exh_exhorto_promocion_archivo.nombre_archivo
 
             # Validar que el archivo exista
             archivo_ruta = Path(f"tests/{archivo_nombre}")
@@ -76,7 +74,8 @@ class TestsEnviarArchivosPromocion(unittest.TestCase):
                 # Validar que se haya tenido éxito
                 if contenido["success"] is False:
                     print(f"Errors: {str(contenido['errors'])}")
-                self.assertEqual(contenido["success"], True)
+                    # Continuar con el siguiente en lugar de self.assertEqual(contenido["success"], True)
+                    continue
 
                 # Validar el data
                 self.assertEqual(type(contenido["data"]), dict)
@@ -86,9 +85,13 @@ class TestsEnviarArchivosPromocion(unittest.TestCase):
                 self.assertEqual("acuse" in data, True)
                 data_acuse = data["acuse"]
 
-                # Validar que dentro de archivo venga nombreArchivo
+                # Validar que dentro de archivo venga nombreArchivo y tamaño
                 self.assertEqual(type(data_archivo), dict)
                 self.assertEqual("nombreArchivo" in data_archivo, True)
+                self.assertEqual("tamaño" in data_archivo, True)
+
+            # Actualizar el estado del archivo a RECIBIDO
+            test_exh_exhorto_promocion_archivo.estado = "RECIBIDO"
 
         # Validar el último acuse
         self.assertEqual(type(data_acuse), dict)

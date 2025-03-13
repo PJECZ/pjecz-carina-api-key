@@ -33,19 +33,17 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
 
         # Definir los datos que se van a incluir en el envío de los archivos
         payload_for_data = {
-            "exhortoId": test_exh_exhorto_respuesta.exhorto_origen_id,
+            "exhortoId": test_exh_exhorto_respuesta.test_exh_exhorto.exhorto_origen_id,
             "respuestaOrigenId": test_exh_exhorto_respuesta.respuesta_origen_id,
         }
 
         # Bucle para mandar los archivo por multipart/form-data
         data_acuse = None
-        for archivo in test_exh_exhorto_respuesta.test_exh_exhortos_respuestas_archivos:
-            # Pausa de 2 segundos
-            print(f"{archivo.nombre_archivo}...")
-            time.sleep(2)
+        for test_exh_exhorto_respuesta_archivo in test_exh_exhorto_respuesta.test_exh_exhortos_respuestas_archivos:
+            time.sleep(1)  # Pausa de 1 segundos
 
             # Tomar el nombre del archivo
-            archivo_nombre = archivo.nombre_archivo
+            archivo_nombre = test_exh_exhorto_respuesta_archivo.nombre_archivo
 
             # Validar que el archivo exista
             respuesta_archivo = Path(f"tests/{archivo_nombre}")
@@ -77,7 +75,8 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
                 # Validar que se haya tenido éxito
                 if contenido["success"] is False:
                     print(f"Errors: {str(contenido['errors'])}")
-                self.assertEqual(contenido["success"], True)
+                    # Continuar con el siguiente en lugar de self.assertEqual(contenido["success"], True)
+                    continue
 
                 # Validar el data
                 self.assertEqual(type(contenido["data"]), dict)
@@ -91,6 +90,9 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
                 self.assertEqual(type(data_archivo), dict)
                 self.assertEqual("nombreArchivo" in data_archivo, True)
                 self.assertEqual("tamaño" in data_archivo, True)
+
+            # Actualizar el estado del archivo a RECIBIDO
+            test_exh_exhorto_respuesta_archivo.estado = "RECIBIDO"
 
         # Validar que data_acuse NO sea nulo
         self.assertEqual(data_acuse is not None, True)

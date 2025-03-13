@@ -167,6 +167,7 @@ class TestsEnviarRespuesta(unittest.TestCase):
                 hash_sha1=archivo["hashSha1"],
                 hash_sha256=archivo["hashSha256"],
                 tipo_documento=archivo["tipoDocumento"],
+                estado="PENDIENTE",
             )
             session.add(test_exh_exhorto_respuesta_archivo)
             session.commit()

@@ -23,9 +23,6 @@ class TestsEnviarActualizacion(unittest.TestCase):
         # Cargar la sesión de la base de datos para recuperar los datos de la prueba anterior
         session = get_database_session()
 
-        # Cargar la sesión de la base de datos para recuperar los datos de la prueba anterior
-        session = get_database_session()
-
         # Consultar el último exhorto
         test_exh_exhorto = session.query(TestExhExhorto).order_by(TestExhExhorto.id.desc()).first()
         if test_exh_exhorto is None:
@@ -47,7 +44,7 @@ class TestsEnviarActualizacion(unittest.TestCase):
         # Mandar la actualización
         try:
             respuesta = requests.post(
-                url=f"{config['api_base_url']}/actualizar",
+                url=f"{config['api_base_url']}/exh_exhortos/actualizar",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
                 json=payload_for_json,

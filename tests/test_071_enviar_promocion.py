@@ -127,7 +127,7 @@ class TestsEnviarPromocion(unittest.TestCase):
         test_exh_exhorto_promocion = TestExhExhortoPromocion(
             test_exh_exhorto=test_exh_exhorto,
             test_exh_exhorto_id=test_exh_exhorto.id,
-            folio_origen_promocion=folio_origen_promocion,
+            folio_origen_promocion=data["folioOrigenPromocion"],
             folio_seguimiento=data["folioSeguimiento"],
             estado="PENDIENTE",
         )
@@ -143,6 +143,7 @@ class TestsEnviarPromocion(unittest.TestCase):
                 hash_sha1=archivo["hashSha1"],
                 hash_sha256=archivo["hashSha256"],
                 tipo_documento=archivo["tipoDocumento"],
+                estado="PENDIENTE",
             )
             session.add(exh_exhorto_promocion_archivo)
             session.commit()

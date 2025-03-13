@@ -21,7 +21,6 @@ class ExhExhorto(Base, UniversalMixin):
         "TRANSFIRIENDO": "Transfiriendo",
         "PROCESANDO": "Procesando",
         "RECHAZADO": "Rechazado",
-        "DILIGENCIADO": "Diligenciado",
         "CONTESTADO": "Contestado",
         "PENDIENTE": "Pendiente",
         "CANCELADO": "Cancelado",
@@ -52,7 +51,7 @@ class ExhExhorto(Base, UniversalMixin):
     exh_area: Mapped["ExhArea"] = relationship(back_populates="exh_exhortos")
 
     # Materia (el que se obtuvo en la consulta de materias del PJ exhortado) al que el Exhorto hace referencia
-    materia_clave: Mapped[str] = mapped_column(String(24))
+    materia_clave: Mapped[str] = mapped_column(String(32))
     materia_nombre: Mapped[str] = mapped_column(String(256))
 
     # Clave foránea: Municipio de Origen donde está localizado el Juzgado del PJ exhortante
@@ -108,12 +107,6 @@ class ExhExhorto(Base, UniversalMixin):
     # Texto simple que contenga información extra o relevante sobre el exhorto, opcional
     observaciones: Mapped[Optional[str]] = mapped_column(String(1024))
 
-    # Estado de recepción del documento
-    estado: Mapped[str] = mapped_column(Enum(*ESTADOS, name="exh_exhortos_estados", native_enum=False), index=True)
-
-    # Campo para saber si es un proceso interno o extorno
-    remitente: Mapped[str] = mapped_column(Enum(*REMITENTES, name="exh_exhortos_remitentes", native_enum=False), index=True)
-
     # Número de Exhorto con el que se radica en el Juzgado/Área que se turnó el exhorto.
     # Este número sirve para que el usuario pueda indentificar su exhorto dentro del Juzgado/Área donde se turnó,
     # opcional
@@ -149,6 +142,12 @@ class ExhExhorto(Base, UniversalMixin):
     # Esta página el Juzgado que envió el exhorto la puede imprimir como acuse de recibido y evidencia de que el exhorto
     # fue enviado correctamente al Poder Judicial exhortado o también una página que muestre el estatus del exhorto.
     acuse_url_info: Mapped[Optional[str]] = mapped_column(String(256))
+
+    # Campo para saber si es un proceso interno o extorno
+    remitente: Mapped[str] = mapped_column(Enum(*REMITENTES, name="exh_exhortos_remitentes", native_enum=False), index=True)
+
+    # Estado de recepción del documento
+    estado: Mapped[str] = mapped_column(Enum(*ESTADOS, name="exh_exhortos_estados", native_enum=False), index=True)
 
     # Hijo: Definición de las partes del Expediente
     exh_exhortos_partes: Mapped[List["ExhExhortoParte"]] = relationship("ExhExhortoParte", back_populates="exh_exhorto")

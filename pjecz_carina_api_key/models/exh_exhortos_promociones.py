@@ -36,15 +36,9 @@ class ExhExhortoPromocion(Base, UniversalMixin):
     exh_exhorto_id: Mapped[int] = mapped_column(ForeignKey("exh_exhortos.id"))
     exh_exhorto: Mapped["ExhExhorto"] = relationship(back_populates="exh_exhortos_promociones")
 
-    # Columnas
-    # Identificador del origen de la promoción; éste puede ser el folio del oficio u otro documento desde donde partió la promoción
+    # Identificador del origen de la promoción;
+    # Puede ser el folio del oficio u otro documento desde donde partió la promoción
     folio_origen_promocion: Mapped[str] = mapped_column(String(64))
-
-    # Hijo: promoventes
-    # Contiene la definición de los promoventes, en este caso el juzgado quien realiza la promoción
-    exh_exhortos_promociones_promoventes: Mapped[List["ExhExhortoPromocionPromovente"]] = relationship(
-        back_populates="exh_exhorto_promocion"
-    )
 
     # Número de fojas que contiene la promoción.
     # El valor 0 significa "No Especificado".
@@ -57,19 +51,28 @@ class ExhExhortoPromocion(Base, UniversalMixin):
     # Texto simple que contenga información extra o relevante sobre el exhorto.
     observaciones: Mapped[Optional[str]] = mapped_column(String(1024))
 
-    # Hijo: archivos
-    # Colección de los datos referentes a los archivos que se van a recibir el Poder Judicial exhortado en el envío del Exhorto.
-    exh_exhortos_promociones_archivos: Mapped[List["ExhExhortoPromocionArchivo"]] = relationship(
-        back_populates="exh_exhorto_promocion"
-    )
+    # Folio de la promoción recibida, se va a generar cuando se entreguen todos los archivos
+    folio_promocion_recibida: Mapped[Optional[str]] = mapped_column(String(64))
 
     # Si el remitente es INTERNO entonces fue creada por nosotros, si es EXTERNO fue creada por otro PJ
     remitente: Mapped[str] = mapped_column(
         Enum(*REMITENTES, name="exh_exhortos_promociones_remitentes", native_enum=False), index=True
     )
 
-    # Estado de la promoción, puede ser PENDIENTE o ENVIADO
+    # Estado de la promoción
     estado: Mapped[str] = mapped_column(Enum(*ESTADOS, name="exh_exhortos_promociones_estados", native_enum=False), index=True)
+
+    # Hijo: archivos
+    # Colección de los datos referentes a los archivos que se van a recibir el Poder Judicial exhortado en el envío del Exhorto.
+    exh_exhortos_promociones_archivos: Mapped[List["ExhExhortoPromocionArchivo"]] = relationship(
+        back_populates="exh_exhorto_promocion"
+    )
+
+    # Hijo: promoventes
+    # Contiene la definición de los promoventes, en este caso el juzgado quien realiza la promoción
+    exh_exhortos_promociones_promoventes: Mapped[List["ExhExhortoPromocionPromovente"]] = relationship(
+        back_populates="exh_exhorto_promocion"
+    )
 
     def __repr__(self):
         """Representación"""

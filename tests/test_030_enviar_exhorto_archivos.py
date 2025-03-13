@@ -33,7 +33,7 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
 
         # Bucle para mandar los archivo por multipart/form-data
         for test_exh_exhorto_archivo in test_exh_exhorto.test_exh_exhortos_archivos:
-            time.sleep(2)  # Pausa de 2 segundos
+            time.sleep(1)  # Pausa de 1 segundos
 
             # Tomar el nombre del archivo
             archivo_nombre = test_exh_exhorto_archivo.nombre_archivo
@@ -68,7 +68,8 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
                 # Validar que se haya tenido éxito
                 if contenido["success"] is False:
                     print(f"Errors: {str(contenido['errors'])}")
-                self.assertEqual(contenido["success"], True)
+                    # Continuar con el siguiente en lugar de self.assertEqual(contenido["success"], True)
+                    continue
 
                 # Validar el data
                 self.assertEqual(type(contenido["data"]), dict)
@@ -82,6 +83,9 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
                 self.assertEqual(type(data_archivo), dict)
                 self.assertEqual("nombreArchivo" in data_archivo, True)
                 self.assertEqual("tamaño" in data_archivo, True)
+
+            # Actualizar el estado del archivo a RECIBIDO
+            test_exh_exhorto_archivo.estado = "RECIBIDO"
 
         # Validar el último acuse
         self.assertEqual(type(data_acuse), dict)

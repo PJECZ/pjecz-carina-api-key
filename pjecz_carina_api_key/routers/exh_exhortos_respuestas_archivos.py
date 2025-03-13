@@ -12,11 +12,12 @@ from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
 from ..dependencies.exceptions import MyAnyError, MyNotExistsError, MyNotValidParamError
 from ..dependencies.google_cloud_storage import upload_file_to_gcs
+from ..dependencies.pwgen import generar_identificador
 from ..models.exh_exhortos_respuestas_archivos import ExhExhortoRespuestaArchivo
 from ..models.permisos import Permiso
 from ..schemas.exh_exhortos_respuestas_archivos import (
     ExhExhortoRespuestaArchivoDataAcuse,
-    ExhExhortoRespuestaArchivoItem,
+    ExhExhortoRespuestaArchivoDataArchivo,
     ExhExhortoRespuestaArchivoOut,
     OneExhExhortoRespuestaArchivoOut,
 )
@@ -51,8 +52,8 @@ async def recibir_exhorto_respuesta_archivo_request(
     try:
         exh_exhorto_respuesta = get_exhorto_respuesta(
             database=database,
-            exhortoId=exhortoId,
-            respuestaOrigenId=respuestaOrigenId,
+            exhorto_id=exhortoId,
+            respuesta_origen_id=respuestaOrigenId,
         )
     except (MyNotValidParamError, MyNotExistsError) as error:
         return OneExhExhortoRespuestaArchivoOut(success=False, message=str(error), errors=[str(error)], data=None)
@@ -85,7 +86,7 @@ async def recibir_exhorto_respuesta_archivo_request(
         return OneExhExhortoRespuestaArchivoOut(
             success=False,
             message="No se encontró el archivo",
-            errors=["Al parecer el archivo ya fue recibido o no se declaró en la promoción"],
+            errors=["Al parecer el archivo ya fue recibido o no se declaró en la respuesta"],
             data=None,
         )
 
@@ -165,12 +166,12 @@ async def recibir_exhorto_respuesta_archivo_request(
     database.refresh(exh_exhorto_respuesta_archivo)
 
     # Definir los datos del archivo para la respuesta
-    archivo = ExhExhortoRespuestaArchivoItem(
+    archivo = ExhExhortoRespuestaArchivoDataArchivo(
         nombreArchivo=exh_exhorto_respuesta_archivo.nombre_archivo,
-        tamaño=archivo_pdf_tamanio,
+        tamaño=exh_exhorto_respuesta_archivo.tamano,
     )
 
-    # Consultar la cantidad de archivos PENDIENTES de la promoción
+    # Consultar la cantidad de archivos PENDIENTES de la respuesta
     exh_exhortos_repuestas_archivos_pendientes_cantidad = (
         database.query(ExhExhortoRespuestaArchivo)
         .filter_by(exh_exhorto_respuesta_id=exh_exhorto_respuesta.id)
@@ -183,14 +184,15 @@ async def recibir_exhorto_respuesta_archivo_request(
     # Si YA NO HAY PENDIENTES entonces ES EL ÚLTIMO ARCHIVO
     acuse = None
     if exh_exhortos_repuestas_archivos_pendientes_cantidad == 0:
-        # Cambiar el estado de la promoción a RESPONDIDO
-        exh_exhorto_respuesta.estado = "RESPONDIDO"
+        # Actualizar la respuesta
+        exh_exhorto_respuesta.folio_respuesta_recibida = generar_identificador()
+        exh_exhorto_respuesta.estado = "ENVIADO"
         database.add(exh_exhorto_respuesta)
         database.commit()
         # Elaborar el acuse
         acuse = ExhExhortoRespuestaArchivoDataAcuse(
-            exhortoId=exhortoId,
-            respuestaOrigenId=respuestaOrigenId,
+            folioOrigenRespuesta=exh_exhorto_respuesta.folio_origen_respuesta,
+            folioRespuestaRecibida=exh_exhorto_respuesta.folio_respuesta_recibida,
             fechaHoraRecepcion=exh_exhorto_respuesta.modificado.strftime("%Y-%m-%d %H:%M:%S"),
         )
 

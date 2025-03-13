@@ -177,7 +177,7 @@ class TestsEnviarExhorto(unittest.TestCase):
         # Insertar el exhorto en SQLite
         test_exh_exhorto = TestExhExhorto(
             exhorto_origen_id=exhorto_origen_id,
-            folio_seguimiento=data["exhortoOrigenId"],
+            folio_seguimiento="",  # Se recibe cuando se mande el último archivo
             estado_origen_id=int(estado["clave"]),
             estado="PENDIENTE",
         )
@@ -193,6 +193,7 @@ class TestsEnviarExhorto(unittest.TestCase):
                 hash_sha1=archivo["hashSha1"],
                 hash_sha256=archivo["hashSha256"],
                 tipo_documento=archivo["tipoDocumento"],
+                estado="PENDIENTE",
             )
             session.add(test_exh_exhorto_archivo)
             session.commit()

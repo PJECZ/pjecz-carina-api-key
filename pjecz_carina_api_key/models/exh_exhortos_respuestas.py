@@ -26,6 +26,12 @@ class ExhExhortoRespuesta(Base, UniversalMixin):
         "PENDIENTE": "Pendiente",
     }
 
+    TIPOS_DILIGENCIADOS = {
+        0: "No Diligenciado",
+        1: "Parcialmente Diligenciado",
+        2: "Diligenciado",
+    }
+
     # Nombre de la tabla
     __tablename__ = "exh_exhortos_respuestas"
 
@@ -39,20 +45,20 @@ class ExhExhortoRespuesta(Base, UniversalMixin):
     # Identificador propio del Poder Judicial exhortado con el que identifica la respuesta del exhorto.
     # Este dato puede ser un número consecutivo (ej "1", "2", "3"...),
     # un GUID/UUID o cualquíer otro valor con que se identifique la respuesta
-    origen_id: Mapped[Optional[str]] = mapped_column(String(48))
+    respuesta_origen_id: Mapped[str] = mapped_column(String(64))
 
     # Identificador del municipio que corresponde al Juzgado/Área al que se turnó el Exhorto y que realiza la respuesta de este
-    municipio_turnado_id: Mapped[Optional[int]]
+    municipio_turnado_id: Mapped[int]
 
     # Identificador propio del PJ exhortado que corresponde al Juzgado/Área al que se turna el Exhorto y está respondiendo
-    area_turnado_id: Mapped[Optional[str]] = mapped_column(String(256))
+    area_turnado_id: Mapped[Optional[str]] = mapped_column(String(64))
 
     # Nombre del Juzgado/Área al que el Exhorto se turnó y está respondiendo.
-    area_turnado_nombre: Mapped[Optional[str]] = mapped_column(String(256))
+    area_turnado_nombre: Mapped[str] = mapped_column(String(256))
 
     # Número de Exhorto con el que se radicó en el Juzgado/Área que se turnó el exhorto.
     # Este número sirve para que el usuario pueda identificar su exhorto dentro del Juzgado/Área donde se turnó.
-    numero_exhorto: Mapped[Optional[str]] = mapped_column(String(256))
+    numero_exhorto: Mapped[Optional[str]] = mapped_column(String(64))
 
     # Valor que representa si se realizó la diligenciación del Exhorto:
     # 0 = No Diligenciado
@@ -60,14 +66,8 @@ class ExhExhortoRespuesta(Base, UniversalMixin):
     # 2 = Diligenciado"
     tipo_diligenciado: Mapped[Optional[int]]
 
-    # Fecha hora local del Poder Judicial que recibe la respuesta del Exhorto
-    fecha_hora_recepcion: Mapped[Optional[datetime]]
-
     # Texto simple referente a alguna observación u observaciones correspondientes a la respuesta del Exhorto
     observaciones: Mapped[Optional[str]] = mapped_column(String(1024))
-
-    # Fecha hora local en el que el Poder Judicial exhortante marca la Respuesta del Exhorto como recibida
-    fecha_hora_recepcion_acuse: Mapped[Optional[datetime]]
 
     # Si el remitente es INTERNO entonces fue creada por nosotros, si es EXTERNO fue creada por otro PJ
     remitente: Mapped[str] = mapped_column(
@@ -86,6 +86,14 @@ class ExhExhortoRespuesta(Base, UniversalMixin):
     exh_exhortos_respuestas_videos: Mapped[List["ExhExhortoRespuestaVideo"]] = relationship(
         back_populates="exh_exhorto_respuesta"
     )
+
+    @property
+    def tipo_diligenciado_nombre(self):
+        """Nombre del tipo de diligenciado"""
+        try:
+            return self.TIPOS_DILIGENCIADOS[self.tipo_diligenciado]
+        except KeyError:
+            return "No Diligenciado"
 
     def __repr__(self):
         """Representación"""

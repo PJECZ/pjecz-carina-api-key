@@ -32,12 +32,12 @@ def get_exhorto_promocion(
     # Validar folio_seguimiento
     folio_seguimiento = safe_string(folio_seguimiento, max_len=64, do_unidecode=True, to_uppercase=False)
     if folio_seguimiento == "":
-        raise MyNotValidParamError("No es un folio de seguimiento de exhorto válido")
+        raise MyNotValidParamError("No es un 'folio seguimiento' válido")
 
     # Validar folio_origen_promocion
     folio_origen_promocion = safe_string(folio_origen_promocion, max_len=64, do_unidecode=True, to_uppercase=False)
     if folio_origen_promocion == "":
-        raise MyNotValidParamError("No es un folio de origen de la promoción válido")
+        raise MyNotValidParamError("No es un 'folio origen promocion' válido")
 
     # Consultar la promoción
     exh_exhorto_promocion = (
