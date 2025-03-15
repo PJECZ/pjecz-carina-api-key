@@ -71,10 +71,18 @@ async def recibir_exhorto_promocion_request(
     errores = []
 
     # Consultar el exhorto
+    exh_exhorto = None
     try:
         exh_exhorto = get_exhorto_with_folio_seguimiento(database, exh_exhorto_promocion_in.folioSeguimiento)
-    except MyAnyError as error:
-        errores.append(str(error))
+    except (MyNotExistsError, MyNotValidParamError):
+        return OneExhExhortoPromocionOut(success=False, message="No se encuentra el exhorto", errors=errores, data=None)
+
+    # Validar folioOrigenPromocion, obligatorio
+    folio_origen_promocion = safe_string(
+        exh_exhorto_promocion_in.folioOrigenPromocion, max_len=64, do_unidecode=True, to_uppercase=False
+    )
+    if folio_origen_promocion == "":
+        errores.append("No es válido folioOrigenPromocion")
 
     # Validar la fecha
     fecha_origen = None
@@ -120,7 +128,7 @@ async def recibir_exhorto_promocion_request(
     # Insertar la promoción
     exh_exhorto_promocion = ExhExhortoPromocion(
         exh_exhorto_id=exh_exhorto.id,
-        folio_origen_promocion=exh_exhorto_promocion_in.folioOrigenPromocion,
+        folio_origen_promocion=folio_origen_promocion,
         fojas=exh_exhorto_promocion_in.fojas,
         fecha_origen=fecha_origen,
         observaciones=observaciones,

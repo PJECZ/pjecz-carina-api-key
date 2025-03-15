@@ -44,7 +44,7 @@ def get_exhorto_respuesta(
         database.query(ExhExhortoRespuesta)
         .join(ExhExhorto)
         .filter(ExhExhorto.exhorto_origen_id == exhorto_id)
-        .filter(ExhExhortoRespuesta.origen_id == respuesta_origen_id)
+        .filter(ExhExhortoRespuesta.respuesta_origen_id == respuesta_origen_id)
         .filter(ExhExhortoRespuesta.estatus == "A")
         .first()
     )
@@ -76,12 +76,12 @@ async def recibir_exhorto_respuesta_request(
         exh_exhorto = get_exhorto_with_exhorto_origen_id(database, exh_exhorto_respuesta_in.exhortoId)
     except MyAnyError as error:
         errores.append(str(error))
-    if exh_exhorto is None:
-        return OneExhExhortoRespuestaOut(success=False, message="No se encuentra el exhorto", errors=errores, data=None)
 
     # Validar respuestaOrigenId, obligatorio
-    origen_id = safe_string(exh_exhorto_respuesta_in.respuestaOrigenId, max_len=48, do_unidecode=True, to_uppercase=False)
-    if origen_id == "":
+    respuesta_origen_id = safe_string(
+        exh_exhorto_respuesta_in.respuestaOrigenId, max_len=64, do_unidecode=True, to_uppercase=False
+    )
+    if respuesta_origen_id == "":
         errores.append("No es válido respuestaOrigenId")
 
     # TODO: Validar municipioTurnadoId, entero obligatorio es identificador INEGI
@@ -121,13 +121,12 @@ async def recibir_exhorto_respuesta_request(
     # Insertar la respuesta
     exh_exhorto_respuesta = ExhExhortoRespuesta(
         exh_exhorto_id=exh_exhorto.id,
-        origen_id=origen_id,
+        respuesta_origen_id=respuesta_origen_id,
         municipio_turnado_id=municipio_turnado_id,
         area_turnado_id=area_turnado_id,
         area_turnado_nombre=area_turnado_nombre,
         numero_exhorto=numero_exhorto,
         tipo_diligenciado=tipo_diligenciado,
-        fecha_hora_recepcion=datetime.now(),
         observaciones=observaciones,
         remitente="EXTERNO",
         estado="PENDIENTE",
@@ -179,7 +178,7 @@ async def recibir_exhorto_respuesta_request(
     # Entregar
     data = ExhExhortoRespuestaOut(
         exhortoId=exh_exhorto.exhorto_origen_id,
-        respuestaOrigenId=exh_exhorto_respuesta.origen_id,
-        fechaHora=exh_exhorto_respuesta.fecha_hora_recepcion.strftime("%Y-%m-%d %H:%M:%S"),
+        respuestaOrigenId=exh_exhorto_respuesta.respuesta_origen_id,
+        fechaHora=exh_exhorto_respuesta.creado.strftime("%Y-%m-%d %H:%M:%S"),
     )
     return OneExhExhortoRespuestaOut(success=True, message="Respuesta recibida con éxito", errors=[], data=data)

@@ -37,6 +37,7 @@ async def recibir_exhorto_actualizacion_request(
     errores = []
 
     # Consultar el exhorto
+    exh_exhorto = None
     try:
         exh_exhorto = get_exhorto_with_exhorto_origen_id(database, exh_exhorto_actualizacion_in.exhortoId)
     except MyAnyError as error:
@@ -45,7 +46,7 @@ async def recibir_exhorto_actualizacion_request(
     # Validar actualizacionOrigenId
     actualizacion_origen_id = safe_string(
         exh_exhorto_actualizacion_in.actualizacionOrigenId,
-        max_len=48,
+        max_len=64,
         do_unidecode=True,
         to_uppercase=False,
     )
@@ -53,6 +54,7 @@ async def recibir_exhorto_actualizacion_request(
         errores.append("No es válido actualizacionOrigenId")
 
     # Validar la fecha_hora
+    fecha_hora = None
     try:
         fecha_hora = datetime.strptime(exh_exhorto_actualizacion_in.fechaHora, "%Y-%m-%d %H:%M:%S")
     except ValueError:
@@ -68,7 +70,7 @@ async def recibir_exhorto_actualizacion_request(
     exh_exhorto_actualizacion = ExhExhortoActualizacion(
         exh_exhorto_id=exh_exhorto.id,
         actualizacion_origen_id=actualizacion_origen_id,
-        tipo_actualizacion=safe_string(exh_exhorto_actualizacion_in.tipoActualizacion, max_len=48),
+        tipo_actualizacion=safe_string(exh_exhorto_actualizacion_in.tipoActualizacion, max_len=64),
         fecha_hora=fecha_hora,
         descripcion=safe_string(exh_exhorto_actualizacion_in.descripcion, save_enie=True),
         remitente="EXTERNO",
@@ -82,6 +84,6 @@ async def recibir_exhorto_actualizacion_request(
     data = ExhExhortoActualizacionOut(
         exhortoId=exh_exhorto_actualizacion.exh_exhorto.exhorto_origen_id,
         actualizacionOrigenId=exh_exhorto_actualizacion.actualizacion_origen_id,
-        fechaHora=exh_exhorto_actualizacion.fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
+        fechaHora=exh_exhorto_actualizacion.creado.strftime("%Y-%m-%d %H:%M:%S"),
     )
     return OneExhExhortoActualizacionOut(success=True, message="Actualización recibida con éxito", errors=[], data=data)

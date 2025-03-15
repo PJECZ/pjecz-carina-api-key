@@ -58,7 +58,7 @@ def get_exhorto_with_folio_seguimiento(database: Annotated[Session, Depends(get_
     """Consultar un exhorto con su folio de seguimiento"""
 
     # Normalizar folio_seguimiento a 48 caracteres como máximo
-    folio_seguimiento = safe_string(folio_seguimiento, max_len=48, do_unidecode=True, to_uppercase=False)
+    folio_seguimiento = safe_string(folio_seguimiento, max_len=64, do_unidecode=True, to_uppercase=False)
     if folio_seguimiento == "":
         raise MyNotValidParamError("No es un 'folio seguimiento' válido")
 
@@ -179,7 +179,7 @@ async def recibir_exhorto_request(
     errores = []
 
     # Validar exhortoOrigenId
-    exhorto_origen_id = safe_string(exh_exhorto_in.exhortoOrigenId, max_len=48, do_unidecode=True, to_uppercase=False)
+    exhorto_origen_id = safe_string(exh_exhorto_in.exhortoOrigenId, max_len=64, do_unidecode=True, to_uppercase=False)
     if exhorto_origen_id == "":
         errores.append("No es válido exhortoOrigenId")
 

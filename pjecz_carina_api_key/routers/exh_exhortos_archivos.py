@@ -49,12 +49,14 @@ async def recibir_exhorto_archivo_request(
 
     # Consultar el exhorto
     try:
-        exh_exhorto = get_exhorto_with_exhorto_origen_id(
-            database=database,
-            exhorto_origen_id=exhortoOrigenId,
+        exh_exhorto = get_exhorto_with_exhorto_origen_id(database, exhortoOrigenId)
+    except MyAnyError:
+        return OneExhExhortoArchivoOut(
+            success=False,
+            message="No se encontró el exhorto",
+            errors=["No se encontró el exhorto"],
+            data=None,
         )
-    except (MyNotValidParamError, MyNotExistsError) as error:
-        return OneExhExhortoArchivoOut(success=False, message=str(error), errors=[str(error)], data=None)
 
     # Consultar los archivos del exhorto
     exh_exhortos_archivos_consulta = (
