@@ -44,14 +44,14 @@ async def recibir_exhorto_actualizacion_request(
         errores.append(str(error))
 
     # Validar actualizacionOrigenId
-    actualizacion_origen_id = safe_string(
-        exh_exhorto_actualizacion_in.actualizacionOrigenId,
-        max_len=64,
-        do_unidecode=True,
-        to_uppercase=False,
-    )
+    actualizacion_origen_id = safe_string(exh_exhorto_actualizacion_in.actualizacionOrigenId, max_len=64, to_uppercase=False)
     if actualizacion_origen_id == "":
         errores.append("No es válido actualizacionOrigenId")
+
+    # Validar tipoActualizacion
+    tipo_actualizacion = safe_string(exh_exhorto_actualizacion_in.tipoActualizacion, max_len=64, to_uppercase=False)
+    if tipo_actualizacion == "":
+        errores.append("No es válido tipoActualizacion")
 
     # Validar la fecha_hora
     fecha_hora = None
@@ -59,6 +59,11 @@ async def recibir_exhorto_actualizacion_request(
         fecha_hora = datetime.strptime(exh_exhorto_actualizacion_in.fechaHora, "%Y-%m-%d %H:%M:%S")
     except ValueError:
         errores.append("No es válido fecha_hora")
+
+    # Validar descripción
+    descripcion = safe_string(exh_exhorto_actualizacion_in.descripcion, max_len=256, save_enie=True)
+    if tipo_actualizacion == "":
+        errores.append("No es válida la descripción")
 
     # Si hubo errores, se termina de forma fallida
     if len(errores) > 0:
@@ -70,9 +75,9 @@ async def recibir_exhorto_actualizacion_request(
     exh_exhorto_actualizacion = ExhExhortoActualizacion(
         exh_exhorto_id=exh_exhorto.id,
         actualizacion_origen_id=actualizacion_origen_id,
-        tipo_actualizacion=safe_string(exh_exhorto_actualizacion_in.tipoActualizacion, max_len=64),
+        tipo_actualizacion=tipo_actualizacion,
         fecha_hora=fecha_hora,
-        descripcion=safe_string(exh_exhorto_actualizacion_in.descripcion, save_enie=True),
+        descripcion=descripcion,
         remitente="EXTERNO",
         estado="ENVIADO",
     )

@@ -193,7 +193,7 @@ async def recibir_exhorto_promocion_archivo_request(
         acuse = ExhExhortoPromocionArchivoDataAcuse(
             folioOrigenPromocion=exh_exhorto_promocion.folio_origen_promocion,
             folioPromocionRecibida=exh_exhorto_promocion.folio_promocion_recibida,
-            fechaHoraRecepcion=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            fechaHoraRecepcion=exh_exhorto_promocion.creado.strftime("%Y-%m-%d %H:%M:%S"),
         )
 
     # Juntar los datos para la respuesta

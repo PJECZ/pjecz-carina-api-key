@@ -99,8 +99,8 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
 
         # Validar el último acuse
         self.assertEqual(type(data_acuse), dict)
-        self.assertEqual("exhortoId" in data_acuse, True)
-        self.assertEqual("respuestaOrigenId" in data_acuse, True)
+        self.assertEqual("folioOrigenRespuesta" in data_acuse, True)
+        self.assertEqual("folioRespuestaRecibida" in data_acuse, True)
         self.assertEqual("fechaHoraRecepcion" in data_acuse, True)
 
         # Actualizar la respuesta en SQLite
@@ -108,10 +108,11 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
         session.commit()
 
         # Actualizar el exhorto en SQLite
-        if test_exh_exhorto_respuesta.estado == "RECIBIDO CON EXITO":
-            test_exh_exhorto_respuesta.estado = "RESPONDIDO"
+        test_exh_exhorto = test_exh_exhorto_respuesta.test_exh_exhorto
+        if test_exh_exhorto.estado == "RECIBIDO CON EXITO":
+            test_exh_exhorto.estado = "RESPONDIDO"
         else:
-            test_exh_exhorto_respuesta.estado = "CONTESTADO"
+            test_exh_exhorto.estado = "CONTESTADO"
         session.commit()
 
         # Cerrar la sesión SQLite

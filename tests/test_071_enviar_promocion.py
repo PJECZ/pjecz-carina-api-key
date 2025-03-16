@@ -87,7 +87,7 @@ class TestsEnviarPromocion(unittest.TestCase):
         # Mandar la promoción
         try:
             respuesta = requests.post(
-                url=f"{config['api_base_url']}/recibir_promocion",
+                url=f"{config['api_base_url']}/exh_exhortos/recibir_promocion",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
                 json=payload_for_json,
@@ -119,9 +119,6 @@ class TestsEnviarPromocion(unittest.TestCase):
 
         # Validar que nos regrese el mismo folio_origen_promocion
         self.assertEqual(data["folioOrigenPromocion"], folio_origen_promocion)
-
-        # Cargar la sesión de SQLite para conservar los datos para las pruebas siguientes
-        session = get_database_session()
 
         # Insertar la promoción en SQLite
         test_exh_exhorto_promocion = TestExhExhortoPromocion(
