@@ -31,16 +31,16 @@ class TestsEnviarRespuesta(unittest.TestCase):
             .filter(
                 or_(
                     TestExhExhorto.estado == "RECIBIDO",
-                    TestExhExhorto.estado == "RECIBIDO CON EXITO",
                     TestExhExhorto.estado == "TRANSFERIDO",
                     TestExhExhorto.estado == "PROCESANDO",
+                    TestExhExhorto.estado == "CONTESTADO",
                 )
             )
             .order_by(TestExhExhorto.id.desc())
             .first()
         )
         if test_exh_exhorto is None:
-            self.fail("No se encontró un exhorto RECIBIDO, RECIBIDO CON EXITO, TRANSFERIDO o PROCESANDO en sqlite")
+            self.fail("No se encontró un exhorto RECIBIDO, TRANSFERIDO, PROCESANDO o CONTESTADO en sqlite")
 
         # Generar el identificador propio del PJ exhortado con el que identifica la respuesta del exhorto
         respuesta_origen_id = generar_identificador()

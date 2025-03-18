@@ -108,11 +108,7 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
         session.commit()
 
         # Actualizar el exhorto en SQLite
-        test_exh_exhorto = test_exh_exhorto_respuesta.test_exh_exhorto
-        if test_exh_exhorto.estado == "RECIBIDO CON EXITO":
-            test_exh_exhorto.estado = "RESPONDIDO"
-        else:
-            test_exh_exhorto.estado = "CONTESTADO"
+        test_exh_exhorto_respuesta.test_exh_exhorto.estado = "CONTESTADO"
         session.commit()
 
         # Cerrar la sesión SQLite
