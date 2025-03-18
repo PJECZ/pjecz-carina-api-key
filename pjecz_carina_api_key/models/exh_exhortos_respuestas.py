@@ -15,15 +15,15 @@ from ..dependencies.universal_mixin import UniversalMixin
 class ExhExhortoRespuesta(Base, UniversalMixin):
     """ExhExhortoRespuesta"""
 
-    REMITENTES = {
-        "INTERNO": "Interno",
-        "EXTERNO": "Externo",
-    }
-
     ESTADOS = {
         "CANCELADO": "Cancelado",
         "ENVIADO": "Enviado",
         "PENDIENTE": "Pendiente",
+    }
+
+    REMITENTES = {
+        "INTERNO": "Interno",
+        "EXTERNO": "Externo",
     }
 
     TIPOS_DILIGENCIADOS = {

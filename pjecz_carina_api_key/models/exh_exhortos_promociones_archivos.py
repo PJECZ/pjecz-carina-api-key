@@ -17,6 +17,7 @@ class ExhExhortoPromocionArchivo(Base, UniversalMixin):
     """ExhExhortoPromocionArchivo"""
 
     ESTADOS = {
+        "CANCELADO": "Cancelado",
         "PENDIENTE": "Pendiente",
         "RECIBIDO": "Recibido",
     }

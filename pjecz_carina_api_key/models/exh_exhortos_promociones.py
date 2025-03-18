@@ -16,14 +16,15 @@ from ..dependencies.universal_mixin import UniversalMixin
 class ExhExhortoPromocion(Base, UniversalMixin):
     """ExhExhortoPromocion"""
 
+    ESTADOS = {
+        "CANCELADO": "Cancelado",
+        "PENDIENTE": "Pendiente",
+        "ENVIADO": "Enviado",
+    }
+
     REMITENTES = {
         "INTERNO": "Interno",
         "EXTERNO": "Externo",
-    }
-
-    ESTADOS = {
-        "PENDIENTE": "Pendiente",
-        "ENVIADO": "Enviado",
     }
 
     # Nombre de la tabla
