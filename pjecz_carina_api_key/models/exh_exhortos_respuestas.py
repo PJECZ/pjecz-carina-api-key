@@ -16,9 +16,11 @@ class ExhExhortoRespuesta(Base, UniversalMixin):
     """ExhExhortoRespuesta"""
 
     ESTADOS = {
-        "CANCELADO": "Cancelado",
-        "ENVIADO": "Enviado",
         "PENDIENTE": "Pendiente",
+        "POR ENVIAR": "Por enviar",
+        "ENVIADO": "Enviado",
+        "RECHAZADO": "Rechazado",
+        "CANCELADO": "Cancelado",
     }
 
     REMITENTES = {

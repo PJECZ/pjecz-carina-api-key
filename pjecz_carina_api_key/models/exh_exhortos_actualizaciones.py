@@ -16,14 +16,21 @@ class ExhExhortoActualizacion(Base, UniversalMixin):
     """ExhExhortoActualizacion"""
 
     ESTADOS = {
-        "CANCELADO": "Cancelado",
         "PENDIENTE": "Pendiente",
+        "POR ENVIAR": "Por enviar",
         "ENVIADO": "Enviado",
+        "RECHAZADO": "Rechazado",
+        "CANCELADO": "Cancelado",
     }
 
     REMITENTES = {
         "INTERNO": "Interno",
         "EXTERNO": "Externo",
+    }
+
+    TIPOS_ACTUALIZACIONES = {
+        "AreaTurnado": "Área de Turnado",
+        "NumeroExhorto": "Número de Exhorto",
     }
 
     # Nombre de la tabla

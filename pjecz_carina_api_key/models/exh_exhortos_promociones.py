@@ -17,9 +17,11 @@ class ExhExhortoPromocion(Base, UniversalMixin):
     """ExhExhortoPromocion"""
 
     ESTADOS = {
-        "CANCELADO": "Cancelado",
         "PENDIENTE": "Pendiente",
+        "POR ENVIAR": "Por enviar",
         "ENVIADO": "Enviado",
+        "RECHAZADO": "Rechazado",
+        "CANCELADO": "Cancelado",
     }
 
     REMITENTES = {
