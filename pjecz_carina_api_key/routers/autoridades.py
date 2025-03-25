@@ -10,6 +10,7 @@ from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
+from ..dependencies.exceptions import MyAnyError, MyNotExistsError, MyNotValidParamError
 from ..dependencies.fastapi_pagination_custom_list import CustomList
 from ..dependencies.safe_string import safe_clave
 from ..models.autoridades import Autoridad
@@ -17,8 +18,17 @@ from ..models.distritos import Distrito
 from ..models.materias import Materia
 from ..models.permisos import Permiso
 from ..schemas.autoridades import AutoridadOut, OneAutoridadOut
+from ..settings import Settings, get_settings
 
 autoridades = APIRouter(prefix="/api/v5/autoridades")
+
+
+def get_autoridad_with_clave_nd(database: Annotated[Session, Depends(get_db)]) -> Autoridad:
+    """Consultar la autoridad con clave ND"""
+    try:
+        return database.query(Autoridad).filter_by(clave="ND").one()
+    except (MultipleResultsFound, NoResultFound) as error:
+        raise MyNotExistsError("No existe la autoridad con clave ND") from error
 
 
 @autoridades.get("/{clave}", response_model=OneAutoridadOut)

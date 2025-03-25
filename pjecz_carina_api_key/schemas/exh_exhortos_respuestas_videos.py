@@ -1,11 +1,11 @@
 """
-Exh Exhortos Videos v4, esquemas de pydantic
+Exh Exhortos Respuestas Videos, esquemas de pydantic
 """
 
 from pydantic import BaseModel
 
 
-class ExhExhortoVideoItem(BaseModel):
+class ExhExhortoRespuestaVideoItem(BaseModel):
     """Esquema para recibir los metadatos de un video"""
 
     titulo: str

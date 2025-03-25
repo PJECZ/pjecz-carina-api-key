@@ -1,5 +1,5 @@
 """
-Municipios v4, esquemas de pydantic
+Municipios, esquemas de pydantic
 """
 
 from pydantic import BaseModel, ConfigDict

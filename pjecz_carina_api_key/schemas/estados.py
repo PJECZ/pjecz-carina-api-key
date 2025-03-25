@@ -1,5 +1,5 @@
 """
-Estados v4, esquemas de pydantic
+Estados, esquemas de pydantic
 """
 
 from pydantic import BaseModel, ConfigDict

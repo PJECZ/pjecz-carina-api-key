@@ -9,10 +9,11 @@ from datetime import datetime
 
 import lorem
 import requests
+from sqlalchemy.sql import or_
 
 from pjecz_carina_api_key.dependencies.pwgen import generar_identificador
 from tests import config
-from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
+from tests.database import TestExhExhorto, TestExhExhortoRespuesta, TestExhExhortoRespuestaArchivo, get_database_session
 
 
 class TestsEnviarRespuesta(unittest.TestCase):
@@ -21,52 +22,33 @@ class TestsEnviarRespuesta(unittest.TestCase):
     def test_post_respuesta(self):
         """Probar el POST para enviar una respuesta al exhorto"""
 
-        # Validar que se haya configurado la variable de entorno FOLIO_SEGUIMIENTO
-        if config["folio_seguimiento"] == "":
-            self.fail("No se ha configurado la variable de entorno FOLIO_SEGUIMIENTO")
+        # Cargar la sesión de la base de datos para recuperar los datos de la prueba anterior
+        session = get_database_session()
 
-        # Consultar el exhorto
-        try:
-            respuesta = requests.get(
-                url=f"{config['api_base_url']}/exh_exhortos/{config['folio_seguimiento']}",
-                headers={"X-Api-Key": config["api_key"]},
-                timeout=config["timeout"],
+        # Consultar el último exhorto RECIBIDO CON EXITO, TRANSFERIDO, PROCESANDO
+        test_exh_exhorto = (
+            session.query(TestExhExhorto)
+            .filter(
+                or_(
+                    TestExhExhorto.estado == "RECIBIDO",
+                    TestExhExhorto.estado == "TRANSFERIDO",
+                    TestExhExhorto.estado == "PROCESANDO",
+                    TestExhExhorto.estado == "CONTESTADO",
+                )
             )
-        except requests.exceptions.ConnectionError as error:
-            self.fail(error)
-        self.assertEqual(respuesta.status_code, 200)
-
-        # Validar el contenido
-        contenido = respuesta.json()
-        self.assertEqual("success" in contenido, True)
-        self.assertEqual("message" in contenido, True)
-        self.assertEqual("errors" in contenido, True)
-        self.assertEqual("data" in contenido, True)
-
-        # Validar que se haya tenido éxito
-        if contenido["success"] is False:
-            print(f"Errors: {str(contenido['errors'])}")
-        self.assertEqual(contenido["success"], True)
-
-        # Validar el data
-        self.assertEqual(type(contenido["data"]), dict)
-        data = contenido["data"]
-
-        # Validar el contenido QUE NOS INTERESA de data
-        self.assertEqual("exhortoOrigenId" in data, True)
-        self.assertEqual("folioSeguimiento" in data, True)
-        self.assertEqual("estadoDestinoId" in data, True)
-        self.assertEqual("estadoDestinoNombre" in data, True)
-        self.assertEqual("municipioDestinoId" in data, True)
-        self.assertEqual("municipioDestinoNombre" in data, True)
+            .order_by(TestExhExhorto.id.desc())
+            .first()
+        )
+        if test_exh_exhorto is None:
+            self.fail("No se encontró un exhorto RECIBIDO, TRANSFERIDO, PROCESANDO o CONTESTADO en sqlite")
 
         # Generar el identificador propio del PJ exhortado con el que identifica la respuesta del exhorto
         respuesta_origen_id = generar_identificador()
 
-        # Elegir aleatoriamente un municipio del PJ que responde
+        # Consultar y elegir aleatoriamente un municipio del PJ que responde
         try:
             response = requests.get(
-                url=f"{config['api_base_url']}/municipios/{data['estadoDestinoId']}",
+                url=f"{config['api_base_url']}/municipios/{test_exh_exhorto.estado_origen_id}",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
             )
@@ -121,7 +103,7 @@ class TestsEnviarRespuesta(unittest.TestCase):
 
         # Definir los datos de la respuesta del exhorto
         payload_for_json = {
-            "exhortoId": data["exhortoOrigenId"],
+            "exhortoId": test_exh_exhorto.exhorto_origen_id,
             "respuestaOrigenId": respuesta_origen_id,
             "municipioTurnadoId": int(municipio["clave"]),
             "areaTurnadoId": area_turnado_id,
@@ -133,10 +115,10 @@ class TestsEnviarRespuesta(unittest.TestCase):
             "videos": videos,
         }
 
-        # Mandar la respuesta del exhorto
+        # Mandar la respuesta
         try:
             respuesta = requests.post(
-                url=f"{config['api_base_url']}/exh_exhortos/responder",
+                url=f"{config['api_base_url']}/exh_exhortos/recibir_respuesta",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
                 json=payload_for_json,
@@ -166,37 +148,32 @@ class TestsEnviarRespuesta(unittest.TestCase):
         self.assertEqual("respuestaOrigenId" in data, True)
         self.assertEqual("fechaHora" in data, True)
 
-        # Cargar la sesión de SQLite para conservar los datos para las pruebas siguientes
-        session = get_database_session()
-
-        # Consultar el exhorto por exh_exhorto_id, si no existe, se inserta
-        exh_exhorto = session.query(ExhExhorto).filter_by(exhorto_id=data["exhortoId"]).first()
-        if exh_exhorto is None:
-            exh_exhorto = ExhExhorto(
-                exhorto_origen_id=data["exhortoId"],
-                estado_origen_id=5,
-                folio_seguimiento=config["folio_seguimiento"],
-            )
-
-        # Actualizar en el exhorto el exhorto_id y la respuesta_origen_id
-        exh_exhorto.exhorto_id = data["exhortoId"]
-        exh_exhorto.respuesta_origen_id = data["respuestaOrigenId"]
-        session.add(exh_exhorto)
+        # Insertar la respuesta en SQLite
+        test_exh_exhorto_respuesta = TestExhExhortoRespuesta(
+            test_exh_exhorto=test_exh_exhorto,
+            test_exh_exhorto_id=test_exh_exhorto.id,
+            respuesta_origen_id=data["respuestaOrigenId"],
+            estado="PENDIENTE",
+        )
+        session.add(test_exh_exhorto_respuesta)
         session.commit()
 
         # Insertar los archivos de la respuesta del exhorto en SQLite
         for archivo in archivos:
-            exh_exhorto_archivo = ExhExhortoArchivo(
-                exh_exhorto=exh_exhorto,
-                exh_exhorto_id=exh_exhorto.id,
+            test_exh_exhorto_respuesta_archivo = TestExhExhortoRespuestaArchivo(
+                test_exh_exhorto_respuesta=test_exh_exhorto_respuesta,
+                test_exh_exhorto_respuesta_id=test_exh_exhorto_respuesta.id,
                 nombre_archivo=archivo["nombreArchivo"],
                 hash_sha1=archivo["hashSha1"],
                 hash_sha256=archivo["hashSha256"],
                 tipo_documento=archivo["tipoDocumento"],
-                es_respuesta=True,
+                estado="PENDIENTE",
             )
-            session.add(exh_exhorto_archivo)
+            session.add(test_exh_exhorto_respuesta_archivo)
             session.commit()
+
+        # Cerrar la sesión SQLite
+        session.close()
 
 
 if __name__ == "__main__":

@@ -20,10 +20,10 @@ from ..schemas.exh_exhortos_actualizaciones import (
 )
 from .exh_exhortos import get_exhorto_with_exhorto_origen_id
 
-exh_exhortos_actualizaciones = APIRouter(prefix="/api/v5/exh_exhortos_actualizaciones")
+exh_exhortos_actualizaciones = APIRouter(prefix="/api/v5/exh_exhortos")
 
 
-@exh_exhortos_actualizaciones.post("", response_model=OneExhExhortoActualizacionOut)
+@exh_exhortos_actualizaciones.post("/actualizar", response_model=OneExhExhortoActualizacionOut)
 async def recibir_exhorto_actualizacion_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
@@ -37,26 +37,33 @@ async def recibir_exhorto_actualizacion_request(
     errores = []
 
     # Consultar el exhorto
+    exh_exhorto = None
     try:
         exh_exhorto = get_exhorto_with_exhorto_origen_id(database, exh_exhorto_actualizacion_in.exhortoId)
     except MyAnyError as error:
         errores.append(str(error))
 
     # Validar actualizacionOrigenId
-    actualizacion_origen_id = safe_string(
-        exh_exhorto_actualizacion_in.actualizacionOrigenId,
-        max_len=48,
-        do_unidecode=True,
-        to_uppercase=False,
-    )
+    actualizacion_origen_id = safe_string(exh_exhorto_actualizacion_in.actualizacionOrigenId, max_len=64, to_uppercase=False)
     if actualizacion_origen_id == "":
         errores.append("No es válido actualizacionOrigenId")
 
+    # Validar tipoActualizacion
+    tipo_actualizacion = safe_string(exh_exhorto_actualizacion_in.tipoActualizacion, max_len=64, to_uppercase=False)
+    if tipo_actualizacion == "":
+        errores.append("No es válido tipoActualizacion")
+
     # Validar la fecha_hora
+    fecha_hora = None
     try:
         fecha_hora = datetime.strptime(exh_exhorto_actualizacion_in.fechaHora, "%Y-%m-%d %H:%M:%S")
     except ValueError:
         errores.append("No es válido fecha_hora")
+
+    # Validar descripción
+    descripcion = safe_string(exh_exhorto_actualizacion_in.descripcion, max_len=256, save_enie=True)
+    if tipo_actualizacion == "":
+        errores.append("No es válida la descripción")
 
     # Si hubo errores, se termina de forma fallida
     if len(errores) > 0:
@@ -68,9 +75,9 @@ async def recibir_exhorto_actualizacion_request(
     exh_exhorto_actualizacion = ExhExhortoActualizacion(
         exh_exhorto_id=exh_exhorto.id,
         actualizacion_origen_id=actualizacion_origen_id,
-        tipo_actualizacion=safe_string(exh_exhorto_actualizacion_in.tipoActualizacion, max_len=48),
+        tipo_actualizacion=tipo_actualizacion,
         fecha_hora=fecha_hora,
-        descripcion=safe_string(exh_exhorto_actualizacion_in.descripcion, save_enie=True),
+        descripcion=descripcion,
         remitente="EXTERNO",
         estado="ENVIADO",
     )
@@ -82,6 +89,6 @@ async def recibir_exhorto_actualizacion_request(
     data = ExhExhortoActualizacionOut(
         exhortoId=exh_exhorto_actualizacion.exh_exhorto.exhorto_origen_id,
         actualizacionOrigenId=exh_exhorto_actualizacion.actualizacion_origen_id,
-        fechaHora=exh_exhorto_actualizacion.fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
+        fechaHora=exh_exhorto_actualizacion.creado.strftime("%Y-%m-%d %H:%M:%S"),
     )
     return OneExhExhortoActualizacionOut(success=True, message="Actualización recibida con éxito", errors=[], data=data)

@@ -1,5 +1,5 @@
 """
-Exh Exhortos Archivos v4, esquemas de pydantic
+Exh Exhortos Archivos, esquemas de pydantic
 """
 
 from pydantic import BaseModel
@@ -14,12 +14,6 @@ class ExhExhortoArchivoItem(BaseModel):
     hashSha1: str | None
     hashSha256: str | None
     tipoDocumento: int
-
-
-class ExhExhortoArchivoFileIn(BaseModel):
-    """Esquema para recibir archivos Content-Disposition, form-data, file"""
-
-    exhortoOrigenId: str
 
 
 class ExhExhortoArchivoFileDataArchivo(BaseModel):
@@ -52,31 +46,3 @@ class OneExhExhortoArchivoOut(OneBaseOut):
     """Esquema para responder por un archivo recibido"""
 
     data: ExhExhortoArchivoOut | None = None
-
-
-class ExhExhortoArchivoRespuestaFileIn(BaseModel):
-    """Esquema para recibir archivos Content-Disposition, form-data, file"""
-
-    exhortoId: str
-    respuestaOrigenId: str
-
-
-class ExhExhortoArchivoRespuestaDataAcuse(BaseModel):
-    """Data Acuse"""
-
-    exhortoId: str
-    respuestaOrigenId: str
-    fechaHoraRecepcion: str  # YYYY-MM-DD HH:mm:ss
-
-
-class ExhExhortoArchivoRespuestaOut(BaseModel):
-    """Respuesta de la operación de Recibir Respuesta Exhorto Archivo"""
-
-    archivo: ExhExhortoArchivoFileDataArchivo
-    acuse: ExhExhortoArchivoRespuestaDataAcuse | None = None
-
-
-class OneExhExhortoArchivoRespuestaOut(OneBaseOut):
-    """Respuesta de la operación de Recibir Respuesta Exhorto Archivo"""
-
-    data: ExhExhortoArchivoRespuestaOut | None = None

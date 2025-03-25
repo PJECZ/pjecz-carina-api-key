@@ -11,7 +11,7 @@ import lorem
 import requests
 
 from tests import config
-from tests.database import ExhExhorto, get_database_session
+from tests.database import TestExhExhorto, get_database_session
 
 
 class TestsEnviarActualizacion(unittest.TestCase):
@@ -24,9 +24,9 @@ class TestsEnviarActualizacion(unittest.TestCase):
         session = get_database_session()
 
         # Consultar el último exhorto
-        exh_exhorto = session.query(ExhExhorto).order_by(ExhExhorto.id.desc()).first()
-        if exh_exhorto is None:
-            self.fail("No se encontró el último exhorto en database.sqlite")
+        test_exh_exhorto = session.query(TestExhExhorto).order_by(TestExhExhorto.id.desc()).first()
+        if test_exh_exhorto is None:
+            self.fail("No se encontró un exhorto en sqlite")
 
         # Generar un identificador de actualización de origen de 10 caracteres al azar
         characters = string.ascii_letters + string.digits
@@ -34,7 +34,7 @@ class TestsEnviarActualizacion(unittest.TestCase):
 
         # Definir los datos de la actualización
         payload_for_json = {
-            "exhortoId": exh_exhorto.exhorto_origen_id,
+            "exhortoId": test_exh_exhorto.exhorto_origen_id,
             "actualizacionOrigenId": actualizacion_origen_id,
             "tipoActualizacion": random.choice(["AreaTurnado", "NumeroExhorto"]),
             "fechaHora": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -44,7 +44,7 @@ class TestsEnviarActualizacion(unittest.TestCase):
         # Mandar la actualización
         try:
             respuesta = requests.post(
-                url=f"{config['api_base_url']}/exh_exhortos_actualizaciones",
+                url=f"{config['api_base_url']}/exh_exhortos/actualizar",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
                 json=payload_for_json,
@@ -75,7 +75,10 @@ class TestsEnviarActualizacion(unittest.TestCase):
         self.assertEqual("fechaHora" in data, True)
 
         # Validar que nos regrese el mismo exhorto_origen_id
-        self.assertEqual(data["exhortoId"], exh_exhorto.exhorto_origen_id)
+        self.assertEqual(data["exhortoId"], test_exh_exhorto.exhorto_origen_id)
+
+        # Cerrar la sesión sqlite
+        session.close()
 
 
 if __name__ == "__main__":

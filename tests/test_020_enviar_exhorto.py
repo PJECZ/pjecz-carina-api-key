@@ -11,7 +11,7 @@ from faker import Faker
 
 from pjecz_carina_api_key.dependencies.pwgen import generar_identificador
 from tests import config
-from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
+from tests.database import TestExhExhorto, TestExhExhortoArchivo, get_database_session
 
 
 class TestsEnviarExhorto(unittest.TestCase):
@@ -109,6 +109,11 @@ class TestsEnviarExhorto(unittest.TestCase):
         contenido = response.json()
         municipio = random.choice(contenido["data"])
 
+        # Definir un número de expediente y número de oficio aleatorio
+        anio = datetime.now().year
+        numero_expediente = f"{random.randint(1, 100)}/{anio}"
+        numero_oficio = f"{random.randint(1, 100)}/{anio}"
+
         # Definir los datos del exhorto
         payload_for_json = {
             "exhortoOrigenId": exhorto_origen_id,
@@ -118,8 +123,8 @@ class TestsEnviarExhorto(unittest.TestCase):
             "municipioOrigenId": int(municipio["clave"]),
             "juzgadoOrigenId": "EDO-J2-FAM",
             "juzgadoOrigenNombre": "JUZGADO SEGUNDO FAMILIAR",
-            "numeroExpedienteOrigen": "123/2024",
-            "numeroOficioOrigen": "3001/2024",
+            "numeroExpedienteOrigen": numero_expediente,
+            "numeroOficioOrigen": numero_oficio,
             "tipoJuicioAsuntoDelitos": "DIVORCIO",
             "juezExhortante": nombre_juez_exhortante,
             "partes": partes,
@@ -134,7 +139,7 @@ class TestsEnviarExhorto(unittest.TestCase):
         # Mandar el exhorto
         try:
             respuesta = requests.post(
-                url=f"{config['api_base_url']}/exh_exhortos",
+                url=f"{config['api_base_url']}/exh_exhortos/recibir",
                 headers={"X-Api-Key": config["api_key"]},
                 timeout=config["timeout"],
                 json=payload_for_json,
@@ -170,27 +175,31 @@ class TestsEnviarExhorto(unittest.TestCase):
         session = get_database_session()
 
         # Insertar el exhorto en SQLite
-        exh_exhorto = ExhExhorto(
+        test_exh_exhorto = TestExhExhorto(
             exhorto_origen_id=exhorto_origen_id,
-            folio_seguimiento=data["exhortoOrigenId"],
+            folio_seguimiento="",  # Se recibe cuando se mande el último archivo
             estado_origen_id=int(estado["clave"]),
+            estado="PENDIENTE",
         )
-        session.add(exh_exhorto)
+        session.add(test_exh_exhorto)
         session.commit()
 
         # Insertar los archivos del exhorto en SQLite
         for archivo in archivos:
-            exh_exhorto_archivo = ExhExhortoArchivo(
-                exh_exhorto=exh_exhorto,
-                exh_exhorto_id=exh_exhorto.id,
+            test_exh_exhorto_archivo = TestExhExhortoArchivo(
+                test_exh_exhorto=test_exh_exhorto,
+                test_exh_exhorto_id=test_exh_exhorto.id,
                 nombre_archivo=archivo["nombreArchivo"],
                 hash_sha1=archivo["hashSha1"],
                 hash_sha256=archivo["hashSha256"],
                 tipo_documento=archivo["tipoDocumento"],
-                es_respuesta=False,
+                estado="PENDIENTE",
             )
-            session.add(exh_exhorto_archivo)
+            session.add(test_exh_exhorto_archivo)
             session.commit()
+
+        # Cerrar la sesión sqlite
+        session.close()
 
 
 if __name__ == "__main__":

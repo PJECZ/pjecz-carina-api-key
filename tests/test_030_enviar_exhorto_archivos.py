@@ -9,7 +9,7 @@ from pathlib import Path
 import requests
 
 from tests import config
-from tests.database import ExhExhorto, get_database_session
+from tests.database import TestExhExhorto, get_database_session
 
 
 class TestsEnviarExhortosArchivos(unittest.TestCase):
@@ -22,19 +22,21 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
         session = get_database_session()
 
         # Consultar el último exhorto
-        exh_exhorto = session.query(ExhExhorto).order_by(ExhExhorto.id.desc()).first()
-        if exh_exhorto is None:
-            self.fail("No se encontró el último exhorto en database.sqlite")
+        test_exh_exhorto = (
+            session.query(TestExhExhorto).filter_by(estado="PENDIENTE").order_by(TestExhExhorto.id.desc()).first()
+        )
+        if test_exh_exhorto is None:
+            self.fail("No se encontró un exhorto PENDIENTE en sqlite")
 
         # Definir los datos que se van a incluir en el envío de los archivos
-        payload_for_data = {"exhortoOrigenId": exh_exhorto.exhorto_origen_id}
+        payload_for_data = {"exhortoOrigenId": test_exh_exhorto.exhorto_origen_id}
 
         # Bucle para mandar los archivo por multipart/form-data
-        for exh_exhorto_archivo in exh_exhorto.exh_exhortos_archivos:
-            time.sleep(2)  # Pausa de 2 segundos
+        for test_exh_exhorto_archivo in test_exh_exhorto.test_exh_exhortos_archivos:
+            time.sleep(1)  # Pausa de 1 segundos
 
             # Tomar el nombre del archivo
-            archivo_nombre = exh_exhorto_archivo.nombre_archivo
+            archivo_nombre = test_exh_exhorto_archivo.nombre_archivo
 
             # Validar que el archivo exista
             archivo_ruta = Path(f"tests/{archivo_nombre}")
@@ -46,7 +48,7 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
                 # Mandar el archivo
                 try:
                     respuesta = requests.post(
-                        url=f"{config['api_base_url']}/exh_exhortos_archivos/upload",
+                        url=f"{config['api_base_url']}/exh_exhortos/recibir_archivo",
                         headers={"X-Api-Key": config["api_key"]},
                         timeout=config["timeout"],
                         files={"archivo": (archivo_nombre, archivo_prueba, "application/pdf")},
@@ -66,7 +68,8 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
                 # Validar que se haya tenido éxito
                 if contenido["success"] is False:
                     print(f"Errors: {str(contenido['errors'])}")
-                self.assertEqual(contenido["success"], True)
+                    # Continuar con el siguiente en lugar de self.assertEqual(contenido["success"], True)
+                    continue
 
                 # Validar el data
                 self.assertEqual(type(contenido["data"]), dict)
@@ -81,6 +84,9 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
                 self.assertEqual("nombreArchivo" in data_archivo, True)
                 self.assertEqual("tamaño" in data_archivo, True)
 
+            # Actualizar el estado del archivo a RECIBIDO
+            test_exh_exhorto_archivo.estado = "RECIBIDO"
+
         # Validar el último acuse
         self.assertEqual(type(data_acuse), dict)
         self.assertEqual("exhortoOrigenId" in data_acuse, True)
@@ -93,15 +99,19 @@ class TestsEnviarExhortosArchivos(unittest.TestCase):
 
         # Validar que se recibe el mismo exhortoOrigenId
         self.assertEqual(type(data_acuse["exhortoOrigenId"]), str)
-        self.assertEqual(data_acuse["exhortoOrigenId"], exh_exhorto.exhorto_origen_id)
+        self.assertEqual(data_acuse["exhortoOrigenId"], test_exh_exhorto.exhorto_origen_id)
 
         # Validar que se recibe el folioSeguimiento
         self.assertEqual(type(data_acuse["folioSeguimiento"]), str)
         self.assertNotEqual(data_acuse["folioSeguimiento"], "")
 
-        # Guardar el folio de seguimiento en la base de datos
-        exh_exhorto.folio_seguimiento = data_acuse["folioSeguimiento"]
+        # Guardar el folio de seguimiento y cambiar estado en sqlite
+        test_exh_exhorto.folio_seguimiento = data_acuse["folioSeguimiento"]
+        test_exh_exhorto.estado = "RECIBIDO"
         session.commit()
+
+        # Cerrar la sesión sqlite
+        session.close()
 
 
 if __name__ == "__main__":

@@ -15,9 +15,15 @@ class ExhExhortoParte(Base, UniversalMixin):
     """ExhExhortoParte"""
 
     GENEROS = {
-        "M": "MASCULINO",
-        "F": "FEMENINO",
-        "-": "SIN SEXO",
+        "M": "Masculino",
+        "F": "Femenino",
+        "-": "No aplica",
+    }
+
+    TIPOS_PARTES = {
+        0: "No definido o se especifica en tipoParteNombre",
+        1: "Actor, Promovente, Ofendido",
+        2: "Demandado, Inculpado, Imputado",
     }
 
     # Nombre de la tabla
@@ -57,9 +63,25 @@ class ExhExhortoParte(Base, UniversalMixin):
     tipo_parte_nombre: Mapped[Optional[str]] = mapped_column(String(256))
 
     @property
+    def genero_descripcion(self):
+        """Descripción del género"""
+        if self.genero in self.GENEROS:
+            return self.GENEROS[self.genero]
+        return "Desconocido"
+
+    @property
     def nombre_completo(self):
         """Junta nombres, apellido_paterno y apellido materno"""
         return self.nombre + " " + self.apellido_paterno + " " + self.apellido_materno
+
+    @property
+    def tipo_parte_descripcion(self):
+        """Descripción del tipo de parte"""
+        if self.tipo_parte == 0:
+            return self.tipo_parte_nombre
+        if self.tipo_parte in self.TIPOS_PARTES:
+            return self.TIPOS_PARTES[self.tipo_parte]
+        return "No definido"
 
     def __repr__(self):
         """Representación"""

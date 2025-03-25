@@ -1,5 +1,5 @@
 """
-Roles v4, esquemas de pydantic
+Roles, esquemas de pydantic
 """
 
 from pydantic import BaseModel, ConfigDict

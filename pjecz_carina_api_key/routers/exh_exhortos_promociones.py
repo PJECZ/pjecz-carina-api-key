@@ -19,25 +19,25 @@ from ..models.permisos import Permiso
 from ..schemas.exh_exhortos_promociones import ExhExhortoPromocionIn, ExhExhortoPromocionOut, OneExhExhortoPromocionOut
 from .exh_exhortos import get_exhorto_with_folio_seguimiento
 
-exh_exhortos_promociones = APIRouter(prefix="/api/v5/exh_exhortos_promociones")
+exh_exhortos_promociones = APIRouter(prefix="/api/v5/exh_exhortos")
 
 
-def get_exhorto_promocion_with_folio_seguimiento(
+def get_exhorto_promocion(
     database: Annotated[Session, Depends(get_db)],
     folio_seguimiento: str,
     folio_origen_promocion: str,
 ) -> ExhExhortoPromocion:
     """Consultar una promoción con el folio de seguimiento del exhorto y el folio origen de la promoción"""
 
-    # Normalizar folio_seguimiento a 48 caracteres como máximo
-    folio_seguimiento = safe_string(folio_seguimiento, max_len=48, do_unidecode=True, to_uppercase=False)
+    # Validar folio_seguimiento
+    folio_seguimiento = safe_string(folio_seguimiento, max_len=64, do_unidecode=True, to_uppercase=False)
     if folio_seguimiento == "":
-        raise MyNotValidParamError("No es un folio de seguimiento de exhorto válido")
+        raise MyNotValidParamError("No es un 'folio seguimiento' válido")
 
-    # Normalizar folio_seguimiento a 48 caracteres como máximo
-    folio_origen_promocion = safe_string(folio_origen_promocion, max_len=48, do_unidecode=True, to_uppercase=False)
+    # Validar folio_origen_promocion
+    folio_origen_promocion = safe_string(folio_origen_promocion, max_len=64, do_unidecode=True, to_uppercase=False)
     if folio_origen_promocion == "":
-        raise MyNotValidParamError("No es un folio de origen de la promoción válido")
+        raise MyNotValidParamError("No es un 'folio origen promocion' válido")
 
     # Consultar la promoción
     exh_exhorto_promocion = (
@@ -57,7 +57,7 @@ def get_exhorto_promocion_with_folio_seguimiento(
     return exh_exhorto_promocion
 
 
-@exh_exhortos_promociones.post("", response_model=OneExhExhortoPromocionOut)
+@exh_exhortos_promociones.post("/recibir_promocion", response_model=OneExhExhortoPromocionOut)
 async def recibir_exhorto_promocion_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
@@ -71,10 +71,18 @@ async def recibir_exhorto_promocion_request(
     errores = []
 
     # Consultar el exhorto
+    exh_exhorto = None
     try:
         exh_exhorto = get_exhorto_with_folio_seguimiento(database, exh_exhorto_promocion_in.folioSeguimiento)
-    except MyAnyError as error:
-        errores.append(str(error))
+    except (MyNotExistsError, MyNotValidParamError):
+        return OneExhExhortoPromocionOut(success=False, message="No se encuentra el exhorto", errors=errores, data=None)
+
+    # Validar folioOrigenPromocion, obligatorio
+    folio_origen_promocion = safe_string(
+        exh_exhorto_promocion_in.folioOrigenPromocion, max_len=64, do_unidecode=True, to_uppercase=False
+    )
+    if folio_origen_promocion == "":
+        errores.append("No es válido folioOrigenPromocion")
 
     # Validar la fecha
     fecha_origen = None
@@ -120,7 +128,7 @@ async def recibir_exhorto_promocion_request(
     # Insertar la promoción
     exh_exhorto_promocion = ExhExhortoPromocion(
         exh_exhorto_id=exh_exhorto.id,
-        folio_origen_promocion=exh_exhorto_promocion_in.folioOrigenPromocion,
+        folio_origen_promocion=folio_origen_promocion,
         fojas=exh_exhorto_promocion_in.fojas,
         fecha_origen=fecha_origen,
         observaciones=observaciones,

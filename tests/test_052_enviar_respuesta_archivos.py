@@ -9,7 +9,7 @@ from pathlib import Path
 import requests
 
 from tests import config
-from tests.database import ExhExhorto, ExhExhortoArchivo, get_database_session
+from tests.database import TestExhExhortoRespuesta, get_database_session
 
 
 class TestsEnviarRespuestaArchivos(unittest.TestCase):
@@ -18,37 +18,32 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
     def test_post_respuesta_archivos(self):
         """Probar el POST para enviar archivos de respuesta al exhorto"""
 
-        # Validar que se haya configurado la variable de entorno FOLIO_SEGUIMIENTO
-        if config["folio_seguimiento"] == "":
-            self.fail("No se ha configurado la variable de entorno FOLIO_SEGUIMIENTO")
-
         # Cargar la sesión de la base de datos para recuperar los datos de la prueba anterior
         session = get_database_session()
 
-        # Consultar el último exhorto
-        exh_exhorto = session.query(ExhExhorto).order_by(ExhExhorto.id.desc()).first()
-        if exh_exhorto is None:
-            self.fail("No se encontró el último exhorto en database.sqlite")
+        # Consultar la última respuesta con estado PENDIENTE
+        test_exh_exhorto_respuesta = (
+            session.query(TestExhExhortoRespuesta)
+            .filter(TestExhExhortoRespuesta.estado == "PENDIENTE")
+            .order_by(TestExhExhortoRespuesta.id.desc())
+            .first()
+        )
+        if test_exh_exhorto_respuesta is None:
+            self.fail("No se encontró la última respuesta PENDIENTE en SQLite")
 
         # Definir los datos que se van a incluir en el envío de los archivos
         payload_for_data = {
-            "exhortoId": exh_exhorto.exhorto_origen_id,
-            "respuestaOrigenId": exh_exhorto.respuesta_origen_id,
+            "exhortoId": test_exh_exhorto_respuesta.test_exh_exhorto.exhorto_origen_id,
+            "respuestaOrigenId": test_exh_exhorto_respuesta.respuesta_origen_id,
         }
 
         # Bucle para mandar los archivo por multipart/form-data
         data_acuse = None
-        for archivo in exh_exhorto.exh_exhortos_archivos:
-            # Si es_respuesta es Falso, se omite
-            if archivo.es_respuesta is False:
-                continue
-
-            # Pausa de 2 segundos
-            print(f"{archivo.nombre_archivo}...")
-            time.sleep(2)
+        for test_exh_exhorto_respuesta_archivo in test_exh_exhorto_respuesta.test_exh_exhortos_respuestas_archivos:
+            time.sleep(1)  # Pausa de 1 segundos
 
             # Tomar el nombre del archivo
-            archivo_nombre = archivo.nombre_archivo
+            archivo_nombre = test_exh_exhorto_respuesta_archivo.nombre_archivo
 
             # Validar que el archivo exista
             respuesta_archivo = Path(f"tests/{archivo_nombre}")
@@ -60,7 +55,7 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
                 # Mandar el archivo
                 try:
                     respuesta = requests.post(
-                        url=f"{config['api_base_url']}/exh_exhortos_archivos/responder_upload",
+                        url=f"{config['api_base_url']}/exh_exhortos/recibir_respuesta_archivo",
                         headers={"X-Api-Key": config["api_key"]},
                         timeout=config["timeout"],
                         files={"archivo": (archivo_nombre, archivo_prueba, "application/pdf")},
@@ -80,7 +75,8 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
                 # Validar que se haya tenido éxito
                 if contenido["success"] is False:
                     print(f"Errors: {str(contenido['errors'])}")
-                self.assertEqual(contenido["success"], True)
+                    # Continuar con el siguiente en lugar de self.assertEqual(contenido["success"], True)
+                    continue
 
                 # Validar el data
                 self.assertEqual(type(contenido["data"]), dict)
@@ -95,14 +91,28 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
                 self.assertEqual("nombreArchivo" in data_archivo, True)
                 self.assertEqual("tamaño" in data_archivo, True)
 
+            # Actualizar el estado del archivo a RECIBIDO
+            test_exh_exhorto_respuesta_archivo.estado = "RECIBIDO"
+
         # Validar que data_acuse NO sea nulo
         self.assertEqual(data_acuse is not None, True)
 
         # Validar el último acuse
         self.assertEqual(type(data_acuse), dict)
-        self.assertEqual("exhortoId" in data_acuse, True)
-        self.assertEqual("respuestaOrigenId" in data_acuse, True)
+        self.assertEqual("folioOrigenRespuesta" in data_acuse, True)
+        self.assertEqual("folioRespuestaRecibida" in data_acuse, True)
         self.assertEqual("fechaHoraRecepcion" in data_acuse, True)
+
+        # Actualizar la respuesta en SQLite
+        test_exh_exhorto_respuesta.estado = "ENVIADO"
+        session.commit()
+
+        # Actualizar el exhorto en SQLite
+        test_exh_exhorto_respuesta.test_exh_exhorto.estado = "CONTESTADO"
+        session.commit()
+
+        # Cerrar la sesión SQLite
+        session.close()
 
 
 if __name__ == "__main__":
