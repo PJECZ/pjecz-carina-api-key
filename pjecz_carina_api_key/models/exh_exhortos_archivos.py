@@ -19,6 +19,7 @@ class ExhExhortoArchivo(Base, UniversalMixin):
     ESTADOS = {
         "CANCELADO": "Cancelado",
         "PENDIENTE": "Pendiente",
+        "ENVIADO": "Enviado",
         "RECIBIDO": "Recibido",
     }
 
