@@ -99,8 +99,8 @@ class TestsEnviarRespuestaArchivos(unittest.TestCase):
 
         # Validar el último acuse
         self.assertEqual(type(data_acuse), dict)
-        self.assertEqual("folioOrigenRespuesta" in data_acuse, True)
-        self.assertEqual("folioRespuestaRecibida" in data_acuse, True)
+        self.assertEqual("exhortoId" in data_acuse, True)
+        self.assertEqual("respuestaOrigenId" in data_acuse, True)
         self.assertEqual("fechaHoraRecepcion" in data_acuse, True)
 
         # Actualizar la respuesta en SQLite

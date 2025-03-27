@@ -33,8 +33,8 @@ class ExhExhortoRespuestaArchivoFileIn(BaseModel):
 class ExhExhortoRespuestaArchivoDataAcuse(BaseModel):
     """Esquema con la estructura para la data con el acuse"""
 
-    folioOrigenRespuesta: str
-    folioRespuestaRecibida: str
+    exhortoId: str
+    respuestaOrigenId: str
     fechaHoraRecepcion: str  # YYYY-MM-DD HH:mm:ss
 
 
