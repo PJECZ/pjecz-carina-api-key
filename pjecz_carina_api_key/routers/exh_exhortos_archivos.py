@@ -205,7 +205,7 @@ async def recibir_exhorto_archivo_request(
             municipioAreaRecibeId=exh_exhorto.respuesta_municipio_turnado_id,
             areaRecibeId=exh_exhorto.respuesta_area_turnado_id,
             areaRecibeNombre=exh_exhorto.respuesta_area_turnado_nombre,
-            urlInfo="https://www.google.com.mx",
+            urlInfo="https://justiciadigital.gob.mx",
         )
 
     # Juntar los datos para la respuesta

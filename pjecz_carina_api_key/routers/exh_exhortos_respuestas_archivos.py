@@ -191,8 +191,8 @@ async def recibir_exhorto_respuesta_archivo_request(
         database.commit()
         # Elaborar el acuse
         acuse = ExhExhortoRespuestaArchivoDataAcuse(
-            folioOrigenRespuesta=exh_exhorto_respuesta.respuesta_origen_id,
-            folioRespuestaRecibida=exh_exhorto_respuesta.folio_respuesta_recibida,
+            exhortoId=exh_exhorto_respuesta.exh_exhorto.exhorto_origen_id,
+            respuestaOrigenId=exh_exhorto_respuesta.respuesta_origen_id,
             fechaHoraRecepcion=exh_exhorto_respuesta.creado.strftime("%Y-%m-%d %H:%M:%S"),
         )
 
