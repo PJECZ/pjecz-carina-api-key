@@ -1,5 +1,5 @@
 """
-Exh Exhortos Partes, modelos
+Exh Exhortos Promoventes, modelos
 """
 
 from typing import Optional
@@ -11,8 +11,8 @@ from ..dependencies.database import Base
 from ..dependencies.universal_mixin import UniversalMixin
 
 
-class ExhExhortoParte(Base, UniversalMixin):
-    """ExhExhortoParte"""
+class ExhExhortoPromovente(Base, UniversalMixin):
+    """ExhExhortoPromovente"""
 
     GENEROS = {
         "M": "Masculino",
@@ -27,7 +27,7 @@ class ExhExhortoParte(Base, UniversalMixin):
     }
 
     # Nombre de la tabla
-    __tablename__ = "exh_exhortos_partes"
+    __tablename__ = "exh_exhortos_promoventes"
 
     # Clave primaria
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -94,4 +94,4 @@ class ExhExhortoParte(Base, UniversalMixin):
 
     def __repr__(self):
         """Representación"""
-        return f"<ExhExhortoParte {self.id}>"
+        return f"<ExhExhortoPromovente {self.id}>"

@@ -99,8 +99,8 @@ class ExhExhorto(Base, UniversalMixin):
     # Este puede contener valores como "Oficio", "Petición de Parte".
     # Al asignar la propiedad "tipoDiligenciaId", no es necesario especificar este campo.
     # Aunque se tiene la clave foránea, se conservan estas propiedades por memoria y compatibilidad
-    tipo_diligencia_id: Mapped[str] = mapped_column(String(32))
-    tipo_diligenciacion_nombre: Mapped[Optional[str]] = mapped_column(String(256))
+    tipo_diligencia_id: Mapped[Optional[str]] = mapped_column(String(32), default="")
+    tipo_diligenciacion_nombre: Mapped[Optional[str]] = mapped_column(String(256), default="")
 
     # Fecha y hora en que el Poder Judicial exhortante registró que se envió el exhorto en su hora local.
     # En caso de no enviar este dato, el Poder Judicial exhortado puede tomar su fecha hora local.
@@ -142,6 +142,23 @@ class ExhExhorto(Base, UniversalMixin):
     acuse_url_info: Mapped[Optional[str]] = mapped_column(String(256))
 
     #
+    # Consulta
+    #
+
+    # Identificador INEGI del municipio que corresponde al Juzgado/Área al que se turnó el Exhorto
+    municipio_turnado_id: Mapped[Optional[str]] = mapped_column(String(3))
+    municipio_turnado_nombre: Mapped[Optional[str]] = mapped_column(String(256))
+
+    # Identificador propio del Poder Judicial Exhortado que corresponde al Juzgado/Área
+    # al que se turna el Exhorto y hará el correspondiente proceso de este.
+    area_turnado_id: Mapped[Optional[str]] = mapped_column(String(16))
+    area_turnado_nombre: Mapped[Optional[str]] = mapped_column(String(256))
+
+    # Número de Exhorto con el que se radica en el Juzgado/Área que se turnó el exhorto.
+    # Este número sirve para que el usuario pueda indentificar su exhorto dentro del Juzgado/Área donde se turnó.
+    numero_exhorto: Mapped[Optional[str]] = mapped_column(String(64))
+
+    #
     # Internos
     #
 
@@ -150,7 +167,7 @@ class ExhExhorto(Base, UniversalMixin):
 
     # Estado del exhorto y el estado anterior, para cuando se necesite revertir un cambio de estado
     estado: Mapped[str] = mapped_column(Enum(*ESTADOS, name="exh_exhortos_estados", native_enum=False), index=True)
-    estado_anterior: Mapped[Optional[str]]
+    estado_anterior: Mapped[Optional[str]] = mapped_column(String(24))
 
     # Conservar el JSON que se genera cuando se hace el envío y el que se recibe con el acuse
     paquete_enviado: Mapped[Optional[dict]] = mapped_column(JSONB)
@@ -160,12 +177,20 @@ class ExhExhorto(Base, UniversalMixin):
     # Hijos
     #
 
-    # Hijo: Definición de las partes del Expediente
+    # Hijo: Archivos
+    # Colección de los datos referentes a los archivos que se van a recibir el Poder Judicial exhortado en el envío del Exhorto.
+    exh_exhortos_archivos: Mapped[List["ExhExhortoArchivo"]] = relationship("ExhExhortoArchivo", back_populates="exh_exhorto")
+
+    # Hijo: Partes
+    # Contiene la definición de las partes del Expediente/Juicio/Asunto en el Juzgado/Área de origen
     exh_exhortos_partes: Mapped[List["ExhExhortoParte"]] = relationship("ExhExhortoParte", back_populates="exh_exhorto")
 
-    # Hijo: Colección de los datos referentes a los archivos
-    # que se van a recibir el Poder Judicial exhortado en el envío del Exhorto.
-    exh_exhortos_archivos: Mapped[List["ExhExhortoArchivo"]] = relationship("ExhExhortoArchivo", back_populates="exh_exhorto")
+    # Hijo: Promoventes
+    # Contiene la definición del promovente o los promoventes del exhorto, que comúnmente será el representante legal o abogado.
+    # Donde se debe especificar el correo electrónico para darle acceso a medios electrónicos.
+    exh_exhortos_promoventes: Mapped[List["ExhExhortoPromovente"]] = relationship(
+        "ExhExhortoPromovente", back_populates="exh_exhorto"
+    )
 
     # Hijo: Actualizaciones
     exh_exhortos_actualizaciones: Mapped[List["ExhExhortoActualizacion"]] = relationship(
