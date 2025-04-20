@@ -38,6 +38,8 @@ class TestsEnviarExhorto(unittest.TestCase):
             genero_actor = "M"
         apellido_paterno_actor = faker.last_name()
         apellido_materno_actor = faker.last_name()
+        correo_electronico_actor = faker.email()
+        telefono_actor = "".join(random.choices("0123456789", k=10))
 
         # Generar la parte Demandado(2)
         if faker.random_element(elements=("M", "F")) == "F":
@@ -48,6 +50,8 @@ class TestsEnviarExhorto(unittest.TestCase):
             genero_demandado = "M"
         apellido_paterno_demandado = faker.last_name()
         apellido_materno_demandado = faker.last_name()
+        correo_electronico_demandado = faker.email()
+        telefono_demandado = "".join(random.choices("0123456789", k=10))
 
         # Definir las partes
         partes = [
@@ -59,6 +63,8 @@ class TestsEnviarExhorto(unittest.TestCase):
                 "esPersonaMoral": False,
                 "tipoParte": 1,
                 "tipoParteNombre": "",
+                "correoElectronico": correo_electronico_actor,
+                "telefono": telefono_actor,
             },
             {
                 "nombre": nombre_demandado,
@@ -68,6 +74,8 @@ class TestsEnviarExhorto(unittest.TestCase):
                 "esPersonaMoral": False,
                 "tipoParte": 2,
                 "tipoParteNombre": "",
+                "correoElectronico": correo_electronico_demandado,
+                "telefono": telefono_demandado,
             },
         ]
 
@@ -81,7 +89,7 @@ class TestsEnviarExhorto(unittest.TestCase):
         apellido_paterno_promovente = faker.last_name()
         apellido_materno_promovente = faker.last_name()
         correo_electronico_promovente = faker.safe_email()
-        telefono_promovente = str(random.randint(1000000000, 9999999999))
+        telefono_promovente = "".join(random.choices("0123456789", k=10))
 
         # Definir los promoventes
         promoventes = [

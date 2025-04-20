@@ -55,6 +55,8 @@ class TestsEnviarPromocion(unittest.TestCase):
                     "esPersonaMoral": False,
                     "tipoParte": 0,
                     "tipoParteNombre": "",
+                    "correoElectronico": faker.safe_email(),
+                    "telefono": faker.safe_email(),
                 }
             )
 
