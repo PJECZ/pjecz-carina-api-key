@@ -34,7 +34,7 @@ class ExhExhortoPromovente(Base, UniversalMixin):
 
     # Clave foránea
     exh_exhorto_id: Mapped[int] = mapped_column(ForeignKey("exh_exhortos.id"))
-    exh_exhorto: Mapped["ExhExhorto"] = relationship(back_populates="exh_exhortos_partes")
+    exh_exhorto: Mapped["ExhExhorto"] = relationship(back_populates="exh_exhortos_promoventes")
 
     # Nombre de la parte, en el caso de persona moral, solo en nombre de la empresa o razón social.
     nombre: Mapped[str] = mapped_column(String(256))
@@ -81,16 +81,20 @@ class ExhExhortoPromovente(Base, UniversalMixin):
     @property
     def nombre_completo(self):
         """Junta nombres, apellido_paterno y apellido materno"""
-        return self.nombre + " " + self.apellido_paterno + " " + self.apellido_materno
+        if self.apellido_materno is not None and self.apellido_paterno is not None:
+            return f"{self.nombre} {self.apellido_paterno} {self.apellido_materno}"
+        elif self.apellido_paterno is not None:
+            return f"{self.nombre} {self.apellido_paterno}"
+        return self.nombre
 
     @property
     def tipo_parte_descripcion(self):
         """Descripción del tipo de parte"""
-        if self.tipo_parte == 0:
+        if self.tipo_parte == 0 and self.tipo_parte_nombre != "":
             return self.tipo_parte_nombre
         if self.tipo_parte in self.TIPOS_PARTES:
             return self.TIPOS_PARTES[self.tipo_parte]
-        return "No definido"
+        return "Desconocido"
 
     def __repr__(self):
         """Representación"""

@@ -1,5 +1,5 @@
 """
-Exh Exhortos
+Exh Exhortos, routers
 """
 
 from datetime import datetime
@@ -105,6 +105,8 @@ async def consultar_exhorto_request(
                 esPersonaMoral=exh_exhorto_parte.es_persona_moral,
                 tipoParte=exh_exhorto_parte.tipo_parte,
                 tipoParteNombre=exh_exhorto_parte.tipo_parte_nombre,
+                correoElectronico=exh_exhorto_parte.correoElectronico,
+                telefono=exh_exhorto_parte.telefono,
             )
         )
 
@@ -415,6 +417,7 @@ async def recibir_exhorto_request(
                 correo_electronico=safe_email(promovente.correoElectronico),
                 telefono=safe_telefono(promovente.telefono),
             )
+            database.add(exh_exhorto_promovente)
 
     # Terminar la transacción
     database.commit()

@@ -17,15 +17,15 @@ class ExhExhortoPromocionPromovente(Base, UniversalMixin):
     """ExhExhortoPromocionPromovente"""
 
     GENEROS = {
-        "M": "MASCULINO",
-        "F": "FEMENINO",
-        "-": "SIN SEXO",
+        "M": "Masculino",
+        "F": "Femenino",
+        "-": "No aplica",
     }
 
     TIPOS_PARTES = {
-        0: "No definido o se especifica en tipoParteNombre",
-        1: "Actor, Promovente, Ofendido",
-        2: "Demandado, Inculpado, Imputado",
+        0: "No definido",
+        1: "Actor, Promovente u Ofendido",
+        2: "Demandado, Inculpado o Imputado",
     }
 
     # Nombre de la tabla
@@ -74,12 +74,12 @@ class ExhExhortoPromocionPromovente(Base, UniversalMixin):
     @property
     def nombre_completo(self):
         """Junta nombres, apellido_paterno y apellido materno"""
-        return self.nombre + " " + self.apellido_paterno + " " + self.apellido_materno
+        return self.nombre + " " + str(self.apellido_paterno) + " " + str(self.apellido_materno)
 
     @property
     def tipo_parte_descripcion(self):
         """Descripción del tipo de parte"""
-        if self.tipo_parte == 0:
+        if self.tipo_parte == 0 and self.tipo_parte_nombre != "":
             return self.tipo_parte_nombre
         if self.tipo_parte in self.TIPOS_PARTES:
             return self.TIPOS_PARTES[self.tipo_parte]
