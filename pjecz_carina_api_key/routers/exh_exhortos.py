@@ -371,6 +371,13 @@ async def recibir_exhorto_request(
             genero = safe_string(parte.genero, to_uppercase=True)
             if genero not in ExhExhortoParte.GENEROS:
                 genero = "-"  # En persona moral se usa guion
+            try:
+                correo_electronico = safe_email(parte.correoElectronico)
+            except ValueError:
+                correo_electronico = None
+            telefono = safe_telefono(parte.telefono)
+            if telefono == "":
+                telefono = None
             exh_exhorto_parte = ExhExhortoParte(
                 exh_exhorto_id=exh_exhorto.id,
                 nombre=safe_string(parte.nombre, save_enie=True),
@@ -380,8 +387,8 @@ async def recibir_exhorto_request(
                 es_persona_moral=parte.esPersonaMoral,
                 tipo_parte=parte.tipoParte,
                 tipo_parte_nombre=safe_string(parte.tipoParteNombre, save_enie=True),
-                correo_electronico=safe_email(parte.correoElectronico),
-                telefono=safe_telefono(parte.telefono),
+                correo_electronico=correo_electronico,
+                telefono=telefono,
             )
             database.add(exh_exhorto_parte)
 
@@ -405,6 +412,13 @@ async def recibir_exhorto_request(
             genero = safe_string(promovente.genero, to_uppercase=True)
             if genero not in ExhExhortoPromovente.GENEROS:
                 genero = "-"
+            try:
+                correo_electronico = safe_email(promovente.correoElectronico)
+            except ValueError:
+                correo_electronico = None
+            telefono = safe_telefono(promovente.telefono)
+            if telefono == "":
+                telefono = None
             exh_exhorto_promovente = ExhExhortoPromovente(
                 exh_exhorto_id=exh_exhorto.id,
                 nombre=safe_string(promovente.nombre, save_enie=True),
@@ -414,8 +428,8 @@ async def recibir_exhorto_request(
                 es_persona_moral=promovente.esPersonaMoral,
                 tipo_parte=promovente.tipoParte,
                 tipo_parte_nombre=safe_string(promovente.tipoParteNombre, save_enie=True),
-                correo_electronico=safe_email(promovente.correoElectronico),
-                telefono=safe_telefono(promovente.telefono),
+                correo_electronico=correo_electronico,
+                telefono=telefono,
             )
             database.add(exh_exhorto_promovente)
 

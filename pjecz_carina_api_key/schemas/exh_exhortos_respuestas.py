@@ -18,7 +18,7 @@ class ExhExhortoRespuestaIn(BaseModel):
     areaTurnadoId: str | None
     areaTurnadoNombre: str
     numeroExhorto: str | None
-    tipoDiligenciado: int  # 0 = No Diligenciado, 1 = Parcialmente Diligenciado, 2 = Diligenciado
+    tipoDiligenciado: int | None  # 0 = No Diligenciado, 1 = Parcialmente Diligenciado, 2 = Diligenciado
     observaciones: str | None
     archivos: list[ExhExhortoRespuestaArchivoItem]
     videos: list[ExhExhortoRespuestaVideoItem] | None
