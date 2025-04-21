@@ -104,10 +104,11 @@ async def recibir_exhorto_respuesta_request(
 
     # Validar tipoDiligenciado, debe ser entero 0, 1 o 2
     tipo_diligenciado = None
-    if exh_exhorto_respuesta_in.tipoDiligenciado in (0, 1, 2):
-        tipo_diligenciado = exh_exhorto_respuesta_in.tipoDiligenciado
-    if tipo_diligenciado is None:
-        errores.append("No es válido tipoDiligenciado")
+    if exh_exhorto_respuesta_in.tipoDiligenciado is not None:
+        if exh_exhorto_respuesta_in.tipoDiligenciado in (0, 1, 2):
+            tipo_diligenciado = exh_exhorto_respuesta_in.tipoDiligenciado
+        else:
+            errores.append("No es válido tipoDiligenciado")
 
     # Validar observaciones, es opcional
     observaciones = None
