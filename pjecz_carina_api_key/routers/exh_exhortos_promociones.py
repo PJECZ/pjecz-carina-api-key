@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
 from ..dependencies.exceptions import MyAnyError, MyNotExistsError, MyNotValidParamError
-from ..dependencies.safe_string import safe_string
+from ..dependencies.safe_string import safe_email, safe_string, safe_telefono
 from ..models.exh_exhortos import ExhExhorto
 from ..models.exh_exhortos_promociones import ExhExhortoPromocion
 from ..models.exh_exhortos_promociones_archivos import ExhExhortoPromocionArchivo
@@ -141,6 +141,13 @@ async def recibir_exhorto_promocion_request(
 
     # Insertar los promoventes
     for promovente in exh_exhorto_promocion_in.promoventes:
+        try:
+            correo_electronico = safe_email(promovente.correoElectronico)
+        except ValueError:
+            correo_electronico = None
+        telefono = safe_telefono(promovente.telefono)
+        if telefono == "":
+            telefono = None
         exh_exhorto_promocion_promovente = ExhExhortoPromocionPromovente(
             exh_exhorto_promocion_id=exh_exhorto_promocion.id,
             nombre=safe_string(promovente.nombre, save_enie=True),
@@ -150,6 +157,8 @@ async def recibir_exhorto_promocion_request(
             es_persona_moral=promovente.esPersonaMoral,
             tipo_parte=promovente.tipoParte,
             tipo_parte_nombre=safe_string(promovente.tipoParteNombre, save_enie=True),
+            correo_electronico=correo_electronico,
+            telefono=telefono,
         )
         database.add(exh_exhorto_promocion_promovente)
 
