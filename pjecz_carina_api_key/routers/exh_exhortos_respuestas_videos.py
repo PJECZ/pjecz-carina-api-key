@@ -1,5 +1,5 @@
 """
-Exh Exhortos Videos
+Exh Exhortos Videos, routers
 """
 
 from typing import Annotated
@@ -16,7 +16,7 @@ exh_exhortos_respuestas_videos = APIRouter(prefix="/api/v5/exh_exhortos")
 
 @exh_exhortos_respuestas_videos.get("/respuestas/videos", response_model=NotImplement)
 async def no_implementado(current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)]):
-    """Entregar la estructura donde dice que esta ruta no está implementada"""
+    """Entregar el JSON con success falso porque esta ruta no está implementada"""
     if current_user.permissions.get("EXH EXHORTOS RESPUESTAS VIDEOS", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     return NotImplement(

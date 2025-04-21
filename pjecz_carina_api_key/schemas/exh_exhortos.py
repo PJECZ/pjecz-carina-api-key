@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from ..dependencies.schemas_base import OneBaseOut
 from .exh_exhortos_archivos import ExhExhortoArchivoItem
 from .exh_exhortos_partes import ExhExhortoParteItem
+from .exh_exhortos_promoventes import ExhExhortoPromoventeItem
 
 
 class ExhExhortoIn(BaseModel):
@@ -26,10 +27,12 @@ class ExhExhortoIn(BaseModel):
     partes: list[ExhExhortoParteItem] | None
     fojas: int
     diasResponder: int
+    tipoDiligenciaId: str | None  # Agregado en 2023-02
     tipoDiligenciacionNombre: str | None
     fechaOrigen: str | None  # YYYY-MM-DD HH:mm:ss
     observaciones: str | None
     archivos: list[ExhExhortoArchivoItem]
+    promoventes: list[ExhExhortoPromoventeItem] | None  # Agregado en 2023-02
 
 
 class ExhExhortoOut(BaseModel):

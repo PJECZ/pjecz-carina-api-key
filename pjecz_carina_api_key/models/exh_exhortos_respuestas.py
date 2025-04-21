@@ -2,10 +2,10 @@
 Exh Exhortos Respuestas, modelos
 """
 
-from datetime import datetime
 from typing import List, Optional
 
 from sqlalchemy import Enum, ForeignKey, String
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..dependencies.database import Base
@@ -49,7 +49,8 @@ class ExhExhortoRespuesta(Base, UniversalMixin):
     # un GUID/UUID o cualquíer otro valor con que se identifique la respuesta
     respuesta_origen_id: Mapped[str] = mapped_column(String(64))
 
-    # Identificador del municipio que corresponde al Juzgado/Área al que se turnó el Exhorto y que realiza la respuesta de este
+    # Identificador INEGI del municipio que corresponde al
+    # Juzgado/Área al que se turnó el Exhorto y que realiza la respuesta de este
     municipio_turnado_id: Mapped[int]
 
     # Identificador propio del PJ exhortado que corresponde al Juzgado/Área al que se turna el Exhorto y está respondiendo
@@ -71,13 +72,26 @@ class ExhExhortoRespuesta(Base, UniversalMixin):
     # Texto simple referente a alguna observación u observaciones correspondientes a la respuesta del Exhorto
     observaciones: Mapped[Optional[str]] = mapped_column(String(1024))
 
+    #
+    # Internos
+    #
+
     # Si el remitente es INTERNO entonces fue creada por nosotros, si es EXTERNO fue creada por otro PJ
     remitente: Mapped[str] = mapped_column(
         Enum(*REMITENTES, name="exh_exhortos_respuestas_remitentes", native_enum=False), index=True
     )
 
-    # Estado de la respuesta
+    # Estado de la respuesta y el estado anterior, para cuando se necesite revertir un cambio de estado
     estado: Mapped[str] = mapped_column(Enum(*ESTADOS, name="exh_exhortos_respuestas_estados", native_enum=False), index=True)
+    estado_anterior: Mapped[Optional[str]]
+
+    # Conservar el JSON que se genera cuando se hace el envío y el que se recibe con el acuse
+    paquete_enviado: Mapped[Optional[dict]] = mapped_column(JSONB)
+    acuse_recibido: Mapped[Optional[dict]] = mapped_column(JSONB)
+
+    #
+    # Hijos
+    #
 
     # Hijo: Archivos de la respuesta
     exh_exhortos_respuestas_archivos: Mapped[List["ExhExhortoRespuestaArchivo"]] = relationship(

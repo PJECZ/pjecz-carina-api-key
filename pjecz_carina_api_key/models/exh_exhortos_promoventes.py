@@ -1,20 +1,18 @@
 """
-Exh Exhortos Promociones Promoventes, modelos
+Exh Exhortos Promoventes, modelos
 """
 
-from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 from sqlalchemy import Enum, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.sql.functions import now
 
 from ..dependencies.database import Base
 from ..dependencies.universal_mixin import UniversalMixin
 
 
-class ExhExhortoPromocionPromovente(Base, UniversalMixin):
-    """ExhExhortoPromocionPromovente"""
+class ExhExhortoPromovente(Base, UniversalMixin):
+    """ExhExhortoPromovente"""
 
     GENEROS = {
         "M": "Masculino",
@@ -29,14 +27,14 @@ class ExhExhortoPromocionPromovente(Base, UniversalMixin):
     }
 
     # Nombre de la tabla
-    __tablename__ = "exh_exhortos_promociones_promoventes"
+    __tablename__ = "exh_exhortos_promoventes"
 
     # Clave primaria
     id: Mapped[int] = mapped_column(primary_key=True)
 
     # Clave foránea
-    exh_exhorto_promocion_id: Mapped[int] = mapped_column(ForeignKey("exh_exhortos_promociones.id"))
-    exh_exhorto_promocion: Mapped["ExhExhortoPromocion"] = relationship(back_populates="exh_exhortos_promociones_promoventes")
+    exh_exhorto_id: Mapped[int] = mapped_column(ForeignKey("exh_exhortos.id"))
+    exh_exhorto: Mapped["ExhExhorto"] = relationship(back_populates="exh_exhortos_promoventes")
 
     # Nombre de la parte, en el caso de persona moral, solo en nombre de la empresa o razón social.
     nombre: Mapped[str] = mapped_column(String(256))
@@ -50,7 +48,7 @@ class ExhExhortoPromocionPromovente(Base, UniversalMixin):
     # 'M' = Masculino,
     # 'F' = Femenino.
     # Solo cuando aplique y se quiera especificar (que se tenga el dato). NO aplica para persona moral.
-    genero: Mapped[str] = mapped_column(Enum(*GENEROS, name="exh_exhortos_promociones_promoventes_generos", native_enum=False))
+    genero: Mapped[str] = mapped_column(Enum(*GENEROS, name="exh_exhortos_partes_generos", native_enum=False))
 
     # Valor que indica si la parte es una persona moral.
     es_persona_moral: Mapped[bool]
@@ -64,6 +62,15 @@ class ExhExhortoPromocionPromovente(Base, UniversalMixin):
     # Aquí se puede especificar el nombre del tipo de parte. Opcional.
     tipo_parte_nombre: Mapped[Optional[str]] = mapped_column(String(256))
 
+    # Dirección de correo electrónico de la parte,
+    # esto para facilitar el acceso a los medios electrónicos correspondientes al exhorto
+    correo_electronico: Mapped[Optional[str]] = mapped_column(String(256))
+
+    # Número de teléfono (los 10 digitos numéricos del teléfono) de contacto,
+    # es recomendable especificarlo cuando el objeto PersonaParte corresponde a un promovente del exhorto o
+    # promovente de la promoción de exhorto.
+    telefono: Mapped[Optional[str]] = mapped_column(String(10))
+
     @property
     def genero_descripcion(self):
         """Descripción del género"""
@@ -74,7 +81,11 @@ class ExhExhortoPromocionPromovente(Base, UniversalMixin):
     @property
     def nombre_completo(self):
         """Junta nombres, apellido_paterno y apellido materno"""
-        return self.nombre + " " + str(self.apellido_paterno) + " " + str(self.apellido_materno)
+        if self.apellido_materno is not None and self.apellido_paterno is not None:
+            return f"{self.nombre} {self.apellido_paterno} {self.apellido_materno}"
+        elif self.apellido_paterno is not None:
+            return f"{self.nombre} {self.apellido_paterno}"
+        return self.nombre
 
     @property
     def tipo_parte_descripcion(self):
@@ -83,8 +94,8 @@ class ExhExhortoPromocionPromovente(Base, UniversalMixin):
             return self.tipo_parte_nombre
         if self.tipo_parte in self.TIPOS_PARTES:
             return self.TIPOS_PARTES[self.tipo_parte]
-        return "No definido"
+        return "Desconocido"
 
     def __repr__(self):
         """Representación"""
-        return f"<ExhExhortoPromocionPromovente {self.id}>"
+        return f"<ExhExhortoPromovente {self.id}>"

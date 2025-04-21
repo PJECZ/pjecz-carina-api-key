@@ -1,5 +1,5 @@
 """
-Usuarios-Roles
+Usuarios-Roles, routers
 """
 
 from typing import Annotated
@@ -16,7 +16,7 @@ usuarios_roles = APIRouter(prefix="/api/v5/usuarios_roles")
 
 @usuarios_roles.get("", response_model=NotImplement)
 async def no_implementado(current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)]):
-    """Entregar la estructura donde dice que esta ruta no está implementada"""
+    """Entregar el JSON con success falso porque esta ruta no está implementada"""
     if current_user.permissions.get("USUARIOS ROLES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     return NotImplement(

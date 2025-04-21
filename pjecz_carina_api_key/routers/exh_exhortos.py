@@ -1,5 +1,5 @@
 """
-Exh Exhortos
+Exh Exhortos, routers
 """
 
 from datetime import datetime
@@ -11,12 +11,14 @@ from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
 from ..dependencies.exceptions import MyAnyError, MyNotExistsError, MyNotValidParamError
-from ..dependencies.safe_string import safe_clave, safe_string
+from ..dependencies.safe_string import safe_clave, safe_email, safe_string, safe_telefono
 from ..models.estados import Estado
 from ..models.exh_exhortos import ExhExhorto
 from ..models.exh_exhortos_archivos import ExhExhortoArchivo
 from ..models.exh_exhortos_partes import ExhExhortoParte
+from ..models.exh_exhortos_promoventes import ExhExhortoPromovente
 from ..models.exh_externos import ExhExterno
+from ..models.exh_tipos_diligencias import ExhTipoDiligencia
 from ..models.municipios import Municipio
 from ..models.permisos import Permiso
 from ..schemas.exh_exhortos import (
@@ -34,6 +36,8 @@ from .exh_areas import get_exh_area_with_clave_nd
 from .municipios import get_municipio_destino, get_municipio_origen
 
 exh_exhortos = APIRouter(prefix="/api/v5/exh_exhortos")
+
+TIPO_DILIGENCIA_CLAVE_POR_DEFECTO = "OTR"
 
 
 def get_exhorto_with_exhorto_origen_id(database: Annotated[Session, Depends(get_db)], exhorto_origen_id: str) -> ExhExhorto:
@@ -101,6 +105,8 @@ async def consultar_exhorto_request(
                 esPersonaMoral=exh_exhorto_parte.es_persona_moral,
                 tipoParte=exh_exhorto_parte.tipo_parte,
                 tipoParteNombre=exh_exhorto_parte.tipo_parte_nombre,
+                correoElectronico=exh_exhorto_parte.correoElectronico,
+                telefono=exh_exhorto_parte.telefono,
             )
         )
 
@@ -255,9 +261,17 @@ async def recibir_exhorto_request(
     if exh_exhorto_in.diasResponder > 0:
         dias_responder = exh_exhorto_in.diasResponder
 
-    # Validar tipoDiligenciacionNombre, es opcional
+    # Validar tipoDiligenciaId
+    tipo_diligencia_id = safe_string(exh_exhorto_in.tipoDiligenciaId, max_len=32)
     tipo_diligenciacion_nombre = None
-    if exh_exhorto_in.tipoDiligenciacionNombre is not None:
+    if tipo_diligencia_id:
+        # Consultar TipoDiligencia por su clave
+        exh_tipo_diligencia = database.query(ExhTipoDiligencia).filter_by(clave=tipo_diligencia_id).first()
+        if exh_tipo_diligencia is None:
+            exh_tipo_diligencia = database.query(ExhTipoDiligencia).filter_by(clave=TIPO_DILIGENCIA_CLAVE_POR_DEFECTO).first()
+        tipo_diligenciacion_nombre = exh_tipo_diligencia.descripcion
+    elif exh_exhorto_in.tipoDiligenciacionNombre is not None:
+        exh_tipo_diligencia = database.query(ExhTipoDiligencia).filter_by(clave=TIPO_DILIGENCIA_CLAVE_POR_DEFECTO).first()
         tipo_diligenciacion_nombre = safe_string(exh_exhorto_in.tipoDiligenciacionNombre, save_enie=True)
 
     # Validar fechaOrigen, es opcional
@@ -295,6 +309,17 @@ async def recibir_exhorto_request(
         if archivo.tipoDocumento not in [1, 2, 3]:
             errores.append("El tipoDocumento de un archivo no es válido")
 
+    # Validar los promoventes
+    if exh_exhorto_in.promoventes:
+        for promovente in exh_exhorto_in.promoventes:
+            if safe_string(promovente.nombre, save_enie=True) == "":
+                errores.append("El nombre de un promovente no es válido")
+            genero = safe_string(promovente.genero, to_uppercase=True)
+            if genero != "" and genero not in ExhExhortoParte.GENEROS:
+                errores.append("El género de un promovente no es válido")
+            if promovente.tipoParte not in [0, 1, 2]:
+                errores.append("El tipo_parte de un promovente no es válido")
+
     # Área de recepción, es NO DEFINIDO
     try:
         exh_area = get_exh_area_with_clave_nd(database)
@@ -313,11 +338,14 @@ async def recibir_exhorto_request(
 
     # Insertar el exhorto
     exh_exhorto = ExhExhorto(
+        autoridad_id=autoridad.id,
+        exh_area_id=exh_area.id,
+        exh_tipo_diligencia_id=exh_tipo_diligencia.id,
+        municipio_origen=municipio_origen,
         exhorto_origen_id=exhorto_origen_id,
         municipio_destino_id=municipio_destino.id,
         materia_clave=materia_clave,
         materia_nombre=materia_nombre,
-        municipio_origen=municipio_origen,
         juzgado_origen_id=juzgado_origen_id,
         juzgado_origen_nombre=juzgado_origen_nombre,
         numero_expediente_origen=numero_expediente_origen,
@@ -326,13 +354,10 @@ async def recibir_exhorto_request(
         juez_exhortante=juez_exhortante,
         fojas=fojas,
         dias_responder=dias_responder,
+        tipo_diligencia_id=tipo_diligencia_id,
         tipo_diligenciacion_nombre=tipo_diligenciacion_nombre,
         fecha_origen=fecha_origen,
         observaciones=observaciones,
-        folio_seguimiento="",
-        exh_area_id=exh_area.id,
-        autoridad_id=autoridad.id,
-        numero_exhorto="",
         remitente="EXTERNO",
         estado="PENDIENTE",
     )
@@ -355,6 +380,8 @@ async def recibir_exhorto_request(
                 es_persona_moral=parte.esPersonaMoral,
                 tipo_parte=parte.tipoParte,
                 tipo_parte_nombre=safe_string(parte.tipoParteNombre, save_enie=True),
+                correo_electronico=safe_email(parte.correoElectronico),
+                telefono=safe_telefono(parte.telefono),
             )
             database.add(exh_exhorto_parte)
 
@@ -371,6 +398,26 @@ async def recibir_exhorto_request(
             fecha_hora_recepcion=datetime.now(),
         )
         database.add(exh_exhorto_archivo)
+
+    # OPCIONAL Insertar los promoventes
+    if exh_exhorto_in.promoventes:
+        for promovente in exh_exhorto_in.promoventes:
+            genero = safe_string(promovente.genero, to_uppercase=True)
+            if genero not in ExhExhortoPromovente.GENEROS:
+                genero = "-"
+            exh_exhorto_promovente = ExhExhortoPromovente(
+                exh_exhorto_id=exh_exhorto.id,
+                nombre=safe_string(promovente.nombre, save_enie=True),
+                apellido_paterno=safe_string(promovente.apellidoPaterno, save_enie=True),
+                apellido_materno=safe_string(promovente.apellidoMaterno, save_enie=True),
+                genero=genero,
+                es_persona_moral=promovente.esPersonaMoral,
+                tipo_parte=promovente.tipoParte,
+                tipo_parte_nombre=safe_string(promovente.tipoParteNombre, save_enie=True),
+                correo_electronico=safe_email(promovente.correoElectronico),
+                telefono=safe_telefono(promovente.telefono),
+            )
+            database.add(exh_exhorto_promovente)
 
     # Terminar la transacción
     database.commit()

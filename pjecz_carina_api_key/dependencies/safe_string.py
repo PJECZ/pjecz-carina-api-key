@@ -124,3 +124,13 @@ def safe_string(input_str, max_len=250, do_unidecode=True, save_enie=False, to_u
     if max_len == 0:
         return final
     return (final[:max_len] + "...") if len(final) > max_len else final
+
+
+def safe_telefono(input_str) -> str:
+    """Safe telefono always ten digits"""
+    if not isinstance(input_str, str):
+        return ""
+    only_digits = re.sub(r"[^0-9]", "", input_str)
+    if len(only_digits) == 10:
+        return only_digits
+    return ""

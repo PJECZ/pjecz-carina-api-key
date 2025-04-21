@@ -1,5 +1,5 @@
 """
-Permisos, routers
+Exh Exhortos Promoventes, routers
 """
 
 from typing import Annotated
@@ -8,15 +8,16 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.fastapi_not_implemented import NotImplement
+from ..models.exh_exhortos_promoventes import ExhExhortoPromovente  # Necesario para cargar este modelo
 from ..models.permisos import Permiso
 
-permisos = APIRouter(prefix="/api/v5/permisos")
+exh_exhortos_promoventes = APIRouter(prefix="/api/v5/exh_exhortos")
 
 
-@permisos.get("", response_model=NotImplement)
+@exh_exhortos_promoventes.get("/promoventes", response_model=NotImplement)
 async def no_implementado(current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)]):
     """Entregar el JSON con success falso porque esta ruta no está implementada"""
-    if current_user.permissions.get("PERMISOS", 0) < Permiso.VER:
+    if current_user.permissions.get("EXH EXHORTOS PROMOVENTES", 0) < Permiso.VER:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
     return NotImplement(
         success=False,

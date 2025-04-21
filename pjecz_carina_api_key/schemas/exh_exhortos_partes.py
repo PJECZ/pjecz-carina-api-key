@@ -15,3 +15,5 @@ class ExhExhortoParteItem(BaseModel):
     esPersonaMoral: bool
     tipoParte: int
     tipoParteNombre: str | None
+    correoElectronico: str | None  # Agregado en 2023-02
+    telefono: str | None  # Agregado en 2023-02

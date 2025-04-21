@@ -29,7 +29,7 @@ class TestsEnviarExhorto(unittest.TestCase):
         # Generar el nombre del juez exhortante
         nombre_juez_exhortante = faker.name()
 
-        # Generar la parte Actor(1) con nombres aleatorios
+        # Generar la parte Actor(1)
         if faker.random_element(elements=("M", "F")) == "F":
             nombre_actor = faker.first_name_female()
             genero_actor = "F"
@@ -38,8 +38,10 @@ class TestsEnviarExhorto(unittest.TestCase):
             genero_actor = "M"
         apellido_paterno_actor = faker.last_name()
         apellido_materno_actor = faker.last_name()
+        correo_electronico_actor = faker.email()
+        telefono_actor = "".join(random.choices("0123456789", k=10))
 
-        # Generar la parte Demandado(2) con nombres aleatorios
+        # Generar la parte Demandado(2)
         if faker.random_element(elements=("M", "F")) == "F":
             nombre_demandado = faker.first_name_female()
             genero_demandado = "F"
@@ -48,6 +50,8 @@ class TestsEnviarExhorto(unittest.TestCase):
             genero_demandado = "M"
         apellido_paterno_demandado = faker.last_name()
         apellido_materno_demandado = faker.last_name()
+        correo_electronico_demandado = faker.email()
+        telefono_demandado = "".join(random.choices("0123456789", k=10))
 
         # Definir las partes
         partes = [
@@ -59,6 +63,8 @@ class TestsEnviarExhorto(unittest.TestCase):
                 "esPersonaMoral": False,
                 "tipoParte": 1,
                 "tipoParteNombre": "",
+                "correoElectronico": correo_electronico_actor,
+                "telefono": telefono_actor,
             },
             {
                 "nombre": nombre_demandado,
@@ -68,10 +74,39 @@ class TestsEnviarExhorto(unittest.TestCase):
                 "esPersonaMoral": False,
                 "tipoParte": 2,
                 "tipoParteNombre": "",
+                "correoElectronico": correo_electronico_demandado,
+                "telefono": telefono_demandado,
             },
         ]
 
-        # Inicializar los archivos que se van a mandar desde prueba-1.pdf a prueba-4.pdf
+        # Generar el promovente
+        if faker.random_element(elements=("M", "F")) == "F":
+            nombre_promovente = faker.first_name_female()
+            genero_promovente = "F"
+        else:
+            nombre_promovente = faker.first_name_male()
+            genero_promovente = "M"
+        apellido_paterno_promovente = faker.last_name()
+        apellido_materno_promovente = faker.last_name()
+        correo_electronico_promovente = faker.safe_email()
+        telefono_promovente = "".join(random.choices("0123456789", k=10))
+
+        # Definir los promoventes
+        promoventes = [
+            {
+                "nombre": nombre_promovente,
+                "apellidoPaterno": apellido_paterno_promovente,
+                "apellidoMaterno": apellido_materno_promovente,
+                "genero": genero_promovente,
+                "esPersonaMoral": False,
+                "tipoParte": 0,
+                "tipoParteNombre": "Promovente",
+                "correoElectronico": correo_electronico_promovente,
+                "telefono": telefono_promovente,
+            }
+        ]
+
+        # Definir los archivos que se van a mandar desde prueba-1.pdf a prueba-4.pdf
         archivos = []
         for numero in range(1, random.randint(1, 4) + 1):  # Hasta 4 archivos
             archivos.append(
@@ -130,10 +165,12 @@ class TestsEnviarExhorto(unittest.TestCase):
             "partes": partes,
             "fojas": 41,
             "diasResponder": 15,
-            "tipoDiligenciacionNombre": "OFICIO",
+            "tipoDiligenciaId": "OTR",
+            "tipoDiligenciacionNombre": "OTROS",
             "fechaOrigen": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "observaciones": "CELEBRIDADES QUE SE VAN A DIVORCIAR",
             "archivos": archivos,
+            "promoventes": promoventes,
         }
 
         # Mandar el exhorto

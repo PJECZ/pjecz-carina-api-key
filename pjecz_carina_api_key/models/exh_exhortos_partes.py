@@ -21,9 +21,9 @@ class ExhExhortoParte(Base, UniversalMixin):
     }
 
     TIPOS_PARTES = {
-        0: "No definido o se especifica en tipoParteNombre",
-        1: "Actor, Promovente, Ofendido",
-        2: "Demandado, Inculpado, Imputado",
+        0: "No definido",
+        1: "Actor, Promovente u Ofendido",
+        2: "Demandado, Inculpado o Imputado",
     }
 
     # Nombre de la tabla
@@ -62,6 +62,15 @@ class ExhExhortoParte(Base, UniversalMixin):
     # Aquí se puede especificar el nombre del tipo de parte. Opcional.
     tipo_parte_nombre: Mapped[Optional[str]] = mapped_column(String(256))
 
+    # Dirección de correo electrónico de la parte,
+    # esto para facilitar el acceso a los medios electrónicos correspondientes al exhorto
+    correo_electronico: Mapped[Optional[str]] = mapped_column(String(256))
+
+    # Número de teléfono (los 10 digitos numéricos del teléfono) de contacto,
+    # es recomendable especificarlo cuando el objeto PersonaParte corresponde a un promovente del exhorto o
+    # promovente de la promoción de exhorto.
+    telefono: Mapped[Optional[str]] = mapped_column(String(10))
+
     @property
     def genero_descripcion(self):
         """Descripción del género"""
@@ -72,16 +81,20 @@ class ExhExhortoParte(Base, UniversalMixin):
     @property
     def nombre_completo(self):
         """Junta nombres, apellido_paterno y apellido materno"""
-        return self.nombre + " " + self.apellido_paterno + " " + self.apellido_materno
+        if self.apellido_materno is not None and self.apellido_paterno is not None:
+            return f"{self.nombre} {self.apellido_paterno} {self.apellido_materno}"
+        elif self.apellido_paterno is not None:
+            return f"{self.nombre} {self.apellido_paterno}"
+        return self.nombre
 
     @property
     def tipo_parte_descripcion(self):
         """Descripción del tipo de parte"""
-        if self.tipo_parte == 0:
+        if self.tipo_parte == 0 and self.tipo_parte_nombre != "":
             return self.tipo_parte_nombre
         if self.tipo_parte in self.TIPOS_PARTES:
             return self.TIPOS_PARTES[self.tipo_parte]
-        return "No definido"
+        return "Desconocido"
 
     def __repr__(self):
         """Representación"""
