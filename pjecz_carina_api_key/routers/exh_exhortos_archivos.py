@@ -6,11 +6,12 @@ import hashlib
 from datetime import datetime
 from typing import Annotated
 
+import pytz
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
-from ..dependencies.exceptions import MyAnyError, MyNotExistsError, MyNotValidParamError
+from ..dependencies.exceptions import MyAnyError
 from ..dependencies.google_cloud_storage import upload_file_to_gcs
 from ..dependencies.pwgen import generar_identificador
 from ..models.exh_exhortos_archivos import ExhExhortoArchivo
@@ -21,7 +22,7 @@ from ..schemas.exh_exhortos_archivos import (
     ExhExhortoArchivoOut,
     OneExhExhortoArchivoOut,
 )
-from ..settings import get_settings
+from ..settings import Settings, get_settings
 from .exh_exhortos import get_exhorto_with_exhorto_origen_id
 
 exh_exhortos_archivos = APIRouter(prefix="/api/v5/exh_exhortos")
@@ -31,6 +32,7 @@ exh_exhortos_archivos = APIRouter(prefix="/api/v5/exh_exhortos")
 async def recibir_exhorto_archivo_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
+    settings: Annotated[Settings, Depends(get_settings)],
     archivo: UploadFile = File(...),
     exhortoOrigenId: str = Form(...),
 ):
@@ -140,7 +142,6 @@ async def recibir_exhorto_archivo_request(
     blob_name = f"exh_exhortos_archivos/{year}/{month}/{day}/{archivo_pdf_nombre}"
 
     # Almacenar el archivo en Google Cloud Storage
-    settings = get_settings()
     try:
         archivo_pdf_url = upload_file_to_gcs(
             bucket_name=settings.cloud_storage_deposito,
@@ -197,11 +198,14 @@ async def recibir_exhorto_archivo_request(
         exh_exhorto.respuesta_area_turnado_nombre = None  # Como el área NO esta definida se responde con nulo
         database.add(exh_exhorto)
         database.commit()
+        # Definir fecha_hora_recepcion en tiempo local
+        local_tz = pytz.timezone(settings.tz)
+        fecha_hora_recepcion = exh_exhorto.respuesta_fecha_hora_recepcion.astimezone(local_tz)
         # Y se va a elaborar el acuse
         acuse = ExhExhortoArchivoFileDataAcuse(
             exhortoOrigenId=exh_exhorto.exhorto_origen_id,
             folioSeguimiento=folio_seguimiento,
-            fechaHoraRecepcion=exh_exhorto.respuesta_fecha_hora_recepcion.strftime("%Y-%m-%d %H:%M:%S"),
+            fechaHoraRecepcion=fecha_hora_recepcion.strftime("%Y-%m-%d %H:%M:%S"),
             municipioAreaRecibeId=exh_exhorto.respuesta_municipio_turnado_id,
             areaRecibeId=exh_exhorto.respuesta_area_turnado_id,
             areaRecibeNombre=exh_exhorto.respuesta_area_turnado_nombre,

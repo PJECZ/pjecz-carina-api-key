@@ -10,13 +10,12 @@ from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
-from ..dependencies.exceptions import MyAnyError, MyNotExistsError, MyNotValidParamError
+from ..dependencies.exceptions import MyNotExistsError
 from ..dependencies.fastapi_pagination_custom_list import CustomList
 from ..dependencies.safe_string import safe_clave
 from ..models.exh_areas import ExhArea
 from ..models.permisos import Permiso
 from ..schemas.exh_areas import ExhAreaOut, OneExhAreaOut
-from ..settings import Settings, get_settings
 
 exh_areas = APIRouter(prefix="/api/v5/exh_areas")
 

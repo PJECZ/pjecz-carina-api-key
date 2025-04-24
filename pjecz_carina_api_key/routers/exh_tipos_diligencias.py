@@ -10,13 +10,12 @@ from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
-from ..dependencies.exceptions import MyAnyError, MyNotExistsError, MyNotValidParamError
+from ..dependencies.exceptions import MyNotExistsError
 from ..dependencies.fastapi_pagination_custom_list import CustomList
 from ..dependencies.safe_string import safe_clave
 from ..models.exh_tipos_diligencias import ExhTipoDiligencia
 from ..models.permisos import Permiso
 from ..schemas.exh_tipos_diligencias import ExhTipoDiligenciaOut, OneExhTipoDiligenciaOut
-from ..settings import Settings, get_settings
 
 exh_tipos_diligencias = APIRouter(prefix="/api/v5/exh_tipos_diligencias")
 

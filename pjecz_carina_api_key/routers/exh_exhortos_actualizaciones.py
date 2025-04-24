@@ -5,6 +5,7 @@ Exh Exhortos Actualizaciones, routers
 from datetime import datetime
 from typing import Annotated
 
+import pytz
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
@@ -18,6 +19,7 @@ from ..schemas.exh_exhortos_actualizaciones import (
     ExhExhortoActualizacionOut,
     OneExhExhortoActualizacionOut,
 )
+from ..settings import Settings, get_settings
 from .exh_exhortos import get_exhorto_with_exhorto_origen_id
 
 exh_exhortos_actualizaciones = APIRouter(prefix="/api/v5/exh_exhortos")
@@ -27,6 +29,7 @@ exh_exhortos_actualizaciones = APIRouter(prefix="/api/v5/exh_exhortos")
 async def recibir_exhorto_actualizacion_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
+    settings: Annotated[Settings, Depends(get_settings)],
     exh_exhorto_actualizacion_in: ExhExhortoActualizacionIn,
 ):
     """Recibir una actualización de un exhorto"""
@@ -85,10 +88,14 @@ async def recibir_exhorto_actualizacion_request(
     database.commit()
     database.refresh(exh_exhorto_actualizacion)
 
+    # Definir fecha_hora en tiempo local
+    local_tz = pytz.timezone(settings.tz)
+    fecha_hora = exh_exhorto_actualizacion.creado.astimezone(local_tz)
+
     # Entregar
     data = ExhExhortoActualizacionOut(
         exhortoId=exh_exhorto_actualizacion.exh_exhorto.exhorto_origen_id,
         actualizacionOrigenId=exh_exhorto_actualizacion.actualizacion_origen_id,
-        fechaHora=exh_exhorto_actualizacion.creado.strftime("%Y-%m-%d %H:%M:%S"),
+        fechaHora=fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
     )
     return OneExhExhortoActualizacionOut(success=True, message="Actualización recibida con éxito", errors=[], data=data)

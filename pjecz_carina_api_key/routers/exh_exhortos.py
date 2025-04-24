@@ -5,6 +5,7 @@ Exh Exhortos, routers
 from datetime import datetime
 from typing import Annotated
 
+import pytz
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 
@@ -40,7 +41,10 @@ exh_exhortos = APIRouter(prefix="/api/v5/exh_exhortos")
 TIPO_DILIGENCIA_CLAVE_POR_DEFECTO = "OTR"
 
 
-def get_exhorto_with_exhorto_origen_id(database: Annotated[Session, Depends(get_db)], exhorto_origen_id: str) -> ExhExhorto:
+def get_exhorto_with_exhorto_origen_id(
+    database: Annotated[Session, Depends(get_db)],
+    exhorto_origen_id: str,
+) -> ExhExhorto:
     """Consultar un exhorto con su exhorto_origen_id"""
 
     # Validar exhorto_origen_id
@@ -79,6 +83,7 @@ def get_exhorto_with_folio_seguimiento(database: Annotated[Session, Depends(get_
 async def consultar_exhorto_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
+    settings: Annotated[Settings, Depends(get_settings)],
     folio_seguimiento: str,
 ):
     """Detalle de un exhorto a partir de su folio de seguimiento"""
@@ -130,6 +135,11 @@ async def consultar_exhorto_request(
     # Consultar el estado de destino
     estado_destino = municipio_destino.estado
 
+    # Definir fecha_origen y fecha_hora_recepcion en tiempo local
+    local_tz = pytz.timezone(settings.tz)
+    fecha_origen = exh_exhorto.fecha_origen.astimezone(local_tz)
+    fecha_hora_recepcion = exh_exhorto.creado.astimezone(local_tz)
+
     # Definir datos del exhorto a entregar
     data = ExhExhortoConsultaOut(
         exhortoOrigenId=str(exh_exhorto.exhorto_origen_id),
@@ -154,10 +164,10 @@ async def consultar_exhorto_request(
         fojas=exh_exhorto.fojas,
         diasResponder=exh_exhorto.dias_responder,
         tipoDiligenciacionNombre=exh_exhorto.tipo_diligenciacion_nombre,
-        fechaOrigen=exh_exhorto.fecha_origen.strftime("%Y-%m-%d %H:%M:%S"),
+        fechaOrigen=fecha_origen.strftime("%Y-%m-%d %H:%M:%S"),
         observaciones=exh_exhorto.observaciones,
         archivos=archivos,
-        fechaHoraRecepcion=exh_exhorto.creado.strftime("%Y-%m-%d %H:%M:%S"),
+        fechaHoraRecepcion=fecha_hora_recepcion.strftime("%Y-%m-%d %H:%M:%S"),
         municipioTurnadoId=exh_exhorto.autoridad.municipio.clave,
         municipioTurnadoNombre=exh_exhorto.autoridad.municipio.nombre,
         areaTurnadoId=exh_exhorto.exh_area.clave,
@@ -437,9 +447,13 @@ async def recibir_exhorto_request(
     database.commit()
     database.refresh(exh_exhorto)
 
-    # Entregar
+    # Definir fecha_hora en tiempo local
+    local_tz = pytz.timezone(settings.tz)
+    fecha_hora = exh_exhorto.creado.astimezone(local_tz)
+
+    # Entregar acuse
     data = ExhExhortoOut(
         exhortoOrigenId=str(exh_exhorto.exhorto_origen_id),
-        fechaHora=exh_exhorto.creado.strftime("%Y-%m-%d %H:%M:%S"),
+        fechaHora=fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
     )
     return OneExhExhortoOut(success=True, message="Exhorto recibido con éxito", errors=[], data=data)

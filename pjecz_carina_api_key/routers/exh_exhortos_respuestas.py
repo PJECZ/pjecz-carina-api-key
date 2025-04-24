@@ -5,6 +5,7 @@ Exh Exhortos Respuestas, routers
 from datetime import datetime
 from typing import Annotated
 
+import pytz
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
@@ -17,6 +18,7 @@ from ..models.exh_exhortos_respuestas_archivos import ExhExhortoRespuestaArchivo
 from ..models.exh_exhortos_respuestas_videos import ExhExhortoRespuestaVideo
 from ..models.permisos import Permiso
 from ..schemas.exh_exhortos_respuestas import ExhExhortoRespuestaIn, ExhExhortoRespuestaOut, OneExhExhortoRespuestaOut
+from ..settings import Settings, get_settings
 from .exh_exhortos import get_exhorto_with_exhorto_origen_id
 
 exh_exhortos_respuestas = APIRouter(prefix="/api/v5/exh_exhortos")
@@ -61,6 +63,7 @@ def get_exhorto_respuesta(
 async def recibir_exhorto_respuesta_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
+    settings: Annotated[Settings, Depends(get_settings)],
     exh_exhorto_respuesta_in: ExhExhortoRespuestaIn,
 ):
     """Recibir una respuesta de un exhorto"""
@@ -176,10 +179,14 @@ async def recibir_exhorto_respuesta_request(
     database.commit()
     database.refresh(exh_exhorto)
 
+    # Definir fecha_hora en tiempo local
+    local_tz = pytz.timezone(settings.tz)
+    fecha_hora = exh_exhorto_respuesta.creado.astimezone(local_tz)
+
     # Entregar
     data = ExhExhortoRespuestaOut(
         exhortoId=exh_exhorto.exhorto_origen_id,
         respuestaOrigenId=exh_exhorto_respuesta.respuesta_origen_id,
-        fechaHora=exh_exhorto_respuesta.creado.strftime("%Y-%m-%d %H:%M:%S"),
+        fechaHora=fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
     )
     return OneExhExhortoRespuestaOut(success=True, message="Respuesta recibida con éxito", errors=[], data=data)
