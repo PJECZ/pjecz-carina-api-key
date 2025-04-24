@@ -6,6 +6,7 @@ import hashlib
 from datetime import datetime
 from typing import Annotated
 
+import pytz
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
@@ -21,7 +22,7 @@ from ..schemas.exh_exhortos_promociones_archivos import (
     ExhExhortoPromocionArchivoOut,
     OneExhExhortoPromocionArchivoOut,
 )
-from ..settings import get_settings
+from ..settings import Settings, get_settings
 from .exh_exhortos_promociones import get_exhorto_promocion
 
 exh_exhortos_promociones_archivos = APIRouter(prefix="/api/v5/exh_exhortos")
@@ -31,6 +32,7 @@ exh_exhortos_promociones_archivos = APIRouter(prefix="/api/v5/exh_exhortos")
 async def recibir_exhorto_promocion_archivo_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
+    settings: Annotated[Settings, Depends(get_settings)],
     archivo: UploadFile = File(...),
     folioSeguimiento: str = Form(...),
     folioOrigenPromocion: str = Form(...),
@@ -140,7 +142,6 @@ async def recibir_exhorto_promocion_archivo_request(
     blob_name = f"exh_exhortos_promociones_archivos/{year}/{month}/{day}/{archivo_pdf_nombre}"
 
     # Almacenar el archivo en Google Cloud Storage
-    settings = get_settings()
     try:
         archivo_pdf_url = upload_file_to_gcs(
             bucket_name=settings.cloud_storage_deposito,
@@ -189,11 +190,14 @@ async def recibir_exhorto_promocion_archivo_request(
         exh_exhorto_promocion.estado = "ENVIADO"
         database.add(exh_exhorto_promocion)
         database.commit()
+        # Definir fecha_hora_recepcion en tiempo local
+        local_tz = pytz.timezone(settings.tz)
+        fecha_hora_recepcion = exh_exhorto_promocion.creado.astimezone(local_tz)
         # Elaborar el acuse
         acuse = ExhExhortoPromocionArchivoDataAcuse(
             folioOrigenPromocion=exh_exhorto_promocion.folio_origen_promocion,
             folioPromocionRecibida=exh_exhorto_promocion.folio_promocion_recibida,
-            fechaHoraRecepcion=exh_exhorto_promocion.creado.strftime("%Y-%m-%d %H:%M:%S"),
+            fechaHoraRecepcion=fecha_hora_recepcion.strftime("%Y-%m-%d %H:%M:%S"),
         )
 
     # Juntar los datos para la respuesta

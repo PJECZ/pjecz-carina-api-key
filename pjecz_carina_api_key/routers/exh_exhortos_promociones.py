@@ -5,11 +5,12 @@ Exh Exhortos Promociones, routers
 from datetime import datetime
 from typing import Annotated
 
+import pytz
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
 from ..dependencies.database import Session, get_db
-from ..dependencies.exceptions import MyAnyError, MyNotExistsError, MyNotValidParamError
+from ..dependencies.exceptions import MyNotExistsError, MyNotValidParamError
 from ..dependencies.safe_string import safe_email, safe_string, safe_telefono
 from ..models.exh_exhortos import ExhExhorto
 from ..models.exh_exhortos_promociones import ExhExhortoPromocion
@@ -17,6 +18,7 @@ from ..models.exh_exhortos_promociones_archivos import ExhExhortoPromocionArchiv
 from ..models.exh_exhortos_promociones_promoventes import ExhExhortoPromocionPromovente
 from ..models.permisos import Permiso
 from ..schemas.exh_exhortos_promociones import ExhExhortoPromocionIn, ExhExhortoPromocionOut, OneExhExhortoPromocionOut
+from ..settings import Settings, get_settings
 from .exh_exhortos import get_exhorto_with_folio_seguimiento
 
 exh_exhortos_promociones = APIRouter(prefix="/api/v5/exh_exhortos")
@@ -61,6 +63,7 @@ def get_exhorto_promocion(
 async def recibir_exhorto_promocion_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
+    settings: Annotated[Settings, Depends(get_settings)],
     exh_exhorto_promocion_in: ExhExhortoPromocionIn,
 ):
     """Recibir una promoción de un exhorto"""
@@ -180,10 +183,14 @@ async def recibir_exhorto_promocion_request(
     database.commit()
     database.refresh(exh_exhorto_promocion)
 
+    # Definir fecha_hora en tiempo local
+    local_tz = pytz.timezone(settings.tz)
+    fecha_hora = exh_exhorto_promocion.creado.astimezone(local_tz)
+
     # Entregar
     data = ExhExhortoPromocionOut(
         folioSeguimiento=exh_exhorto_promocion.exh_exhorto.folio_seguimiento,
         folioOrigenPromocion=exh_exhorto_promocion.folio_origen_promocion,
-        fechaHora=exh_exhorto_promocion.creado.strftime("%Y-%m-%d %H:%M:%S"),
+        fechaHora=fecha_hora.strftime("%Y-%m-%d %H:%M:%S"),
     )
     return OneExhExhortoPromocionOut(success=True, message="Promoción recibida con éxito", errors=[], data=data)

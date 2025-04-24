@@ -6,6 +6,7 @@ import hashlib
 from datetime import datetime
 from typing import Annotated
 
+import pytz
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
 from ..dependencies.authentications import UsuarioInDB, get_current_active_user
@@ -21,7 +22,7 @@ from ..schemas.exh_exhortos_respuestas_archivos import (
     ExhExhortoRespuestaArchivoOut,
     OneExhExhortoRespuestaArchivoOut,
 )
-from ..settings import get_settings
+from ..settings import Settings, get_settings
 from .exh_exhortos_respuestas import get_exhorto_respuesta
 
 exh_exhortos_respuestas_archivos = APIRouter(prefix="/api/v5/exh_exhortos")
@@ -31,6 +32,7 @@ exh_exhortos_respuestas_archivos = APIRouter(prefix="/api/v5/exh_exhortos")
 async def recibir_exhorto_respuesta_archivo_request(
     current_user: Annotated[UsuarioInDB, Depends(get_current_active_user)],
     database: Annotated[Session, Depends(get_db)],
+    settings: Annotated[Settings, Depends(get_settings)],
     archivo: UploadFile = File(...),
     exhortoId: str = Form(...),
     respuestaOrigenId: str = Form(...),
@@ -140,7 +142,6 @@ async def recibir_exhorto_respuesta_archivo_request(
     blob_name = f"exh_exhortos_respuestas_archivos/{year}/{month}/{day}/{archivo_pdf_nombre}"
 
     # Almacenar el archivo en Google Cloud Storage
-    settings = get_settings()
     try:
         archivo_pdf_url = upload_file_to_gcs(
             bucket_name=settings.cloud_storage_deposito,
@@ -189,11 +190,14 @@ async def recibir_exhorto_respuesta_archivo_request(
         exh_exhorto_respuesta.estado = "ENVIADO"
         database.add(exh_exhorto_respuesta)
         database.commit()
+        # Definir fecha_hora_recepcion en tiempo local
+        local_tz = pytz.timezone(settings.tz)
+        fecha_hora_recepcion = exh_exhorto_respuesta.creado.astimezone(local_tz)
         # Elaborar el acuse
         acuse = ExhExhortoRespuestaArchivoDataAcuse(
             exhortoId=exh_exhorto_respuesta.exh_exhorto.exhorto_origen_id,
             respuestaOrigenId=exh_exhorto_respuesta.respuesta_origen_id,
-            fechaHoraRecepcion=exh_exhorto_respuesta.creado.strftime("%Y-%m-%d %H:%M:%S"),
+            fechaHoraRecepcion=fecha_hora_recepcion.strftime("%Y-%m-%d %H:%M:%S"),
         )
 
     # Juntar los datos para la respuesta
