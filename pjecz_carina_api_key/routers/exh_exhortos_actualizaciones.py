@@ -36,6 +36,10 @@ async def recibir_exhorto_actualizacion_request(
     if current_user.permissions.get("EXH EXHORTOS ACTUALIZACIONES", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
+    # Preparar las zonas horarias UTC y local
+    utc_tz = pytz.utc
+    local_tz = pytz.timezone(settings.tz)
+
     # Inicializar listado de errores
     errores = []
 
@@ -59,7 +63,7 @@ async def recibir_exhorto_actualizacion_request(
     # Validar la fecha_hora
     fecha_hora = None
     try:
-        fecha_hora = datetime.strptime(exh_exhorto_actualizacion_in.fechaHora, "%Y-%m-%d %H:%M:%S")
+        fecha_hora = datetime.strptime(exh_exhorto_actualizacion_in.fechaHora, "%Y-%m-%d %H:%M:%S").replace(tzinfo=local_tz)
     except ValueError:
         errores.append("No es válido fecha_hora")
 
@@ -88,9 +92,8 @@ async def recibir_exhorto_actualizacion_request(
     database.commit()
     database.refresh(exh_exhorto_actualizacion)
 
-    # Definir fecha_hora en tiempo local
-    local_tz = pytz.timezone(settings.tz)
-    fecha_hora = exh_exhorto_actualizacion.creado.astimezone(local_tz)
+    # Cambiar fecha_hora de UTC a tiempo local
+    fecha_hora = exh_exhorto_actualizacion.creado.replace(tzinfo=utc_tz).astimezone(local_tz)
 
     # Entregar
     data = ExhExhortoActualizacionOut(

@@ -198,9 +198,10 @@ async def recibir_exhorto_archivo_request(
         exh_exhorto.respuesta_area_turnado_nombre = None  # Como el área NO esta definida se responde con nulo
         database.add(exh_exhorto)
         database.commit()
-        # Definir fecha_hora_recepcion en tiempo local
+        # Cambiar fecha_hora_recepcion de UTC a tiempo local
+        utc_tz = pytz.utc
         local_tz = pytz.timezone(settings.tz)
-        fecha_hora_recepcion = exh_exhorto.respuesta_fecha_hora_recepcion.astimezone(local_tz)
+        fecha_hora_recepcion = exh_exhorto.respuesta_fecha_hora_recepcion.replace(tzinfo=utc_tz).astimezone(local_tz)
         # Y se va a elaborar el acuse
         acuse = ExhExhortoArchivoFileDataAcuse(
             exhortoOrigenId=exh_exhorto.exhorto_origen_id,
