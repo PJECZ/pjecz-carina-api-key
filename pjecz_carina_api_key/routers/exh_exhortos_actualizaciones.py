@@ -60,12 +60,13 @@ async def recibir_exhorto_actualizacion_request(
     if tipo_actualizacion == "":
         errores.append("No es válido tipoActualizacion")
 
-    # Validar la fecha_hora
+    # Validar la fecha_hora y cambiarla de local a UTC
     fecha_hora = None
     try:
-        fecha_hora = datetime.strptime(exh_exhorto_actualizacion_in.fechaHora, "%Y-%m-%d %H:%M:%S").replace(tzinfo=local_tz)
+        fecha_hora = datetime.strptime(exh_exhorto_actualizacion_in.fechaHora, "%Y-%m-%d %H:%M:%S")
     except ValueError:
         errores.append("No es válido fecha_hora")
+    fecha_hora = fecha_hora.replace(tzinfo=local_tz).astimezone(utc_tz)
 
     # Validar descripción
     descripcion = safe_string(exh_exhorto_actualizacion_in.descripcion, max_len=256, save_enie=True)
