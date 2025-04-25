@@ -190,9 +190,10 @@ async def recibir_exhorto_promocion_archivo_request(
         exh_exhorto_promocion.estado = "ENVIADO"
         database.add(exh_exhorto_promocion)
         database.commit()
-        # Definir fecha_hora_recepcion en tiempo local
+        # Cambiar fecha_hora_recepcion de UTC a tiempo local
+        utc_tz = pytz.utc
         local_tz = pytz.timezone(settings.tz)
-        fecha_hora_recepcion = exh_exhorto_promocion.creado.astimezone(local_tz)
+        fecha_hora_recepcion = exh_exhorto_promocion.creado.replace(tzinfo=utc_tz).astimezone(local_tz)
         # Elaborar el acuse
         acuse = ExhExhortoPromocionArchivoDataAcuse(
             folioOrigenPromocion=exh_exhorto_promocion.folio_origen_promocion,

@@ -135,10 +135,11 @@ async def consultar_exhorto_request(
     # Consultar el estado de destino
     estado_destino = municipio_destino.estado
 
-    # Definir fecha_origen y fecha_hora_recepcion en tiempo local
+    # Cambiar fecha_origen y fecha_hora_recepcion de UTC a tiempo local
+    utc_tz = pytz.utc
     local_tz = pytz.timezone(settings.tz)
-    fecha_origen = exh_exhorto.fecha_origen.astimezone(local_tz)
-    fecha_hora_recepcion = exh_exhorto.creado.astimezone(local_tz)
+    fecha_origen = exh_exhorto.fecha_origen.replace(tzinfo=utc_tz).astimezone(local_tz)
+    fecha_hora_recepcion = exh_exhorto.creado.replace(tzinfo=utc_tz).astimezone(local_tz)
 
     # Definir datos del exhorto a entregar
     data = ExhExhortoConsultaOut(
@@ -190,6 +191,10 @@ async def recibir_exhorto_request(
     """Recepción de datos de un exhorto"""
     if current_user.permissions.get("EXH EXHORTOS", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
+
+    # Preparar las zonas horarias UTC y local
+    utc_tz = pytz.utc
+    local_tz = pytz.timezone(settings.tz)
 
     # Inicializar listado de errores
     errores = []
@@ -284,11 +289,11 @@ async def recibir_exhorto_request(
         exh_tipo_diligencia = database.query(ExhTipoDiligencia).filter_by(clave=TIPO_DILIGENCIA_CLAVE_POR_DEFECTO).first()
         tipo_diligenciacion_nombre = safe_string(exh_exhorto_in.tipoDiligenciacionNombre, save_enie=True)
 
-    # Validar fechaOrigen, es opcional
+    # Validar fechaOrigen, es opcional y viene como tiempo local
     fecha_origen = None
     if exh_exhorto_in.fechaOrigen:
         try:
-            fecha_origen = datetime.strptime(exh_exhorto_in.fechaOrigen, "%Y-%m-%d %H:%M:%S")
+            fecha_origen = datetime.strptime(exh_exhorto_in.fechaOrigen, "%Y-%m-%d %H:%M:%S").replace(tzinfo=local_tz)
         except ValueError:
             errores.append("La fecha de origen no tiene el formato correcto")
 
@@ -447,9 +452,8 @@ async def recibir_exhorto_request(
     database.commit()
     database.refresh(exh_exhorto)
 
-    # Definir fecha_hora en tiempo local
-    local_tz = pytz.timezone(settings.tz)
-    fecha_hora = exh_exhorto.creado.astimezone(local_tz)
+    # Cambiar fecha_hora de UTC a tiempo local
+    fecha_hora = exh_exhorto.creado.replace(tzinfo=utc_tz).astimezone(local_tz)
 
     # Entregar acuse
     data = ExhExhortoOut(

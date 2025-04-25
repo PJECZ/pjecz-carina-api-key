@@ -70,6 +70,10 @@ async def recibir_exhorto_respuesta_request(
     if current_user.permissions.get("EXH EXHORTOS RESPUESTAS", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
+    # Preparar las zonas horarias UTC y local
+    utc_tz = pytz.utc
+    local_tz = pytz.timezone(settings.tz)
+
     # Inicializar listado de errores
     errores = []
 
@@ -163,7 +167,7 @@ async def recibir_exhorto_respuesta_request(
         fecha = None
         try:
             if video.fecha is not None:
-                fecha = datetime.strptime(video.fecha, "%Y-%m-%d")
+                fecha = datetime.strptime(video.fecha, "%Y-%m-%d").replace(tzinfo=local_tz)
         except ValueError:
             fecha = None
         exh_exhorto_video = ExhExhortoRespuestaVideo(
@@ -179,9 +183,8 @@ async def recibir_exhorto_respuesta_request(
     database.commit()
     database.refresh(exh_exhorto)
 
-    # Definir fecha_hora en tiempo local
-    local_tz = pytz.timezone(settings.tz)
-    fecha_hora = exh_exhorto_respuesta.creado.astimezone(local_tz)
+    # Cambiar fecha_hora de UTC a tiempo local
+    fecha_hora = exh_exhorto_respuesta.creado.replace(tzinfo=utc_tz).astimezone(local_tz)
 
     # Entregar
     data = ExhExhortoRespuestaOut(

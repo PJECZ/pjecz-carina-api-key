@@ -70,6 +70,10 @@ async def recibir_exhorto_promocion_request(
     if current_user.permissions.get("EXH EXHORTOS PROMOCIONES", 0) < Permiso.CREAR:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden")
 
+    # Preparar las zonas horarias UTC y local
+    utc_tz = pytz.utc
+    local_tz = pytz.timezone(settings.tz)
+
     # Inicializar listado de errores
     errores = []
 
@@ -91,7 +95,7 @@ async def recibir_exhorto_promocion_request(
     fecha_origen = None
     if exh_exhorto_promocion_in.fechaOrigen is not None:
         try:
-            fecha_origen = datetime.strptime(exh_exhorto_promocion_in.fechaOrigen, "%Y-%m-%d %H:%M:%S")
+            fecha_origen = datetime.strptime(exh_exhorto_promocion_in.fechaOrigen, "%Y-%m-%d %H:%M:%S").replace(tzinfo=local_tz)
         except ValueError:
             errores.append("La fecha no tiene el formato correcto")
 
@@ -183,9 +187,8 @@ async def recibir_exhorto_promocion_request(
     database.commit()
     database.refresh(exh_exhorto_promocion)
 
-    # Definir fecha_hora en tiempo local
-    local_tz = pytz.timezone(settings.tz)
-    fecha_hora = exh_exhorto_promocion.creado.astimezone(local_tz)
+    # Cambiar fecha_hora de UTC a tiempo local
+    fecha_hora = exh_exhorto_promocion.creado.replace(tzinfo=utc_tz).astimezone(local_tz)
 
     # Entregar
     data = ExhExhortoPromocionOut(
