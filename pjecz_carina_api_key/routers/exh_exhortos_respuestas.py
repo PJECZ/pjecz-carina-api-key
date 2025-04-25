@@ -167,7 +167,7 @@ async def recibir_exhorto_respuesta_request(
         fecha = None
         try:
             if video.fecha is not None:
-                fecha = datetime.strptime(video.fecha, "%Y-%m-%d").replace(tzinfo=local_tz)
+                fecha = datetime.strptime(video.fecha, "%Y-%m-%d")
         except ValueError:
             fecha = None
         exh_exhorto_video = ExhExhortoRespuestaVideo(

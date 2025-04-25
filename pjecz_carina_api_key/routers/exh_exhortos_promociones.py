@@ -91,13 +91,14 @@ async def recibir_exhorto_promocion_request(
     if folio_origen_promocion == "":
         errores.append("No es válido folioOrigenPromocion")
 
-    # Validar la fecha
+    # Validar la fecha_origen y cambiarla de local a UTC
     fecha_origen = None
     if exh_exhorto_promocion_in.fechaOrigen is not None:
         try:
-            fecha_origen = datetime.strptime(exh_exhorto_promocion_in.fechaOrigen, "%Y-%m-%d %H:%M:%S").replace(tzinfo=local_tz)
+            fecha_origen = datetime.strptime(exh_exhorto_promocion_in.fechaOrigen, "%Y-%m-%d %H:%M:%S")
         except ValueError:
             errores.append("La fecha no tiene el formato correcto")
+        fecha_origen = fecha_origen.replace(tzinfo=local_tz).astimezone(utc_tz)
 
     # Validar observaciones
     observaciones = None

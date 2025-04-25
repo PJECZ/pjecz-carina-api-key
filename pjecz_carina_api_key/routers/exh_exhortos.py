@@ -289,13 +289,14 @@ async def recibir_exhorto_request(
         exh_tipo_diligencia = database.query(ExhTipoDiligencia).filter_by(clave=TIPO_DILIGENCIA_CLAVE_POR_DEFECTO).first()
         tipo_diligenciacion_nombre = safe_string(exh_exhorto_in.tipoDiligenciacionNombre, save_enie=True)
 
-    # Validar fechaOrigen, es opcional y viene como tiempo local
+    # Validar fechaOrigen, es opcional, cambiarla de local a UTC
     fecha_origen = None
     if exh_exhorto_in.fechaOrigen:
         try:
-            fecha_origen = datetime.strptime(exh_exhorto_in.fechaOrigen, "%Y-%m-%d %H:%M:%S").replace(tzinfo=local_tz)
+            fecha_origen = datetime.strptime(exh_exhorto_in.fechaOrigen, "%Y-%m-%d %H:%M:%S")
         except ValueError:
             errores.append("La fecha de origen no tiene el formato correcto")
+        fecha_origen = fecha_origen.replace(tzinfo=local_tz).astimezone(utc_tz)
 
     # Validar observaciones, es opcional
     observaciones = None
