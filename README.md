@@ -6,8 +6,8 @@ API con autentificación para enviar y recibir exhortos.
 
 Los requerimientos son
 
-- Python 3.11
-- PostgreSQL 15
+- Python 3.14
+- PostgreSQL 15 o superior
 
 ## Instalación
 
@@ -20,37 +20,19 @@ python3.11 -m venv .venv
 Ingresar al entorno virtual
 
 ```bash
-source venv/bin/activate
+source .venv/bin/activate
 ```
 
 Actualizar el gestor de paquetes **pip**
 
 ```bash
-pip install --upgrade pip setuptools
+pip install --upgrade pip
 ```
 
-Instalar el paquete **wheel** para compilar las dependencias
+Usar **uv** para instalar las dependencias
 
 ```bash
-pip install wheel
-```
-
-Instalar **poetry 2** en el entorno virtual si no lo tiene desde el sistema operativo
-
-```bash
-pip install poetry
-```
-
-Configurar **poetry** para que use el entorno virtual dentro del directorio del proyecto
-
-```bash
-poetry config virtualenvs.in-project true
-```
-
-Instalar las dependencias por medio de **poetry**
-
-```bash
-poetry install
+uv sync
 ```
 
 ## Configuración
@@ -74,7 +56,7 @@ ESTADO_CLAVE=05
 # Origins
 ORIGINS=http://127.0.0.1:3000
 
-# Salt sirve para cifrar el ID con HashID, debe ser igual en la API
+# Salt sirve para cifrar el ID con HashID
 SALT=XXXXXXXXXXXX
 ```
 
@@ -123,10 +105,6 @@ then
     echo "   $(python3 --version)"
     export PYTHONPATH=$(pwd)
     echo "   PYTHONPATH: ${PYTHONPATH}"
-    echo
-    echo "-- Poetry"
-    export PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring
-    echo "   $(poetry --version)"
     echo
     echo "-- FastAPI 127.0.0.1:8000"
     alias arrancar="uvicorn --host=127.0.0.1 --port 8000 --reload pjecz_carina_api_key.main:app"

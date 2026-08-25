@@ -1,9 +1,12 @@
 .bashrc
 .directory
+.dockerignore
 .env
 .gcloudignore
 .gitignore
 .DS_Store
+Dockerfile
+requirements.txt
 
 *.code-workspace
 *.csv
@@ -17,12 +20,9 @@
 
 __pycache__/
 
-/.idea
 /.git
 /.github
 /.venv
 /.vscode
-/poetry.lock
-/rest-client
 /tests
 /venv
