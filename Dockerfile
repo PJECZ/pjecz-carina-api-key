@@ -16,14 +16,15 @@ ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     PATH="/app/.venv/bin:$PATH"
 
-# Install dependencies using pyproject.toml and uv.lock
+# Copy this for install dependencies with uv
+COPY pyproject.toml uv.lock ./
+
+# Install dependencies with uv
 RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project --no-dev
 
 # Copy application code
-COPY . /app
+COPY . .
 
 # Install project
 RUN --mount=type=cache,target=/root/.cache/uv \

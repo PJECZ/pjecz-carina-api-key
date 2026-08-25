@@ -16,3 +16,4 @@ __pycache__/
 *.csv
 *.sql
 gclouddeploy.sh
+requirements.txt

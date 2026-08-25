@@ -6,6 +6,7 @@
 .gitignore
 .DS_Store
 Dockerfile
+requirements.txt
 
 *.code-workspace
 *.csv
